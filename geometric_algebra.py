@@ -185,3 +185,40 @@ def wedge(a, b):
     assert a.signature == b.signature
     v = a * b
     return MultiVector([v.blades[-1]], a.signature)
+
+
+def basis(signature):
+    """Return the basis elements of a geometric algebra with the given signature."""
+    n = len(signature)  # number of vectors
+
+    elements = []
+
+    e = []  # current element
+    while e is not None:
+        elements.append(e)
+        e = next_element(e, n)
+
+    return [MultiVector([[1, e]]) for e in elements]
+
+
+def is_last(e, n):
+    """Is e the last of the blades with that number of vectors?"""
+    # An example of last blade for n=4, with 2 vectors: [2, 3]
+    return e == list(range(n - len(e), n))
+
+
+def next_element(e, n):
+    """Return the multivector (in dim n) base element next to e."""
+    if is_last(e, n):
+        return list(range(len(e)+1)) if len(e) < n else None
+
+    e_next = e.copy()  # new element (we will modify it in-place)
+
+    pos = next(len(e_next)-1-i for i in range(len(e_next))
+               if e_next[-1 - i] != n - 1 - i)  # maximum possible at that pos
+
+    e_next[pos] += 1  # increment at that position
+    for i in range(pos + 1, len(e_next)):
+        e_next[i] = e_next[i-1] + 1  # and make the following ones follow up
+
+    return e_next

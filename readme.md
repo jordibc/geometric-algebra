@@ -4,12 +4,34 @@ A library to do [geometric
 algebra](https://en.wikipedia.org/wiki/Geometric_algebra) in python.
 
 
-## Example
+## Examples
+
+To create the basis vectors of a geometric algebra with the given signature:
 
 ```py
-from geometric_algebra import MultiVector
+import geometric_algebra as ga
 
-e, e1, e2, e12 = [MultiVector([[1, e]]) for e in [[], [1], [2], [1, 2]]]
+signature = [1, 1]
+print(ga.basis(signature))
+```
+
+The output should be:
+
+```
+[1, 1*e0, 1*e1, 1*e01]
+```
+
+You can add, multiply, etc., those elements to create arbitrary
+multivectors.
+
+You can also create your initial vectors with arbitrary indices. The
+following example creates a basis that starts at `e1` (instead of
+`e0`), and shows how to perform certain operations with multivectors:
+
+```py
+import geometric_algebra as ga
+
+e, e1, e2, e12 = [ga.MultiVector([[1, e]]) for e in [[], [1], [2], [1, 2]]]
 
 v = 3 + 4*e12
 w = 5 + e1 + 3*e2
