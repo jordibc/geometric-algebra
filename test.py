@@ -96,3 +96,16 @@ def test_basis():
     assert e2 * e2 == -1
 
     assert e01 * e01 == -1
+
+
+def test_get_rank():
+    assert e[0] == e
+    assert e[1] == 0
+    assert e1[0] == 0
+    assert e1[1] == e1
+
+    v = 3 + 4*e12
+    assert v[0] == 3
+    assert v[1] == 0
+    assert v[2] == 4*e12
+    assert v[3] == 0

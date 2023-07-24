@@ -120,9 +120,14 @@ class MultiVector:
         else:
             raise ValueError('Cannot convert to int: %s' % self)
 
+    def __getitem__(self, rank):  # <A>_r
+        blades = [blade for blade in self.blades if len(blade[1]) == rank]
+        return MultiVector(blades, self.signature)
+
     def __str__(self):
         if not self.blades:
             return '0'
+
         def blade_str(blade):
             x, e = blade
             show_e = (e != [])  # show the basis element, except for scalars
