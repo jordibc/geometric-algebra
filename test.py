@@ -74,7 +74,7 @@ def test_norm():
 
 
 def test_basis():
-    signature = [1, 1, 1]
+    signature = [1, 1, -1]
 
     e, e0, e1, e2, e01, e02, e12, e012 = ga.basis(signature)
 
@@ -84,3 +84,9 @@ def test_basis():
     assert e2.blades == [[1, [2]]]
     assert e01.blades == [[1, [0, 1]]]
     assert e012.blades == [[1, [0, 1, 2]]]
+
+    assert e0 * e0 == 1
+    assert e1 * e1 == 1
+    assert e2 * e2 == -1
+
+    assert e01 * e01 == -1

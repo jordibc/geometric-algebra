@@ -210,7 +210,7 @@ def basis(signature):
         elements.append(e)
         e = next_element(e, n)
 
-    return [MultiVector([[1, e]]) for e in elements]
+    return [MultiVector([[1, e]], signature) for e in elements]
 
 
 def is_last(e, n):
