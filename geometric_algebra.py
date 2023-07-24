@@ -18,15 +18,15 @@ class MultiVector:
 
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
-        return MultiVector([vi.copy() for vi in self.blades] +
-                           [vi.copy() for vi in v_blades], self.signature)
+        return MultiVector([blade.copy() for blade in self.blades] +
+                           [blade.copy() for blade in v_blades], self.signature)
 
     def __radd__(self, v):  # number + multivector
         assert type(v) in [int, float]
         return self + v
 
     def __neg__(self):  # - self
-        blades = [vi.copy() for vi in self.blades]
+        blades = [blade.copy() for blade in self.blades]
 
         for blade in blades:
             blade[0] = -blade[0]
@@ -82,7 +82,7 @@ class MultiVector:
             raise ValueError('Multivector has no inverse: %s' % self)
 
     def reverse(self):
-        blades = [c.copy() for c in self.blades]
+        blades = [blade.copy() for blade in self.blades]
 
         for blade in blades:
             x, e = blade
@@ -150,7 +150,7 @@ def simplify_blades(v):
 
     Example: 3 + 5*e12 + 6*e12 + 0.2  ->  3.2 + 11*e12
     """
-    # The changes are made in-place.
+    # The changes to v are made in-place.
     i = 0
     while i < len(v):
         if v[i][0] == 0:  # remove any terms like  0 e_
@@ -179,6 +179,7 @@ def simplify_element(e, signature=None):
 
     Example: e13512  ->  e235, +1  (if  e1*e1 == +1)
     """
+    # The changes to e are made in-place.
     factor = 1
 
     i = 0
