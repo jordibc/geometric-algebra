@@ -137,7 +137,7 @@ class MultiVector:
 def simplify_blades(v):
     """Return the blades of a multivector simplified.
 
-    Example: 3 + 5 e12 + 6 e12 + 0.2  ->  3.2 + 11 e12
+    Example: 3 + 5*e12 + 6*e12 + 0.2  ->  3.2 + 11*e12
     """
     # The changes are made in-place.
     i = 0
