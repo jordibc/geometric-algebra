@@ -14,6 +14,8 @@ class MultiVector:
         self.blades = simplify_blades(blades)
 
     def __add__(self, v):  # multivector + whatever
+        assert type(v) in [int, float] or v.signature == self.signature
+
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
         return MultiVector([vi.copy() for vi in self.blades] +
@@ -39,6 +41,8 @@ class MultiVector:
         return v + -self
 
     def __mul__(self, v):  # multivector * whatever
+        assert type(v) in [int, float] or v.signature == self.signature
+
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
         prod = []
@@ -59,6 +63,7 @@ class MultiVector:
             v_inv = MultiVector([[1/v, []]], self.signature)
             return self * v_inv
 
+        assert v.signature == self.signature
         try:
             v_r = v.reverse()
             v_norm2 = float(v * v_r)
