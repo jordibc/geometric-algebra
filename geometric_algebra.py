@@ -92,7 +92,10 @@ class MultiVector:
 
     def __eq__(self, v):
         if type(v) in [int, float]:
-            return float(self) == v
+            try:
+                return float(self) == v
+            except ValueError:  # if we couldn't convert to float...
+                return False  # no way we are equal!
 
         return self.blades == v.blades and self.signature == v.signature
 

@@ -47,6 +47,12 @@ def test_signature():
     assert str(v) == '1.5 + 2*e12'
 
 
+def test_equal():
+    assert 1 + e1 == 0 + 0.5 + 2*e1 - e1 + 0.5
+    assert e1 != 1
+    assert 1 == e
+
+
 def test_add():
     v = 3 + 4*e12
     assert v + v == 6 + 8*e12
