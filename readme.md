@@ -1,4 +1,4 @@
-# Geomtric Algebra
+# Geometric Algebra
 
 A library to do [geometric
 algebra](https://en.wikipedia.org/wiki/Geometric_algebra) in python.
