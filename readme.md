@@ -11,14 +11,14 @@ To create the basis vectors of a geometric algebra with the given signature:
 ```py
 import geometric_algebra as ga
 
-signature = [1, 1]
+signature = [1, 1, 1]
 print(ga.basis(signature))
 ```
 
 The output should be:
 
 ```
-[1, 1*e0, 1*e1, 1*e01]
+[1, e0, e1, e2, e01, e02, e12, e012]
 ```
 
 You can add, multiply, etc., those elements to create arbitrary
