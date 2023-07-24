@@ -59,7 +59,8 @@ class MultiVector:
             v_inv = MultiVector([[1/v, []]], self.signature)
         elif len(v.blades) == 1:
             x, e = v.blades[0]
-            v_inv = MultiVector([[1/x, e]], v.signature)
+            sign = +1 if (len(e) // 2) % 2 == 0 else -1  # 1/(ab) = 1/b 1/a
+            v_inv = MultiVector([[sign * 1/x, e]], v.signature)
         else:
             raise ValueError('Cannot divide by non-blade: %s' % v)
 
@@ -68,7 +69,8 @@ class MultiVector:
     def __rtruediv__(self, v):
         if len(self.blades) == 1:
             x, e = self.blades[0]
-            inv = MultiVector([[1/x, e]], self.signature)
+            sign = +1 if (len(e) // 2) % 2 == 0 else -1  # 1/(ab) = 1/b 1/a
+            inv = MultiVector([[sign * 1/x, e]], self.signature)
             return v * inv
         else:
             raise ValueError('Cannot divide by non-blade: %s' % self)

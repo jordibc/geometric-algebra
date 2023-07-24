@@ -15,6 +15,8 @@ def test_str():
     v = ga.MultiVector([[1, []], [5, [1, 2]], [-3, [1, 2]], [0, [2]], [0.5, []]])
 
     assert str(v) == '1.5 + 2*e12'
+    assert repr(v) == str(v)
+    # Alternatively, 'MultiVector([[1.5, []], [2, [1, 2]]], [-1, 1])'
 
 
 def test_simplify_element():
@@ -43,8 +45,6 @@ def test_signature():
     v = ga.MultiVector([[1.5, []], [2, [1,2]]], signature)
 
     assert str(v) == '1.5 + 2*e12'
-    assert repr(v) == str(v)
-    # Alternatively, 'MultiVector([[1.5, []], [2, [1, 2]]], [-1, 1])'
 
 
 def test_add():
@@ -55,6 +55,13 @@ def test_add():
 def test_mul():
     v = 3 + 4*e12
     assert v * v == -7 + 24*e12
+
+
+def test_div():
+    assert 1/e12 == -e12
+
+    v = 3 + 4*e12
+    assert v / (2 * e1) == 1.5*e1 - 2*e2
 
 
 def test_norm():
