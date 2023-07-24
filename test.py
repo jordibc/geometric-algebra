@@ -45,6 +45,8 @@ def test_signature():
     v = ga.MultiVector([[1.5, []], [2, [1,2]]], signature)
 
     assert str(v) == '1.5 + 2*e12'
+    # Note that the multivectors are not equal because the signatures
+    # are different, but the string representations are the same.
 
 
 def test_equal():
