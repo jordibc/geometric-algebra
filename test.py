@@ -63,6 +63,10 @@ def test_div():
     v = 3 + 4*e12
     assert v / (2 * e1) == 1.5*e1 - 2*e2
 
+    assert 2 / (1 + e12) == 1 - e12
+    assert (4 + 8*e1 + 3*e2 + 1*e12) / 2 == 2 + 4*e1 + 1.5*e2 + 0.5*e12
+    assert (3 + 4*e12) / (3 + 4*e12) == 1
+
 
 def test_norm():
     v = 3 + 4*e12
@@ -70,7 +74,6 @@ def test_norm():
 
 
 def test_basis():
-
     signature = [1, 1, 1]
 
     e, e0, e1, e2, e01, e02, e12, e012 = ga.basis(signature)

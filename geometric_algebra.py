@@ -13,17 +13,17 @@ class MultiVector:
         self.signature = signature
         self.blades = simplify_blades(blades)
 
-    def __add__(self, v):
+    def __add__(self, v):  # multivector + whatever
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
         return MultiVector([vi.copy() for vi in self.blades] +
                            [vi.copy() for vi in v_blades], self.signature)
 
-    def __radd__(self, v):
+    def __radd__(self, v):  # number + multivector
         assert type(v) in [int, float]
         return self + v
 
-    def __neg__(self):
+    def __neg__(self):  # - self
         blades = [vi.copy() for vi in self.blades]
 
         for blade in blades:
@@ -31,14 +31,14 @@ class MultiVector:
 
         return MultiVector(blades, self.signature)
 
-    def __sub__(self, v):
+    def __sub__(self, v):  # multivector - whatever
         return self + -v
 
-    def __rsub__(self, v):
+    def __rsub__(self, v):  # number - multivector
         assert type(v) in [int, float]
         return v + -self
 
-    def __mul__(self, v):
+    def __mul__(self, v):  # multivector * whatever
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
         prod = []
@@ -50,30 +50,31 @@ class MultiVector:
 
         return MultiVector(prod, self.signature)
 
-    def __rmul__(self, v):
+    def __rmul__(self, v):  # number * multivector
         assert type(v) in [int, float]
         return self * v
 
-    def __truediv__(self, v):
+    def __truediv__(self, v):  # multivector / whatever
         if type(v) in [int, float]:
             v_inv = MultiVector([[1/v, []]], self.signature)
-        elif len(v.blades) == 1:
-            x, e = v.blades[0]
-            sign = +1 if (len(e) // 2) % 2 == 0 else -1  # 1/(ab) = 1/b 1/a
-            v_inv = MultiVector([[sign * 1/x, e]], v.signature)
-        else:
-            raise ValueError('Cannot divide by non-blade: %s' % v)
+            return self * v_inv
 
-        return self * v_inv
+        try:
+            v_r = v.reverse()
+            v_norm2 = float(v * v_r)
+            v_inv = v_r / v_norm2
+            return self * v_inv
+        except ValueError:
+            raise ValueError('Multivector has no inverse: %s' % v)
 
-    def __rtruediv__(self, v):
-        if len(self.blades) == 1:
-            x, e = self.blades[0]
-            sign = +1 if (len(e) // 2) % 2 == 0 else -1  # 1/(ab) = 1/b 1/a
-            inv = MultiVector([[sign * 1/x, e]], self.signature)
+    def __rtruediv__(self, v):  # number / multivector
+        try:
+            r = self.reverse()
+            norm2 = float(self * r)
+            inv = r / norm2
             return v * inv
-        else:
-            raise ValueError('Cannot divide by non-blade: %s' % self)
+        except ValueError:
+            raise ValueError('Multivector has no inverse: %s' % self)
 
     def reverse(self):
         blades = [c.copy() for c in self.blades]
@@ -90,6 +91,9 @@ class MultiVector:
         return self.reverse()
 
     def __eq__(self, v):
+        if type(v) in [int, float]:
+            return float(self) == v
+
         return self.blades == v.blades and self.signature == v.signature
 
     def __float__(self):
