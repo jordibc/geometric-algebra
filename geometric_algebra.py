@@ -115,8 +115,14 @@ class MultiVector:
     def __str__(self):
         if not self.blades:
             return '0'
-        e_str = lambda e: '' if not e else '*e' + ''.join(map(str, e))
-        return ' + '.join('%s%s' % (x, e_str(e)) for x, e in self.blades)
+        def blade_str(blade):
+            x, e = blade
+            show_e = (e != [])  # show the basis element, except for scalars
+            show_x = (x != 1 or not show_e)  # do not show the number if just 1
+            return ((str(x) if show_x else '') +
+                    ('*' if show_x and show_e else '') +
+                    (('e' + ''.join(f'{ei}' for ei in e)) if show_e else ''))
+        return ' + '.join(blade_str(blade) for blade in self.blades)
 
     def __repr__(self):
         return self.__str__()  # so it looks nice in the interactive sessions

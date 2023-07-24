@@ -45,9 +45,7 @@ print('v * w =', v * w)
 print('w * v =', w * v)
 print('v / (2*e2) =', v / (2*e2))
 
-
 from math import sqrt
-
 print('norm(v) =', sqrt(v * v.T))
 ```
 
@@ -55,9 +53,9 @@ You should see the output:
 
 ```
 v = 3 + 4*e12
-w = 5 + 1*e1 + 3*e2
+w = 5 + e1 + 3*e2
 3*v = 9 + 12*e12
-v + w = 8 + 1*e1 + 3*e2 + 4*e12
+v + w = 8 + e1 + 3*e2 + 4*e12
 v - (1 + w) = -3 + -1*e1 + -3*e2 + 4*e12
 v * w = 15 + 15*e1 + 5*e2 + 20*e12
 w * v = 15 + -9*e1 + 13*e2 + 20*e12
