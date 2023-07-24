@@ -130,8 +130,8 @@ class MultiVector:
     def __repr__(self):
         return self.__str__()  # so it looks nice in the interactive sessions
         # A more raw representation would be:
-        #   signature_str = '' if self.signature is None else f', {self.signature}'
-        #   return 'MultiVector(%s%s)' % (self.blades, signature_str)
+        #   sig_str = '' if self.signature is None else f', {self.signature}'
+        #   return 'MultiVector(%s%s)' % (self.blades, sig_str)
 
 
 def simplify_blades(v):
@@ -153,7 +153,7 @@ def simplify_blades(v):
             v[i][0] += v[i+1][0]
             v.pop(i+1)
         elif (len(v[i][1]), v[i][1]) > (len(v[i+1][1]), v[i+1][1]):  # sort
-            v[i], v[i+1] = v[i+1], v[i]  # 3 e12 + 5 e1  ->  5 e1 + 3 e12
+            v[i], v[i+1] = v[i+1], v[i]  # 3*e12 + 5*e1  ->  5*e1 + 3*e12
 
             if i > 0:
                 i -= 1  # so we keep comparing this element
@@ -203,7 +203,7 @@ def wedge(a, b):
 
 
 def basis(signature):
-    """Return the basis elements of a geometric algebra with the given signature."""
+    """Return basis elements of a geometric algebra with the given signature."""
     n = len(signature)  # number of vectors
 
     elements = []
