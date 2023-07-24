@@ -135,6 +135,7 @@ class MultiVector:
             return ((str(x) if show_x else '') +
                     ('*' if show_x and show_e else '') +
                     (('e' + ''.join(f'{ei}' for ei in e)) if show_e else ''))
+
         return ' + '.join(blade_str(blade) for blade in self.blades)
 
     def __repr__(self):
