@@ -113,7 +113,7 @@ class MultiVector:
         elif len(self.blades) == 1 and self.blades[0][1] == []:
             return int(self.blades[0][0])
         else:
-            raise ValueError('Cannot convert to float: %s' % self)
+            raise ValueError('Cannot convert to int: %s' % self)
 
     def __str__(self):
         if not self.blades:
