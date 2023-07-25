@@ -47,11 +47,10 @@ class MultiVector:
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
 
         prod = []
-        for term_i in self.blades:
-            for term_j in v_blades:
-                elem, factor = simplify_element(term_i[1] + term_j[1],
-                                                self.signature)
-                prod.append([factor * term_i[0] * term_j[0], elem])
+        for x, ei in self.blades:
+            for y, ej in v_blades:
+                elem, factor = simplify_element(ei + ej, self.signature)
+                prod.append([factor * x * y, elem])
 
         return MultiVector(prod, self.signature)
 
@@ -217,8 +216,9 @@ def simplify_element(e, signature=None):
 
 
 def dot(a, b):
-    grades_a = [len(blade[1]) for blade in a.blades]
-    grades_b = [len(blade[1]) for blade in b.blades]
+    """Return the dot product (inner product) of multivectors a and b."""
+    grades_a = [len(e) for _, e in a.blades]
+    grades_b = [len(e) for _, e in b.blades]
 
     assert grades_a and grades_b, 'Dot not defined (yet) for scalars.'
 
@@ -230,8 +230,9 @@ def dot(a, b):
 
 
 def wedge(a, b):
-    grades_a = [len(blade[1]) for blade in a.blades]
-    grades_b = [len(blade[1]) for blade in b.blades]
+    """Return the wedge product (exterior/outer product) of a and b."""
+    grades_a = [len(e) for _, e in a.blades]
+    grades_b = [len(e) for _, e in b.blades]
 
     assert grades_a and grades_b, 'Wedge not defined (yet) for scalars.'
 
@@ -265,7 +266,8 @@ def basis(signature, start=None):
             'Basis vectors have to be successive numbers.'
     else:
         start = start if start is not None else 1
-        n_pos, n_neg, n_null = signature + ([] if len(signature) == 3 else [0])
+        n_pos, n_neg = signature[:2]
+        n_null = signature[2] if len(signature) == 3 else 0
         signature = dict(zip(range(start, start + n_pos + n_neg + n_null),
                              [+1]*n_pos + [-1]*n_neg + [0]*n_null))
 
@@ -281,22 +283,22 @@ def basis(signature, start=None):
     return [MultiVector([[1, e]], signature) for e in elements]
 
 
-def is_last(e, n, start=0):
+def is_last(e, n, start=1):
     """Is e the last of the blades with that number of vectors?"""
     # An example of last blade for n=4, with 2 vectors: [2, 3]
     return e == list(range(start + n - len(e), start + n))
 
 
-def next_element(e, n, start=0):
+def next_element(e, n, start=1):
     """Return the multivector (in dim n) base element next to e."""
     if is_last(e, n, start):
         return list(range(start, start+len(e)+1)) if len(e) < n else None
 
     e_next = e.copy()  # new element (we will modify it in-place)
 
-    pos = next(len(e_next)-1-i for i in range(len(e_next))
-               if e_next[-1 - i] != start + n - 1 - i)
-                                  # maximum possible at that pos
+    # Find the last position that doesn't contain its maximum possible value.
+    pos = next(len(e_next) - 1 - i for i in range(len(e_next))
+               if e_next[-1 - i] != start + n - 1 - i)  # max possible value
 
     e_next[pos] += 1  # increment at that position
     for i in range(pos + 1, len(e_next)):
