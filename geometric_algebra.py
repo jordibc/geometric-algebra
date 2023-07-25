@@ -81,6 +81,18 @@ class MultiVector:
         except ValueError:
             raise ValueError('Multivector has no inverse: %s' % self)
 
+    def __pow__(self, n):
+        assert type(n) == int, 'Can only raise to an integer'
+
+        v = 1
+        for i in range(abs(n)):
+            v *= self
+
+        if n >= 0:
+            return v
+        else:
+            return 1/v
+
     def reverse(self):
         blades = [blade.copy() for blade in self.blades]
 
