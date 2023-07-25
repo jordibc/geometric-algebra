@@ -1,7 +1,7 @@
 # Some tests to run with:
 #   pytest test.py
 
-from math import sqrt
+import math
 import geometric_algebra as ga
 
 
@@ -11,7 +11,7 @@ def test_str():
     assert str(v) == '1.5 + 2*e12'
 
     assert repr(v) == str(v)
-    # Alternatively, 'MultiVector([[1.5, []], [2, [1, 2]]], [-1, 1])'
+    # Alternatively, 'MultiVector([[1.5, []], [2, [1, 2]]])'
 
 
 def test_simplify_element():
@@ -53,7 +53,7 @@ def test_signature():
 
 
 def test_equal():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     assert 1 + e1 == 0 + 0.5 + 2*e1 - e1 + 0.5
     assert e1 != 1
@@ -61,21 +61,21 @@ def test_equal():
 
 
 def test_add():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     v = 3 + 4*e12
     assert v + v == 6 + 8*e12
 
 
 def test_mul():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     v = 3 + 4*e12
     assert v * v == -7 + 24*e12
 
 
 def test_div():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     assert 1/e12 == -e12
 
@@ -88,7 +88,7 @@ def test_div():
 
 
 def test_pow():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     assert e**2 == 1
     assert e1**2 == 1
@@ -100,14 +100,14 @@ def test_pow():
 
 
 def test_norm():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     v = 3 + 4*e12
-    assert sqrt(v * v.T) == 5
+    assert math.sqrt(v * v.T) == 5
 
 
 def test_basis():
-    e, e0, e1, e2, e01, e02, e12, e012 = ga.basis([2, 1], start=0)
+    e, e0, e1, e2, e01, e02, e12, e012 = ga.basis((2, 1), start=0)
 
     assert e.blades == [[1, []]]
     assert e0.blades == [[1, [0]]]
@@ -124,7 +124,7 @@ def test_basis():
 
 
 def test_grade_projection():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
 
     assert e[0] == e
     assert e[1] == 0
@@ -139,15 +139,40 @@ def test_grade_projection():
 
 
 def test_dot():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
     assert ga.dot(e1 + 3*e2, 2*e2 + 1*e1) == 7
 
 
 def test_wedge():
-    e, e1, e2, e12 = ga.basis([2, 0])
+    e, e1, e2, e12 = ga.basis((2, 0))
     assert ga.wedge(e1 + 3*e2, 2*e2 + 2*e1) == -4*e12
 
 
 def test_commutator():
-    e, e1, e2, e3, e12, e13, e23, e123 = ga.basis([3, 0])
+    e, e1, e2, e3, e12, e13, e23, e123 = ga.basis((3, 0))
     assert ga.commutator(3*e23, 2*e12) == -6.0*e13
+
+
+def test_exp():
+    e, e1, e2, e3, e12, e13, e23, e123 = ga.basis((1, 1, 1))
+
+    def equal(a, b):
+        EPSILON = 1e-10
+        for x, _ in (a - b).blades:
+            if abs(x) > EPSILON:
+                return False
+        return True
+
+    assert ga.exp(5) == math.exp(5)
+
+    assert equal(ga.exp(e1), math.cosh(1) + e1 * math.sinh(1))
+    assert equal(ga.exp(e2), math.cos(1) + e2 * math.sin(1))
+    assert equal(ga.exp(e3), 1 + e3)
+
+    assert equal(ga.exp(e1*math.log(2)), (2 + 1/2) / 2 + e1 * (2 - 1/2) / 2)
+    assert equal(ga.exp(e2*math.pi/2), e2)
+    assert equal(ga.exp(e3**0), math.e * e)  # note that "e" is the scalar 1
+
+    assert equal(ga.exp(1 + 2*e1 + 3*e2 + 4*e12),
+                 -238.51063822046672 + -227.1482774032314*e1 +
+                 -226.94308071409154*e2 + -238.29972187349009*e12)
