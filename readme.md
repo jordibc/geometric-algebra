@@ -11,14 +11,14 @@ To create the basis vectors of a geometric algebra with the given signature:
 ```py
 import geometric_algebra as ga
 
-signature = [1, 1, 1]
+signature = [3, 0]  # 3 dimensions, all vectors with square == +1
 print(ga.basis(signature))
 ```
 
 The output should be:
 
 ```
-[1, e0, e1, e2, e01, e02, e12, e012]
+[1, e1, e2, e3, e12, e13, e23, e123]
 ```
 
 You can add, multiply, etc., those elements to create arbitrary
@@ -31,7 +31,7 @@ following example creates a basis that starts at `e1` (instead of
 ```py
 import geometric_algebra as ga
 
-e, e1, e2, e12 = [ga.MultiVector([[1, e]]) for e in [[], [1], [2], [1, 2]]]
+e, e1, e2, e12 = ga.basis([2, 0])
 
 v = 3 + 4*e12
 w = 5 + e1 + 3*e2
@@ -62,6 +62,33 @@ w * v = 15 + -9*e1 + 13*e2 + 20*e12
 v / (2*e2) = 2.0*e1 + 1.5*e2
 norm(v) = 5.0
 ```
+
+
+## Signatures
+
+The different geometric algebras are characterized by their signatures.
+
+A signature looks like `(p, q)` or `(p, q, r)`, saying how many basis
+vectors have a positive square (+1), negative (-1) and zero (0)
+respectively.
+
+When using the `basis()` function to create the basis multivectors,
+you can use that kind of signature, but you can also use a dict that
+tells you for each basis element what its square is. For example,
+astrophysicists use for spacetime:
+
+```
+signature = {0: -1, 1: +1, 2: +1, 3: +1}  # t, x, y, z  with e0 = e_t
+```
+
+whereas particle physicists normally use:
+
+```
+signature = {0: +1, 1: -1, 2: -1, 3: -1}
+```
+
+which is the same signature as `(1, 3)` or even `(1, 3, 0)` in the
+alternative notation.
 
 
 ## Tests

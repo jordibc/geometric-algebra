@@ -217,18 +217,58 @@ def simplify_element(e, signature=None):
 
 
 def dot(a, b):
-    assert a.signature == b.signature
-    v = a * b
-    return MultiVector([v.blades[0]], a.signature)
+    grades_a = [len(blade[1]) for blade in a.blades]
+    grades_b = [len(blade[1]) for blade in b.blades]
+
+    assert grades_a and grades_b, 'Dot not defined (yet) for scalars.'
+
+    ga, gb = grades_a[0], grades_b[0]
+    assert all(g == ga for g in grades_a) and all(g == gb for g in grades_b), \
+        'Can only dot blades (for the moment).'
+
+    return (a * b)[abs(ga - gb)]
+
 
 def wedge(a, b):
-    assert a.signature == b.signature
-    v = a * b
-    return MultiVector([v.blades[-1]], a.signature)
+    grades_a = [len(blade[1]) for blade in a.blades]
+    grades_b = [len(blade[1]) for blade in b.blades]
+
+    assert grades_a and grades_b, 'Wedge not defined (yet) for scalars.'
+
+    ga, gb = grades_a[0], grades_b[0]
+    assert all(g == ga for g in grades_a) and all(g == gb for g in grades_b), \
+        'Can only wedge blades (for the moment).'
+
+    return (a * b)[ga + gb]
 
 
-def basis(signature):
+def commutator(a, b):
+    return (a * b - b * a) / 2
+
+
+def basis(signature, start=None):
     """Return basis elements of a geometric algebra with the given signature."""
+    # A signature looks like (p, q) or (p, q, r), saying how many basis vectors
+    # have a positive square (+1), negative (-1) and zero (0) respectively.
+    #
+    # A signature can also be a dict that tells you for each basis element what
+    # its square is. For example, astrophysicists use for spacetime:
+    #   signature = {0: -1, 1: +1, 2: +1, 3: +1}  # t, x, y, z  with e0 = e_t
+    # whereas particle physicists normally use:
+    #   signature = {0: +1, 1: -1, 2: -1, 3: -1}
+    # which is the same as [1, 3] or even [1, 3, 0] in the alternative notation.
+
+    if type(signature) == dict:
+        assert start is None, 'Cannot use start when using a dict as signature.'
+        start = min(signature)
+        assert sorted(signature) == list(range(start, start+len(signature))), \
+            'Basis vectors have to be successive numbers.'
+    else:
+        start = start if start is not None else 1
+        n_pos, n_neg, n_null = signature + ([] if len(signature) == 3 else [0])
+        signature = dict(zip(range(start, start + n_pos + n_neg + n_null),
+                             [+1]*n_pos + [-1]*n_neg + [0]*n_null))
+
     n = len(signature)  # number of vectors
 
     elements = []
@@ -236,26 +276,27 @@ def basis(signature):
     e = []  # current element
     while e is not None:
         elements.append(e)
-        e = next_element(e, n)
+        e = next_element(e, n, start)
 
     return [MultiVector([[1, e]], signature) for e in elements]
 
 
-def is_last(e, n):
+def is_last(e, n, start=0):
     """Is e the last of the blades with that number of vectors?"""
     # An example of last blade for n=4, with 2 vectors: [2, 3]
-    return e == list(range(n - len(e), n))
+    return e == list(range(start + n - len(e), start + n))
 
 
-def next_element(e, n):
+def next_element(e, n, start=0):
     """Return the multivector (in dim n) base element next to e."""
-    if is_last(e, n):
-        return list(range(len(e)+1)) if len(e) < n else None
+    if is_last(e, n, start):
+        return list(range(start, start+len(e)+1)) if len(e) < n else None
 
     e_next = e.copy()  # new element (we will modify it in-place)
 
     pos = next(len(e_next)-1-i for i in range(len(e_next))
-               if e_next[-1 - i] != n - 1 - i)  # maximum possible at that pos
+               if e_next[-1 - i] != start + n - 1 - i)
+                                  # maximum possible at that pos
 
     e_next[pos] += 1  # increment at that position
     for i in range(pos + 1, len(e_next)):
