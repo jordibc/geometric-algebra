@@ -10,6 +10,7 @@ class MultiVector:
     """
 
     def __init__(self, blades, signature=None):
+        assert signature is None or type(signature) == dict, 'Bad signature.'
         self.signature = signature
         self.blades = simplify_blades(blades)
 
@@ -132,8 +133,8 @@ class MultiVector:
         else:
             raise ValueError('Cannot convert to int: %s' % self)
 
-    def __getitem__(self, rank):  # <A>_r
-        blades = [blade for blade in self.blades if len(blade[1]) == rank]
+    def __getitem__(self, r):  # grade-projection operator <A>_r
+        blades = [blade for blade in self.blades if len(blade[1]) == r]
         return MultiVector(blades, self.signature)
 
     def __str__(self):
