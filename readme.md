@@ -11,7 +11,7 @@ To create the basis vectors of a geometric algebra with the given signature:
 ```py
 import geometric_algebra as ga
 
-signature = [3, 0]  # 3 dimensions, all vectors with square == +1
+signature = (3, 0)  # 3 dimensions, all vectors with square == +1
 print(ga.basis(signature))
 ```
 
@@ -23,10 +23,6 @@ The output should be:
 
 You can add, multiply, etc., those elements to create arbitrary
 multivectors.
-
-You can also create your initial vectors with arbitrary indices. The
-following example creates a basis that starts at `e1` (instead of
-`e0`), and shows how to perform certain operations with multivectors:
 
 ```py
 import geometric_algebra as ga
