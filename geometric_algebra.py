@@ -40,7 +40,7 @@ class MultiVector:
         assert type(v) in [int, float]
         return v + -self
 
-    def __mul__(self, v):  # multivector * whatever
+    def __mul__(self, v):  # multivector * whatever  (geometric product)
         assert type(v) in [int, float] or v.signature == self.signature
 
         v_blades = [[v, []]] if type(v) in [int, float] else v.blades
