@@ -2,6 +2,8 @@
 Class to represent a multivector in geometric algebra, and related functions.
 """
 
+import math
+
 
 class MultiVector:
     """
@@ -244,7 +246,29 @@ def wedge(a, b):
 
 
 def commutator(a, b):
+    """Return the commutator product of multivectors a and b."""
     return (a * b - b * a) / 2
+
+
+def exp(a):
+    """Return the exponentiation of multivector a."""
+    if type(a) in [int, float]:
+        return math.exp(a)
+
+    product = 1
+    for x, e in a.blades:
+        elem = MultiVector([[1, e]], a.signature)  # multivector basis element
+        elem2 = int(elem**2)
+        if elem2 == +1:
+            product *= math.cosh(x) + elem * math.sinh(x)
+        elif elem2 == -1:
+            product *= math.cos(x) + elem * math.sin(x)
+        elif elem2 == 0:
+            product *= 1 + elem * x
+        else:
+            raise ValueError('Weird, we should never be here.')
+
+    return product
 
 
 def basis(signature, start=None):
@@ -252,12 +276,12 @@ def basis(signature, start=None):
     # A signature looks like (p, q) or (p, q, r), saying how many basis vectors
     # have a positive square (+1), negative (-1) and zero (0) respectively.
     #
-    # A signature can also be a dict that tells you for each basis element what
-    # its square is. For example, astrophysicists use for spacetime:
+    # A signature can also be a dict that says for each basis element its
+    # square. For example, astrophysicists normally use for spacetime:
     #   signature = {0: -1, 1: +1, 2: +1, 3: +1}  # t, x, y, z  with e0 = e_t
     # whereas particle physicists normally use:
     #   signature = {0: +1, 1: -1, 2: -1, 3: -1}
-    # which is the same as [1, 3] or even [1, 3, 0] in the alternative notation.
+    # which is the same as (1, 3), or (1, 3, 0), in the more common notation.
 
     if type(signature) == dict:
         assert start is None, 'Cannot use start when using a dict as signature.'
