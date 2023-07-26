@@ -17,16 +17,10 @@ class MultiVector:
         self.blades = simplify_blades(blades)
 
     def __add__(self, v):  # multivector + whatever
-        assert type(v) in [int, float] or v.signature == self.signature
-
-        v_blades = [[v, []]] if type(v) in [int, float] else v.blades
-
-        return MultiVector([blade.copy() for blade in self.blades] +
-                           [blade.copy() for blade in v_blades], self.signature)
+        return add(self, v)
 
     def __radd__(self, v):  # number + multivector
-        assert type(v) in [int, float]
-        return self + v
+        return add(v, self)
 
     def __neg__(self):  # - self
         blades = [blade.copy() for blade in self.blades]
@@ -84,30 +78,20 @@ class MultiVector:
             raise ValueError('Multivector has no inverse: %s' % self)
 
     def __pow__(self, n):
-        assert type(n) == int, 'Can only raise to an integer'
+        return pow(self, n)
 
-        v = 1
-        for i in range(abs(n)):
-            v *= self
+    def __or__(self, v):  # a | b  (dot product)
+        return dot(self, v)
 
-        if n >= 0:
-            return v
-        else:
-            return 1/v
+    def __xor__(self, v):  # a ^ b  (wedge product)
+        return wedge(self, v)
 
     def reverse(self):
-        blades = [blade.copy() for blade in self.blades]
-
-        for blade in blades:
-            x, e = blade
-            if (len(e) // 2) % 2 == 1:
-                blade[0] = -x
-
-        return MultiVector(blades, self.signature)
+        return reverse(self)
 
     @property
     def T(self):
-        return self.reverse()
+        return reverse(self)
 
     def __eq__(self, v):
         if type(v) in [int, float]:
@@ -215,6 +199,50 @@ def simplify_element(e, signature=None):
             i += 1
 
     return e, factor
+
+
+def add(a, b):
+    """Return a + b."""
+    is_num_a, is_num_b = type(a) in [int, float], type(b) in [int, float]
+
+    if is_num_a and is_num_b:
+        return a + b
+    elif is_num_a:
+        return MultiVector([[a, []]] + [blade.copy() for blade in b.blades],
+                           b.signature)
+    elif is_num_b:
+        return MultiVector([[b, []]] + [blade.copy() for blade in a.blades],
+                           a.signature)
+    else:
+        return MultiVector([blade.copy() for blade in a.blades] +
+                           [blade.copy() for blade in b.blades],
+                           a.signature)
+
+
+def pow(a, n):
+    """Return a**n."""
+    assert type(n) == int, 'Can only raise to an integer'
+
+    v = 1
+    for i in range(abs(n)):
+        v *= a
+
+    if n >= 0:
+        return v
+    else:
+        return 1/v
+
+
+def reverse(a):
+    """Return the reverse of multivector a. For example: e12 -> e21 = -e12."""
+    blades = [blade.copy() for blade in a.blades]
+
+    for blade in blades:
+        x, e = blade
+        if (len(e) // 2) % 2 == 1:
+            blade[0] = -x
+
+    return MultiVector(blades, a.signature)
 
 
 def dot(a, b):
