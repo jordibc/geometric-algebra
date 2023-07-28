@@ -80,7 +80,7 @@ class MultiVector:
     def __pow__(self, n):
         return pow(self, n)
 
-    def __or__(self, v):  # a | b  (dot product)
+    def __matmul__(self, v):  # a @ b  (dot product)
         return dot(self, v)
 
     def __xor__(self, v):  # a ^ b  (wedge product)
