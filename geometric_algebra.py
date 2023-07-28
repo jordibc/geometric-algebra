@@ -221,7 +221,12 @@ def add(a, b):
 
 def pow(a, n):
     """Return a**n."""
-    assert type(n) == int, 'Can only raise to an integer'
+    if not a.blades:  # a == 0
+        return 0
+    elif len(a.blades) == 1 and a.blades[0][1] == []:  # a is a scalar
+        return float(a.blades[0][0])**n
+
+    assert type(n) == int, 'Can only raise multivector to an integer.'
 
     v = 1
     for i in range(abs(n)):

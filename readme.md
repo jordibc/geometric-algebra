@@ -47,9 +47,7 @@ a = 2*e1 + 3*e2
 b = 4*e1 - 0.5*e2
 print('dot(a, b) =', ga.dot(a, b))       # 6.5
 print('wedge(a, b) =', ga.wedge(a, b))   # -13*e12
-
-from math import sqrt
-print('norm(v) =', sqrt(v * v.T))        # 5
+print('norm(v) =', (v * v.T)**0.5)       # 5
 ```
 
 
