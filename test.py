@@ -179,3 +179,14 @@ def test_exp():
     assert equal(ga.exp(2*e1 + e2 + 1.2*e3),  # all anticommute
                  2.9145774401759277 + 3.161173127133336*e1 +
                  1.580586563566668*e2 + 1.8967038762800015*e3)
+
+    assert equal(ga.exp(1 + 3*e1 + e123),
+                 ga.sum_exp_series(1 + 3*e1 + e123,
+                                   precision=1e-10, max_terms=30))
+    assert equal(ga.exp(2*e1 + e2 + 1.2*e3),
+                 ga.sum_exp_series(2*e1 + e2 + 1.2*e3,
+                                   precision=1e-10, max_terms=20))
+
+    assert equal(ga.exp(1+2*e1+3*e2+0.5*e12),  # no commuting symmetries
+                 -1.5542129560579239 + 2.04650730667839*e1 +
+                 3.0697609600175846*e2 + 0.5116268266695978*e12)

@@ -317,8 +317,37 @@ def exp(a):
         else:
             return 1 + a
     else:
-        raise ValueError('Blades do not commute nor anticommute.')
-        # And I don't know how to do it in other cases.
+        # If we cannot exploit symmetries, we lastly resort to summing
+        # the terms of its expansion in powers of a. There must be smarter
+        # ways, like with matrix diagonalization, where we do:
+        #   exp(A) = exp(U D U') = U exp(D) U'  and solve trivially.
+        return sum_exp_series(a)
+
+
+def sum_exp_series(a, precision=1e-8, max_terms=20):
+    """Return exp(a) by summing the terms in its expansion in powers of a."""
+    # exp(a) = 1 + a + a**2 / 2 + a**3 / 3! + ...
+
+    x0 = 1  # last term in the series evaluated
+    partial_sum = 1  # the sum of all the terms so far
+    norm = 1  # size of the last term
+
+    for i in range(1, max_terms):
+        x1 = x0 * a / i  # next term
+
+        partial_sum += x1  # our best approximation of exp(a) so far
+
+        norm = sum(abs(y) for y, _ in x1.blades)  # kind of norm of last term
+
+        if norm < precision:
+            break  # yay, we are done!
+
+        x0 = x1  # "last term" will be the new term in the next iteration
+    else:
+        print(('Warning: max terms reached (%d), but error (~ %g) bigger '
+               'than desired precision (%g).' % (max_terms, norm, precision)))
+
+    return partial_sum
 
 
 def all_blades_commute(a):
