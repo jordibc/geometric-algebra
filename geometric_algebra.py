@@ -62,7 +62,7 @@ class MultiVector:
         assert v.signature == self.signature
         try:
             v_r = v.reverse()
-            v_norm2 = float(v * v_r)
+            v_norm2 = float(v * v_r)  # well, kind of norm (can be < 0)
             v_inv = v_r / v_norm2
             return self * v_inv
         except ValueError:
@@ -71,7 +71,7 @@ class MultiVector:
     def __rtruediv__(self, v):  # number / multivector
         try:
             r = self.reverse()
-            norm2 = float(self * r)
+            norm2 = float(self * r)  # well, kind of norm (can be < 0)
             inv = r / norm2
             return v * inv
         except ValueError:
@@ -302,7 +302,7 @@ def exp(a):
     elif all_blades_anticommute(a):
         blades = [MultiVector([blade], a.signature) for blade in a.blades]
 
-        norm2 = float(sum(b**2 for b in blades))
+        norm2 = float(sum(b**2 for b in blades))  # kind of norm (can be < 0)
         if norm2 > 0:
             x = norm2**0.5
             return math.cosh(x) + (math.sinh(x) / x) * a
