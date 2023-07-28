@@ -283,20 +283,61 @@ def exp(a):
     if type(a) in [int, float]:
         return math.exp(a)
 
-    product = 1
-    for x, e in a.blades:
-        elem = MultiVector([[1, e]], a.signature)  # multivector basis element
-        elem2 = int(elem**2)
-        if elem2 == +1:
-            product *= math.cosh(x) + elem * math.sinh(x)
-        elif elem2 == -1:
-            product *= math.cos(x) + elem * math.sin(x)
-        elif elem2 == 0:
-            product *= 1 + elem * x
-        else:
-            raise ValueError('Weird, we should never be here.')
+    if all_blades_commute(a):
+        product = 1
+        for x, e in a.blades:
+            elem = MultiVector([[1, e]], a.signature)  # basis element
 
-    return product
+            elem2 = int(elem**2)
+            if elem2 == +1:
+                product *= math.cosh(x) + math.sinh(x) * elem
+            elif elem2 == -1:
+                product *= math.cos(x) + math.sin(x) * elem
+            elif elem2 == 0:
+                product *= 1 + x * elem
+            else:
+                raise ValueError('Weird, we should never be here.')
+
+        return product
+    elif all_blades_anticommute(a):
+        blades = [MultiVector([blade], a.signature) for blade in a.blades]
+
+        norm2 = float(sum(b**2 for b in blades))
+        if norm2 > 0:
+            x = norm2**0.5
+            return math.cosh(x) + (math.sinh(x) / x) * a
+        elif norm2 < 0:
+            x = (-norm2)**0.5
+            return math.cos(x) + (math.sin(x) / x) * a
+        else:
+            return 1 + a
+    else:
+        raise ValueError('Blades do not commute nor anticommute.')
+        # And I don't know how to do it in other cases.
+
+
+def all_blades_commute(a):
+    """Return True if all blades of multivector a commute."""
+    for i in range(len(a.blades) - 1):
+        ei = MultiVector([a.blades[i]], a.signature)
+        for j in range(i + 1, len(a.blades)):
+            ej = MultiVector([a.blades[j]], a.signature)
+            if ei * ej != ej * ei:
+                return False
+
+    return True
+
+
+def all_blades_anticommute(a):
+    """Return True if all blades of multivector a anticommute."""
+    for i in range(len(a.blades) - 1):
+        ei = MultiVector([a.blades[i]], a.signature)
+        for j in range(i + 1, len(a.blades)):
+            ej = MultiVector([a.blades[j]], a.signature)
+            if ei * ej != -ej * ei:
+                return False
+
+    return True
 
 
 def basis(signature, start=None):

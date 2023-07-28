@@ -173,6 +173,9 @@ def test_exp():
     assert equal(ga.exp(e2*math.pi/2), e2)
     assert equal(ga.exp(e3**0), math.e * e)  # note that "e" is the scalar 1
 
-    assert equal(ga.exp(1 + 2*e1 + 3*e2 + 4*e12),
-                 -238.51063822046672 + -227.1482774032314*e1 +
-                 -226.94308071409154*e2 + -238.29972187349009*e12)
+    assert equal(ga.exp(1 + 3*e1 + e123),  # all commute
+                 27.36674265819042      + 27.231407374953815*e1 +
+                 27.36674265819042*e123 + 27.231407374953815*e23 )
+    assert equal(ga.exp(2*e1 + e2 + 1.2*e3),  # all anticommute
+                 2.9145774401759277 + 3.161173127133336*e1 +
+                 1.580586563566668*e2 + 1.8967038762800015*e3)
