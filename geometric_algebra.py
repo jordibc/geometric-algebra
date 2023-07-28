@@ -328,21 +328,21 @@ def sum_exp_series(a, precision=1e-8, max_terms=20):
     """Return exp(a) by summing the terms in its expansion in powers of a."""
     # exp(a) = 1 + a + a**2 / 2 + a**3 / 3! + ...
 
-    x0 = 1  # last term in the series evaluated
+    term_last = 1  # last term in the series evaluated
     partial_sum = 1  # the sum of all the terms so far
     norm = 1  # size of the last term
 
     for i in range(1, max_terms):
-        x1 = x0 * a / i  # next term
+        term = term_last * a / i  # next term
 
-        partial_sum += x1  # our best approximation of exp(a) so far
+        partial_sum += term  # our best approximation of exp(a) so far
 
-        norm = sum(abs(y) for y, _ in x1.blades)  # kind of norm of last term
+        norm = sum(abs(y) for y, _ in term.blades)  # kind of norm of last term
 
         if norm < precision:
             break  # yay, we are done!
 
-        x0 = x1  # "last term" will be the new term in the next iteration
+        term_last = term  # last term will be the new term in the next iteration
     else:
         print(('Warning: max terms reached (%d), but error (~ %g) bigger '
                'than desired precision (%g).' % (max_terms, norm, precision)))
