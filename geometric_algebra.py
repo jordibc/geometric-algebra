@@ -214,6 +214,7 @@ def add(a, b):
         return MultiVector([[b, []]] + [blade.copy() for blade in a.blades],
                            a.signature)
     else:
+        assert a.signature == b.signature
         return MultiVector([blade.copy() for blade in a.blades] +
                            [blade.copy() for blade in b.blades],
                            a.signature)
