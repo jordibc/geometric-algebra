@@ -1,9 +1,20 @@
 (ns geometric-algebra
+  (:require [clojure.string :as str])
   (:refer-clojure :exclude [+ - *]))
+
+(defn blade->str [[v e]]
+  (let [show-e (seq e) ; show the basis element, except for scalars
+        show-v (not (and show-e (= v 1)))] ; do not show the number if just 1
+    (str (if show-v v)
+         (if (and show-e show-v) "*")
+         (if show-e (str "e" (apply str e))))))
 
 (defrecord MultiVector [blades signature]
   Object
-  (toString [_] (mapcat (fn [[v e]] (str v "*e" (mapcat str e))) blades)))
+  (toString [_]
+    (if (empty? blades)
+      "0"
+      (str/join " + " (map blade->str blades)))))
 
 (defn add-values
   "Return blade with the sum of the values of the given blades.
@@ -89,9 +100,12 @@
                        [5 [1 4]]] {2 -1, 3 1, 4 1, 5 1}))
   a
   (str a)
-  (+ a a)
-  (- a)
-  (- a a)
+  (str (+ a a))
+  (str (- a))
+  (str (- a a))
+
+  (def a1 (multivector [[11 [2]] [1 [2 4]]]))
+  (str a1)
 
   (simplify-element [5 4 1 2 3] nil)
 
