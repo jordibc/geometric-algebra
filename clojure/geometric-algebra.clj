@@ -50,13 +50,13 @@
          factor +1]
     (let [e1 (first e-rest)]
       (cond
-        (nil? e-rest) [(conj result e0) factor] ; we are done!
+        (nil? e-rest) [(if e0 (conj result e0) result) factor] ; we are done!
         (= e0 e1) (recur (rest e-rest) ; repeated element -> contract
                          result
                          (clojure.core/* factor (if signature (signature e0) +1)))
         (> e0 e1) (if (empty? result) ; unsorted order -> swap
-                    (recur (rest e-rest)
-                           [e1 e0]
+                    (recur (concat [e0] (rest e-rest))
+                           [e1]
                            (clojure.core/* factor -1)) ; these vectors anticommute
                     (recur (concat [(last result) e1 e0] (rest e-rest))
                            (vec (butlast result)) ; so we keep comparing this
