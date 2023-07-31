@@ -70,12 +70,29 @@
   ([blades] (multivector blades nil))
   ([blades signature] (->MultiVector (into [] (simplify-blades blades)) signature)))
 
-(defprotocol GAProtocol
+(defn add [a b]
+  (multivector (concat (:blades a) (:blades b)) (:signature a)))
+
+(defn sub
+  ([a] (->MultiVector
+        (map (fn [[value element]] [(clojure.core/- value) element]) (:blades a))
+        (:signature a)))
+  ([a b] (+ a (- b))))
+
+(defn prod [a b]
+  (let [signature (:signature a)]
+    (multivector
+     (for [[x ei] (:blades a), [y ej] (:blades b)]
+       (let [[elem factor] (simplify-element (concat ei ej) signature)]
+         [(clojure.core/* factor x y) elem]))
+     signature)))
+
+(defprotocol GAProto
   (+ [a b])
   (- [a] [a b])
   (* [a b]))
 
-(extend-protocol GAProtocol
+(extend-protocol GAProto
   Number
   (+ [a b] (clojure.core/+ a b))
   (-
@@ -84,26 +101,29 @@
   (* [a b] (clojure.core/* a b))
 
   MultiVector
-  (+ [a b] (multivector (concat (:blades a) (:blades b)) (:signature a)))
+  (+ [a b] (add a b))
   (-
-    ([a] (->MultiVector
-          (map (fn [[value element]] [(clojure.core/- value) element]) (:blades a))
-          (:signature a)))
-    ([a b] (+ a (- b))))
-  (* [a b] a)) ; TODO
+    ([a] (sub a))
+    ([a b] (sub a b)))
+  (* [a b] (prod a b)))
+
 
 
 (comment
+
+  (simplify-element [3 2 3] nil)
+
   (def a (multivector [[4 [2 3]]
                        [7 [3]]
                        [1 [1 4]]
                        [0 [1 2 3]]
-                       [5 [1 4]]] {2 -1, 3 1, 4 1, 5 1}))
+                       [5 [1 4]]] {1 1, 2 -1, 3 1, 4 1, 5 1}))
   a
   (str a)
   (str (+ a a))
   (str (- a))
   (str (- a a))
+  (str (* a a))
 
   (def a1 (multivector [[11 [2]] [1 [2 4]]]))
   (str a1)
