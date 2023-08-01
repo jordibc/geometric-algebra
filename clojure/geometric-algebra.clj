@@ -67,8 +67,12 @@
 
 (defn multivector ; "constructor"
   "Create a new multivector."
-  ([blades] (multivector blades nil))
-  ([blades signature] (->MultiVector (into [] (simplify-blades blades)) signature)))
+  ([blades-or-num] (multivector blades-or-num nil))
+  ([blades-or-num signature]
+   (->MultiVector (if (number? blades-or-num)
+                    [[blades-or-num []]] ; "upgrade" number to single blade
+                    (into [] (simplify-blades blades-or-num))) ; just blades
+                  signature)))
 
 (defn add [a b]
   (multivector (concat (:blades a) (:blades b)) (:signature a)))
