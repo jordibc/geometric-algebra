@@ -1,6 +1,6 @@
 (ns geometric-algebra
   (:require [clojure.string :as str])
-  (:refer-clojure :exclude [+ - *]))
+  (:refer-clojure :exclude [+ - * /]))
 
 (defn blade->str [[v e]]
   "Return a string that represents the blade. Examples: 3*e1, e23, 5."
@@ -83,26 +83,82 @@
         (:signature a)))
   ([a b] (add a (sub b))))
 
-(defn prod [a b]
+(defn prod
+  "Return the geometric product of multivectors a and b."
+  [a b]
+  {:pre [(or (number? b) (= (:signature a) (:signature b)))]}
   (let [signature (:signature a)]
-    (multivector
-     (for [[x ei] (:blades a), [y ej] (:blades b)]
-       (let [[elem factor] (simplify-element (concat ei ej) signature)]
-         [(clojure.core/* factor x y) elem]))
-     signature)))
+    (if (number? b)
+      (->MultiVector (for [[x e] (:blades a)] [(clojure.core/* x b) e])
+                     signature)
+      (multivector
+       (for [[x ei] (:blades a), [y ej] (:blades b)]
+         (let [[elem factor] (simplify-element (concat ei ej) signature)]
+           [(clojure.core/* factor x y) elem]))
+       signature))))
 
 (defn reverse
   "Return the reverse of multivector. For example: e12 -> e21 = -e12."
-  [{:keys [blades signature]}]
-  (let [keeps-sign #(-> (count %) (quot 2) (mod 2) zero?)]
-    (->MultiVector
-     (for [[x e] blades] [(if (keeps-sign e) x (clojure.core/- x)) e])
-     signature)))
+  [a]
+  (if (number? a)
+    a
+    (let [keeps-sign #(-> (count %) (quot 2) even?)]
+      (->MultiVector
+       (for [[x e] (:blades a)] [(if (keeps-sign e) x (clojure.core/- x)) e])
+       (:signature a)))))
+
+(defn scalar?
+  "Return true if it is a number or a multivector with only a scalar blade."
+  [a]
+  (or
+   (number? a)
+   (let [blades (:blades a)
+         [_ elem] (first blades)]
+     (or
+      (empty? blades) ; a is like the number 0
+      (and (= (count blades) 1) (= elem [])))))) ; a is like [[x []]]
+
+(defn scalar
+  "Return the given multivector as a number (if it is a scalar)."
+  [a]
+  {:pre [(scalar? a)]}
+  (if (number? a)
+    a
+    (let [blades (:blades a)
+          [x _] (first blades)]
+      (if (empty? blades) 0 x))))
+
+(defn div [a b]
+  (if (number? b)
+    (->MultiVector (for [[x e] (:blades a)] [(clojure.core// x b) e])
+                   (:signature a))
+    (let [b-r (reverse b)
+          b-norm2 (scalar (prod b b-r))
+          b-inv (div b-r b-norm2)]
+      (prod a b-inv))))
+
+(defn grade
+  "Grade-projection operator <a>_r (select only blades of the given grade)."
+  [a r]
+  (->MultiVector (filter #(= (count (second %)) r) (:blades a))
+                 (:signature a)))
+
+(defn pow
+  [a n]
+  {:pre [(or (scalar? a) (int? n))]}
+  (if (scalar? a)
+    (Math/pow (scalar a) n)
+    (loop [v (multivector 1 (:signature a))
+           i (abs n)]
+      (if (zero? i)
+        (if (>= n 0) v (div (multivector 1 (:signature a)) v))
+        (recur (prod v a) (dec i))))))
 
 (defprotocol GAProto
   (+ [a b])
   (- [a] [a b])
-  (* [a b]))
+  (* [a b])
+  (/ [a b]))
 
 (extend-protocol GAProto
   Number
@@ -111,13 +167,15 @@
     ([a] (clojure.core/- a))
     ([a b] (clojure.core/- a b)))
   (* [a b] (clojure.core/* a b))
+  (/ [a b] (clojure.core// a b))
 
   MultiVector
   (+ [a b] (add a b))
   (-
     ([a] (sub a))
     ([a b] (sub a b)))
-  (* [a b] (prod a b)))
+  (* [a b] (prod a b))
+  (/ [a b] (div a b)))
 
 
 
@@ -131,12 +189,17 @@
                        [0 [1 2 3]]
                        [5 [1 4]]] {1 1, 2 -1, 3 1, 4 1, 5 1}))
   a
-  (str a)
+  (str a) ; => "7*e3 + 6*e14 + 4*e23"
   (str (+ a a))
   (str (- a))
   (str (- a a))
-  (str (* a a))
+  (str (* a 2))
+  (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
   (str (reverse a))
+
+  (str (div a (multivector [[4 [3]]] (:signature a))))
+  (str (grade a 2))
+  (str (pow a1 3))
 
   (def a1 (multivector [[11 [2]] [1 [2 4]]]))
   (str a1)
