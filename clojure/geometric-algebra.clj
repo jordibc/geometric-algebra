@@ -4,11 +4,11 @@
 
 (defn blade->str [[v e]]
   "Return a string that represents the blade. Examples: 3*e1, e23, 5."
-  (let [show-e (seq e) ; show the basis element, except for scalars
-        show-v (not (and show-e (= v 1)))] ; do not show the number if just 1
-    (str (if show-v v)
-         (if (and show-e show-v) "*")
-         (if show-e (str "e" (apply str e))))))
+  (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
+        hide-v (and (= v 1) (not hide-e))] ; so we write e1 instead of 1*e1
+    (str (if (not hide-v) v)                          ; 7
+         (if (not (or hide-e hide-v)) "*")            ; *
+         (if (not hide-e) (str "e" (apply str e)))))) ; e134
 
 (defrecord MultiVector [blades signature]
   Object
