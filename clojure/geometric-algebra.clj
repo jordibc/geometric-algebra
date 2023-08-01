@@ -77,7 +77,7 @@
   ([a] (->MultiVector
         (map (fn [[value element]] [(clojure.core/- value) element]) (:blades a))
         (:signature a)))
-  ([a b] (+ a (- b))))
+  ([a b] (add a (sub b))))
 
 (defn prod [a b]
   (let [signature (:signature a)]
