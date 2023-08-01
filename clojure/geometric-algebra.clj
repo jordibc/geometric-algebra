@@ -75,7 +75,7 @@
 
 (defn sub
   ([a] (->MultiVector
-        (map (fn [[value element]] [(clojure.core/- value) element]) (:blades a))
+        (for [[value element] (:blades a)] [(clojure.core/- value) element])
         (:signature a)))
   ([a b] (add a (sub b))))
 
@@ -87,12 +87,13 @@
          [(clojure.core/* factor x y) elem]))
      signature)))
 
-(defn reverse [a]
-  "Return the reverse of multivector a. For example: e12 -> e21 = -e12."
+(defn reverse
+  "Return the reverse of multivector. For example: e12 -> e21 = -e12."
+  [{:keys [blades signature]}]
   (let [keeps-sign #(-> (count %) (quot 2) (mod 2) zero?)]
     (->MultiVector
-     (map (fn [[x e]] [(if (keeps-sign e) x (clojure.core/- x)) e]) (:blades a))
-     (:signature a))))
+     (for [[x e] blades] [(if (keeps-sign e) x (clojure.core/- x)) e])
+     signature)))
 
 (defprotocol GAProto
   (+ [a b])
