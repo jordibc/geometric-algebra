@@ -50,7 +50,7 @@
   (->> blades
        (sort-by second) ; sort by element
        (merge-same-elements) ; 2*e12 + 3*e12  ->  5*e12
-       (filter #(not= (first %) 0)))) ; remove terms that are 0
+       (filterv #(not= (first %) 0)))) ; remove terms that are 0
 
 (defn simplify-element
   "Return the simplification of a basis element, and the factor it carries.
@@ -82,7 +82,7 @@
   ([blades-or-num signature]
    (->MultiVector (if (number? blades-or-num)
                     [[blades-or-num []]] ; "upgrade" number to single blade
-                    (into [] (simplify-blades blades-or-num))) ; just blades
+                    (simplify-blades blades-or-num)) ; just blades
                   signature)))
 
 
@@ -223,8 +223,6 @@
 
 (comment
 
-  (simplify-element [3 2 3] nil)
-
   (def a (multivector [[4 [2 3]]
                        [7 [3]]
                        [1 [1 4]]
@@ -247,10 +245,6 @@
   (str a1)
 
   (commutator a (multivector [[4 [3]]] (:signature a)))
-
-  (simplify-element [5 4 1 2 3] nil)
-
-  (simplify-element [5 4 2 2 3] {2 -1, 3 1, 4 1, 5 1})
 
   (simplify-blades [[4 [2 3]]
                     [7 [3]]
@@ -289,38 +283,10 @@
          (filter #(not= (:value %) 0))
          (into [])))
 
-  ;; To visualize.
-  (defn b->vec [b] [(:value b) (:element b)])
-  (defn bs->vec [bs] (map b->vec bs))
-  (defn v->vec [v] (bs->vec (:blades v)))
-
-  (def a (->MultiVector [(->Blade 4 [2 3])
-                         (->Blade 7 [3])
-                         (->Blade 1 [1 4])
-                         (->Blade 0 [1 2 3])
-                         (->Blade 5 [1 4])]
-                        nil))
-
-  (v->vec a)
-
-  (bs->vec (sort-by-element (:blades a)))
-
-  (add-values (:blades a))
-
-  (map bs->vec (partition-by :element (sort-by-element (:blades a))))
-  (first (partition-by :element (sort-by-element (:blades a))))
-  (bs->vec (merge-same-elements (sort-by-element (:blades a))))
-
-  (bs->vec (simplify-blades (:blades a)))
-
-  (map #(apply ->Blade %) [[1 [2]] [4 [1 3]]])
-  (def a2 (multivector [[1 [1]] [4 [1 3]]]))
-  (v->vec a2)
-
   ;; Alternative implementations.
   (defmulti + (fn [x y] [(class x) (class y)]))
 
-  (defmethod + [java.lang.Number multivector]
+  (defmethod + [Number multivector]
     [x y]
     (println "number + multivector"))
   (defmethod + [multivector multivector]
