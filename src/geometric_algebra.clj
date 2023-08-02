@@ -252,38 +252,7 @@
                     [0 [1 2 3]]
                     [5 [1 4]]])
 
-
-  ;; Trying to use a record for blades too.
-  (defrecord Blade [value element])
-
-  (defn sort-by-element
-    "Return the same blades but sorted by their basis element."
-    [blades]
-    (sort-by #(let [e (:element %)] [(count e) e]) blades))
-
-  (defn add-values
-    "Return blade with the sum of the values of the given blades."
-    [blades]
-    (let [values (map :value blades)
-          element (:element (first blades))]
-      (->Blade (reduce + values) element)))
-
-  (defn merge-same-elements
-    [blades]
-    (->> blades
-         (partition-by :element)
-         (map add-values)))
-
-  (defn simplify-blades
-    "Return the blades of a multivector simplified."
-    [blades]
-    (->> blades
-         (sort-by-element)
-         (merge-same-elements)
-         (filter #(not= (:value %) 0))
-         (into [])))
-
-  ;; Alternative implementations.
+  ;; If we used multimethods instead of protocols, it would look like:
   (defmulti + (fn [x y] [(class x) (class y)]))
 
   (defmethod + [Number multivector]
@@ -294,24 +263,4 @@
     (println "multi + multi"))
   (defmethod + :default
     [x y] (clojure.core/+ x y))
-
-  (+ a b)
-
-  (-> a (+ b))
-
-  (defn merge-same-elements
-    ([] [])
-    ([x] [x])
-    ([x y] (if (= (:element x) (:element y))
-             (->Blade (clojure.core/+ (:value x) (:value y)) (:element x))
-             [x y]))
-    ([x y & rest] (recur (merge-same-elements x y) rest)))
-
-  (defn as-maps [a] (->> (:blades a) (map #(merge {} %))))
-  (defn as-vecs [a] (map (fn [blade] [(:value blade) (:element blade)]) (:blades a)))
-  (defn as-vecs [a] (map #(vec [(:value %) (:element %)]) (:blades a)))
-
-  (defn swap [v i j]
-    "Return the given vector with the positions at the given indexes swapped."
-    (-> v (assoc i (v j)) (assoc j (v i))))
   )
