@@ -2,6 +2,14 @@
   (:require [clojure.string :as str])
   (:refer-clojure :exclude [+ - * /]))
 
+
+;; The operations we are going to define for multivectors.
+
+(declare + - * /)
+
+
+;; The MultiVector record, and how to convert it to string.
+
 (defn blade->str [[v e]]
   "Return a string that represents the blade. Examples: 3*e1, e23, 5."
   (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
@@ -15,7 +23,10 @@
   (toString [_]
     (if (empty? blades)
       "0"
-      (str/join " + " (map blade->str blades)))))
+      (str/join " + " (map blade->str blades))))) ; "7*e3 + 6*e14 + 4*e23"
+
+
+;; Simplifying a collection of blades to construct a "normalized" multivector.
 
 (defn add-values
   "Return blade with the sum of the values of the given blades.
@@ -53,19 +64,19 @@
         (nil? e-rest) [(if e0 (conj result e0) result) factor] ; we are done!
         (= e0 e1) (recur (rest e-rest) ; repeated element -> contract
                          result
-                         (clojure.core/* factor (if signature (signature e0) +1)))
+                         (* factor (if signature (signature e0) +1)))
         (> e0 e1) (if (empty? result) ; unsorted order -> swap
                     (recur (concat [e0] (rest e-rest))
                            [e1]
-                           (clojure.core/* factor -1)) ; these vectors anticommute
+                           (* factor -1)) ; these vectors anticommute
                     (recur (concat [(last result) e1 e0] (rest e-rest))
                            (vec (butlast result)) ; so we keep comparing this
-                           (clojure.core/* factor -1)))
+                           (* factor -1)))
         :else (recur e-rest ; nothing to do at this position -> advance
                      (conj result e0)
                      factor)))))
 
-(defn multivector ; "constructor"
+(defn multivector ; constructor
   "Create a new multivector."
   ([blades-or-num] (multivector blades-or-num nil))
   ([blades-or-num signature]
@@ -74,27 +85,33 @@
                     (into [] (simplify-blades blades-or-num))) ; just blades
                   signature)))
 
-(defn add [a b]
+
+;; Operations.
+
+(defn add
+  "Return a + b."
+  [a b]
   (multivector (concat (:blades a) (:blades b)) (:signature a)))
 
 (defn sub
+  "Return  -a  for one argument, and  a - b  for two."
   ([a] (->MultiVector
-        (for [[value element] (:blades a)] [(clojure.core/- value) element])
+        (for [[value element] (:blades a)] [(- value) element])
         (:signature a)))
-  ([a b] (add a (sub b))))
+  ([a b] (+ a (- b))))
 
 (defn prod
-  "Return the geometric product of multivectors a and b."
+  "Return  a * b , the geometric product of multivectors a and b."
   [a b]
   {:pre [(or (number? b) (= (:signature a) (:signature b)))]}
   (let [signature (:signature a)]
     (if (number? b)
-      (->MultiVector (for [[x e] (:blades a)] [(clojure.core/* x b) e])
+      (->MultiVector (for [[x e] (:blades a)] [(* x b) e])
                      signature)
       (multivector
        (for [[x ei] (:blades a), [y ej] (:blades b)]
          (let [[elem factor] (simplify-element (concat ei ej) signature)]
-           [(clojure.core/* factor x y) elem]))
+           [(* factor x y) elem]))
        signature))))
 
 (defn reverse
@@ -104,7 +121,7 @@
     a
     (let [keeps-sign #(-> (count %) (quot 2) even?)]
       (->MultiVector
-       (for [[x e] (:blades a)] [(if (keeps-sign e) x (clojure.core/- x)) e])
+       (for [[x e] (:blades a)] [(if (keeps-sign e) x (- x)) e])
        (:signature a)))))
 
 (defn scalar?
@@ -128,22 +145,25 @@
           [x _] (first blades)]
       (if (empty? blades) 0 x))))
 
-(defn div [a b]
+(defn div
+  "Return  a / b = a * b-inv  (if b has an inverse)."
+  [a b]
   (if (number? b)
-    (->MultiVector (for [[x e] (:blades a)] [(clojure.core// x b) e])
+    (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
                    (:signature a))
     (let [b-r (reverse b)
-          b-norm2 (scalar (prod b b-r))
-          b-inv (div b-r b-norm2)]
-      (prod a b-inv))))
+          b-norm2 (scalar (* b b-r)) ; will fail if b*br is not a scalar
+          b-inv (/ b-r b-norm2)]
+      (* a b-inv))))
 
 (defn grade
-  "Grade-projection operator <a>_r (select only blades of the given grade)."
+  "Grade-projection operator  <a>_r  (select only blades of the given grade)."
   [a r]
   (->MultiVector (filter #(= (count (second %)) r) (:blades a))
                  (:signature a)))
 
 (defn pow
+  "Return  a^n  (a raised to the nth power)."
   [a n]
   {:pre [(or (scalar? a) (int? n))]}
   (if (scalar? a)
@@ -151,31 +171,53 @@
     (loop [v (multivector 1 (:signature a))
            i (abs n)]
       (if (zero? i)
-        (if (>= n 0) v (div (multivector 1 (:signature a)) v))
-        (recur (prod v a) (dec i))))))
+        (if (>= n 0) v (/ (multivector 1 (:signature a)) v))
+        (recur (* v a) (dec i))))))
+
+(defn commutator
+  "Return  a x b , the commutator product of multivectors a and b."
+  [a b]
+  (-> (* a b) (- (* b a)) (/ 2))) ; (a * b - b * a) / 2
+
 
 (defprotocol GAProto
-  (+ [a b])
+  (+ [a] [a b] [a b c]) ; cannot do [a b & rest] in a protocol :(
   (- [a] [a b])
-  (* [a b])
-  (/ [a b]))
+  (* [a] [a b] [a b c])
+  (/ [a] [a b]))
 
 (extend-protocol GAProto
   Number
-  (+ [a b] (clojure.core/+ a b))
+  (+
+    ([x] x)
+    ([x y] (clojure.core/+ x y))
+    ([x y z] (+ (+ x y) z)))
   (-
-    ([a] (clojure.core/- a))
-    ([a b] (clojure.core/- a b)))
-  (* [a b] (clojure.core/* a b))
-  (/ [a b] (clojure.core// a b))
+    ([x] (clojure.core/- x))
+    ([x y] (clojure.core/- x y)))
+  (*
+    ([x] x)
+    ([x y] (clojure.core/* x y))
+    ([x y z] (* (* x y) z)))
+  (/
+    ([x] (/ 1 x))
+    ([x y] (clojure.core// x y)))
 
   MultiVector
-  (+ [a b] (add a b))
+  (+
+    ([a] a)
+    ([a b] (add a b))
+    ([a b c] (+ (+ a b) c)))
   (-
     ([a] (sub a))
     ([a b] (sub a b)))
-  (* [a b] (prod a b))
-  (/ [a b] (div a b)))
+  (*
+    ([a] a)
+    ([a b] (prod a b))
+    ([a b c] (* (* a b) c)))
+  (/
+    ([a] (/ (multivector 1 (:signature a)) a))
+    ([a b] (div a b))))
 
 
 
@@ -197,12 +239,14 @@
   (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
   (str (reverse a))
 
-  (str (div a (multivector [[4 [3]]] (:signature a))))
+  (str (/ a (multivector [[4 [3]]] (:signature a))))
   (str (grade a 2))
-  (str (pow a1 3))
+  (str (pow a 3))
 
   (def a1 (multivector [[11 [2]] [1 [2 4]]]))
   (str a1)
+
+  (commutator a (multivector [[4 [3]]] (:signature a)))
 
   (simplify-element [5 4 1 2 3] nil)
 
@@ -228,7 +272,7 @@
     [blades]
     (let [values (map :value blades)
           element (:element (first blades))]
-      (->Blade (reduce clojure.core/+ values) element)))
+      (->Blade (reduce + values) element)))
 
   (defn merge-same-elements
     [blades]
