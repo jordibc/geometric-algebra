@@ -114,7 +114,7 @@
            [(* factor x y) elem]))
        signature))))
 
-(defn reverse
+(defn rev
   "Return the reverse of multivector. For example: e12 -> e21 = -e12."
   [a]
   (if (number? a)
@@ -151,7 +151,7 @@
   (if (number? b)
     (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
                    (:signature a))
-    (let [b-r (reverse b)
+    (let [b-r (rev b)
           b-norm2 (scalar (* b b-r)) ; will fail if b*br is not a scalar
           b-inv (/ b-r b-norm2)]
       (* a b-inv))))
@@ -237,7 +237,7 @@
   (str (- a a))
   (str (* a 2))
   (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
-  (str (reverse a))
+  (str (rev a))
 
   (str (/ a (multivector [[4 [3]]] (:signature a))))
   (str (grade a 2))
