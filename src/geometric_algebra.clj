@@ -241,16 +241,9 @@
   (str (grade a 2))
   (str (pow a 3))
 
-  (def a1 (multivector [[11 [2]] [1 [2 4]]]))
-  (str a1)
 
   (commutator a (multivector [[4 [3]]] (:signature a)))
 
-  (simplify-blades [[4 [2 3]]
-                    [7 [3]]
-                    [1 [1 4]]
-                    [0 [1 2 3]]
-                    [5 [1 4]]])
 
   ;; If we used multimethods instead of protocols, it would look like:
   (defmulti + (fn [x y] [(class x) (class y)]))
