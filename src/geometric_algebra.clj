@@ -1,12 +1,5 @@
 (ns geometric-algebra
-  (:require [clojure.string :as str])
-  (:refer-clojure :exclude [+ - * /]))
-
-
-;; The operations we are going to define for multivectors.
-
-(declare + - * /)
-
+  (:require [clojure.string :as str]))
 
 ;; The MultiVector record, and how to convert it to string.
 
@@ -33,7 +26,7 @@
   It assumes (and doesn't check) that all blades have the same basis element."
   [blades]
   (let [[_ element] (first blades)] ; common element, like e13
-    [(reduce clojure.core/+ (map first blades)) element]))
+    [(reduce + (map first blades)) element]))
 
 (defn merge-same-elements
   "Return the blades, with the ones that have the same basis element combined.
@@ -90,29 +83,46 @@
 
 (defn add
   "Return a + b."
-  [a b]
-  (multivector (concat (:blades a) (:blades b)) (:signature a)))
+  ([] 0)
+  ([a] a)
+  ([a b]
+   (cond
+     (and (number? a) (number? b)) (+ a b)
+     (number? a) (add (multivector a (:signature b)) b)
+     (number? b) (add a (multivector b (:signature a)))
+     :else (do (assert (= (:signature a) (:signature b)) "different signatures")
+               (multivector (concat (:blades a) (:blades b)) (:signature a)))))
+  ([a b & more] (reduce add (add a b) more)))
 
 (defn sub
-  "Return  -a  for one argument, and  a - b  for two."
-  ([a] (->MultiVector
-        (for [[value element] (:blades a)] [(- value) element])
-        (:signature a)))
-  ([a b] (+ a (- b))))
+  "Return  -a  for one argument, a - b  for two, a - b - c  etc."
+  ([a] (if (number? a)
+         (- a)
+         (->MultiVector
+          (for [[value element] (:blades a)] [(- value) element])
+          (:signature a))))
+  ([a b] (add a (sub b)))
+  ([a b & more] (reduce sub (sub a b) more)))
 
 (defn prod
   "Return  a * b , the geometric product of multivectors a and b."
-  [a b]
-  {:pre [(or (number? b) (= (:signature a) (:signature b)))]}
-  (let [signature (:signature a)]
-    (if (number? b)
-      (->MultiVector (for [[x e] (:blades a)] [(* x b) e])
-                     signature)
-      (multivector
-       (for [[x ei] (:blades a), [y ej] (:blades b)]
-         (let [[elem factor] (simplify-element (concat ei ej) signature)]
-           [(* factor x y) elem]))
-       signature))))
+  ([] 1)
+  ([a] a)
+  ([a b]
+   (cond
+     (and (number? a) (number? b)) (* a b)
+     (number? a) (->MultiVector (for [[x e] (:blades b)] [(* a x) e])
+                                (:signature b))
+     (number? b) (->MultiVector (for [[y e] (:blades a)] [(* y b) e])
+                                (:signature a))
+     :else (let [signature (:signature a)]
+             (assert (= (:signature b) signature))
+             (multivector
+              (for [[x ei] (:blades a), [y ej] (:blades b)]
+                (let [[elem factor] (simplify-element (concat ei ej) signature)]
+                  [(* factor x y) elem]))
+              signature))))
+  ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
   "Return the reverse of multivector. For example: e12 -> e21 = -e12."
@@ -147,14 +157,18 @@
 
 (defn div
   "Return  a / b = a * b-inv  (if b has an inverse)."
-  [a b]
-  (if (number? b)
-    (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
-                   (:signature a))
-    (let [b-r (rev b)
-          b-norm2 (scalar (* b b-r)) ; will fail if b*br is not a scalar
-          b-inv (/ b-r b-norm2)]
-      (* a b-inv))))
+  ([a] (if (number? a) (/ 1 a) (div (multivector 1 (:signature a)) a)))
+  ([a b]
+   (cond
+     (and (number? a) (number? b)) (/ a b)
+     (number? a) (div (multivector a (:signature b)) b)
+     (number? b) (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
+                                (:signature a))
+     :else (let [b-r (rev b)
+                 b-norm2 (scalar (prod b b-r)) ; fails if b*br is not a scalar
+                 b-inv (div b-r b-norm2)]
+             (prod a b-inv))))
+  ([a b & more] (reduce div (div a b) more)))
 
 (defn grade
   "Grade-projection operator  <a>_r  (select only blades of the given grade)."
@@ -171,54 +185,49 @@
     (loop [v (multivector 1 (:signature a))
            i (abs n)]
       (if (zero? i)
-        (if (>= n 0) v (/ (multivector 1 (:signature a)) v))
-        (recur (* v a) (dec i))))))
+        (if (>= n 0) v (div (multivector 1 (:signature a)) v))
+        (recur (prod v a) (dec i))))))
 
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
   [a b]
-  (-> (* a b) (- (* b a)) (/ 2))) ; (a * b - b * a) / 2
+  (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
 
-(defprotocol GAProto
-  (+ [a] [a b] [a b c]) ; cannot do [a b & rest] in a protocol :(
-  (- [a] [a b])
-  (* [a] [a b] [a b c])
-  (/ [a] [a b]))
+;; Basis.
 
-(extend-protocol GAProto
-  Number
-  (+
-    ([x] x)
-    ([x y] (clojure.core/+ x y))
-    ([x y z] (+ (+ x y) z)))
-  (-
-    ([x] (clojure.core/- x))
-    ([x y] (clojure.core/- x y)))
-  (*
-    ([x] x)
-    ([x y] (clojure.core/* x y))
-    ([x y z] (* (* x y) z)))
-  (/
-    ([x] (/ 1 x))
-    ([x y] (clojure.core// x y)))
+(defn last?
+  "Is e the last of the blades with that number of vectors?"
+  ([e n] (last? e n 1))
+  ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
 
-  MultiVector
-  (+
-    ([a] a)
-    ([a b] (add a b))
-    ([a b c] (+ (+ a b) c)))
-  (-
-    ([a] (sub a))
-    ([a b] (sub a b)))
-  (*
-    ([a] a)
-    ([a b] (prod a b))
-    ([a b c] (* (* a b) c)))
-  (/
-    ([a] (/ (multivector 1 (:signature a)) a))
-    ([a b] (div a b))))
+(defn next-element
+  "Return the multivector (in dim n) base element next to e."
+  [e n start]
+  (if (last? e n start)
+    (if (< (count e) n) (vec (range start (+ start (count e) 1))))
+    (let [pos (first
+               (for [i (range (count e))
+                     :when (not= (e (- (count e) (inc i)))
+                                 (- (+ start n) (inc i)))]
+                 (- (count e) (inc i))))]
+      (loop [e-next (update e pos inc)
+             i (inc pos)]
+        (if (< i (count e-next))
+          (recur (assoc e-next i (+ (e-next (dec i)) 1)) (inc i))
+          e-next)))))
 
+(defn basis
+  "Return basis elements of a geometric algebra with the given signature."
+  ([signature] (basis signature 1))
+  ([signature start]
+   {:pre [(or (vector? signature) (map? signature))]}
+   (let [n (count signature)]
+     ;; TODO: If signature is a vector (like [1 1]), convert it to a
+     ;; map (like {[0] +1, [1] -1}).
+     (take (Math/pow 2 n)
+           (for [e (iterate #(next-element % n start) [])] ; e: basis element
+             (->MultiVector [[1 e]] signature)))))) ; as multivector
 
 
 (comment
@@ -230,30 +239,35 @@
                        [5 [1 4]]] {1 1, 2 -1, 3 1, 4 1, 5 1}))
   a
   (str a) ; => "7*e3 + 6*e14 + 4*e23"
-  (str (+ a a))
-  (str (- a))
-  (str (- a a))
-  (str (* a 2))
+
+  (def + add)
+  (str (+ a a)) ; => "14*e3 + 12*e14 + 8*e23"
+
+  (def - sub)
+  (str (- a)) ; => "-7*e3 + -6*e14 + -4*e23"
+  (str (- a a)) ; => "0"
+
+  (def * prod)
+  (str (* a 2)) ; => "14*e3 + 12*e14 + 8*e23"
   (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
-  (str (rev a))
 
-  (str (/ a (multivector [[4 [3]]] (:signature a))))
-  (str (grade a 2))
-  (str (pow a 3))
+  (str (rev a)) ; => "7*e3 + -6*e14 + -4*e23"
 
+  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2*e134"
 
-  (commutator a (multivector [[4 [3]]] (:signature a)))
+  (str (grade a 2)) ; => "6*e14 + 4*e23"
 
+  (str (pow a 3)) ; => "-301*e3 + 954*e14 + -172*e23"
 
-  ;; If we used multimethods instead of protocols, it would look like:
-  (defmulti + (fn [x y] [(class x) (class y)]))
+  (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16*e2"
 
-  (defmethod + [Number multivector]
-    [x y]
-    (println "number + multivector"))
-  (defmethod + [multivector multivector]
-    [x y]
-    (println "multi + multi"))
-  (defmethod + :default
-    [x y] (clojure.core/+ x y))
+  (str/join ", " (map str (basis {1 1, 2 1}))) ; => "1, e1, e2, e12"
+
+  (let [[e e1 e2 e12] (basis {1 1, 2 1})]
+    (str (add e1 (prod 3 e2)))) ; => "e1 + 3*e2"
+
+  (let [[+ - * /] [add sub prod div]
+        [e e1 e2 e12] (basis {1 1, 2 1})]
+    (str (+ e1 (* 3 e2)))) ; => "e1 + 3*e2"
+
   )

@@ -11,7 +11,7 @@
                         [1 [1 4]]
                         [0 [1 2 3]]
                         [5 [1 4]]]
-                       {1 1, 2 -1, 3 1, 4 1, 5 1}))
+                       {1 +1, 2 -1, 3 +1, 4 +1, 5 +1}))
 
 (def a2 (ga/multivector [[11 [2]] [1 [2 4]]]))
 
@@ -30,14 +30,56 @@
     (is (= (str a2) "11*e2 + e24"))))
 
 (deftest addition
-  (testing "basic addition"
-    (is (= (str (ga/+ a a)) "14*e3 + 12*e14 + 8*e23"))
-    (is (= (str (ga/+ a2 a2 a2)) "33*e2 + 3*e24"))))
+  (testing "geometric addition"
+    (let [+ ga/add]
+      (is (= (str (+ a a)) "14*e3 + 12*e14 + 8*e23"))
+      (is (= (str (+ a2 a2 a2)) "33*e2 + 3*e24")))))
 
 (deftest subtraction
-  (testing "basic subtraction"
-    (is (= (str (ga/- a)) "-7*e3 + -6*e14 + -4*e23"))
-    (is (= (ga/- a) (ga/- (ga/multivector 0 (:signature a)) a)))))
+  (testing "geometric subtraction"
+    (let [- ga/sub]
+      (is (= (- 3) -3))
+      (is (= (- 3 2) 1))
+      (is (= (str (- a)) "-7*e3 + -6*e14 + -4*e23"))
+      (is (= (- a) (- (ga/multivector 0 (:signature a)) a))))))
+
+(deftest product
+  (testing "geometric product"
+    (let [* ga/prod]
+      (is (= (str (* a 2)) "14*e3 + 12*e14 + 8*e23"))
+      (is (= (str (* a a)) "29 + -84*e134 + 48*e1234")))))
+
+(deftest reversion
+  (testing "multivector reversion"
+    (is (= (str (ga/rev a)) "7*e3 + -6*e14 + -4*e23"))
+    (is (= (str (ga/rev (ga/multivector 1))) "1"))))
+
+(deftest division
+  (testing "geometric division"
+    (let [/ ga/div]
+      (is (= (/ 2) 1/2))
+      (is (= (/ 2 3) 2/3))
+      (is (= (str (/ a (ga/multivector [[4 [3]]] (:signature a))))
+             "7/4 + e2 + -3/2*e134")))))
+
+(deftest grade-selection
+  (testing "grade selection"
+    (is (= (str (ga/grade a 2)) "6*e14 + 4*e23"))))
+
+(deftest power
+  (testing "multivector to integer power"
+    (is (= (str (ga/pow a 3)) "-301*e3 + 954*e14 + -172*e23"))))
+
+(deftest commutation
+  (testing "commutator product"
+    (is (= (str (ga/commutator a (ga/multivector [[4 [3]]] (:signature a))))
+           "16*e2"))))
+
+(deftest basis
+  (testing "using basis elements"
+    (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]
+          [e e1 e2 e12] (ga/basis {1 +1, 2 +1})]
+      (is (= (str (+ e1 (* 3 e2))) "e1 + 3*e2")))))
 
 (deftest simplify-element
   (testing "simplification of basis elements"
