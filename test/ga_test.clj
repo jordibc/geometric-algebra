@@ -77,9 +77,12 @@
 
 (deftest basis
   (testing "using basis elements"
-    (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]
-          [e e1 e2 e12] (ga/basis {1 +1, 2 +1})]
-      (is (= (str (+ e1 (* 3 e2))) "e1 + 3*e2")))))
+    (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]]
+      (let [[e e1 e2 e12] (ga/basis {1 +1, 2 +1})]
+        (is (= (str (+ e1 (* 3 e2))) "e1 + 3*e2")))
+      (let [[e e0 e1 e01] (ga/basis [1 1] 0)]
+        (is (= (str (+ e0 (* 3 e1)))) "e0 + 3*e1")
+        (is (= (str (* e1 e1)) "-1"))))))
 
 (deftest simplify-element
   (testing "simplification of basis elements"

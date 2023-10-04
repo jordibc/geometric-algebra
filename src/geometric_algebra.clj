@@ -116,7 +116,7 @@
      (number? b) (->MultiVector (for [[y e] (:blades a)] [(* y b) e])
                                 (:signature a))
      :else (let [signature (:signature a)]
-             (assert (= (:signature b) signature))
+             (assert (= (:signature b) signature) "different signatures")
              (multivector
               (for [[x ei] (:blades a), [y ej] (:blades b)]
                 (let [[elem factor] (simplify-element (concat ei ej) signature)]
@@ -219,15 +219,22 @@
 
 (defn basis
   "Return basis elements of a geometric algebra with the given signature."
-  ([signature] (basis signature 1))
+  ([signature] (basis signature nil))
   ([signature start]
    {:pre [(or (vector? signature) (map? signature))]}
-   (let [n (count signature)]
-     ;; TODO: If signature is a vector (like [1 1]), convert it to a
-     ;; map (like {[0] +1, [1] -1}).
-     (take (Math/pow 2 n)
-           (for [e (iterate #(next-element % n start) [])] ; e: basis element
-             (->MultiVector [[1 e]] signature)))))) ; as multivector
+   (if (vector? signature)
+     (let [[p q r_] signature
+           r (or r_ 0)
+           i0 (or start 1)
+           sigmap (zipmap (range i0 (+ i0 p q r))
+                          (concat (repeat p +1) (repeat q -1) (repeat r 0)))]
+       (basis sigmap nil))
+     (let [n (count signature)
+           i0 (apply min (keys signature))]
+       (assert (nil? start) "cannot use start when using a map as signature")
+       (take (Math/pow 2 n)
+             (for [e (iterate #(next-element % n i0) [])] ; e: basis element
+               (->MultiVector [[1 e]] signature))))))) ; as multivector
 
 
 (comment
@@ -267,7 +274,11 @@
     (str (add e1 (prod 3 e2)))) ; => "e1 + 3*e2"
 
   (let [[+ - * /] [add sub prod div]
-        [e e1 e2 e12] (basis {1 1, 2 1})]
+        [e e1 e2 e12] (basis {1 1, 2 1} 3)]
     (str (+ e1 (* 3 e2)))) ; => "e1 + 3*e2"
+
+  (let [[+ - * /] [add sub prod div]
+        [e e0 e1 e01] (basis [1 1] 0)]
+    (str (+ e0 (* 3 e1)))) ; => "e0 + 3*e1"
 
   )
