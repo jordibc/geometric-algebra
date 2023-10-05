@@ -70,6 +70,22 @@
   (testing "multivector to integer power"
     (is (= (str (ga/pow a 3)) "-301*e3 + 954*e14 + -172*e23"))))
 
+(deftest dot
+  (testing "inner product"
+    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+          [e e1 e2 e12] (ga/basis [2 0])
+          v (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (· v w)) "7")))))
+
+(deftest wedge
+  (testing "outer product"
+    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+          [e e1 e2 e12] (ga/basis [2 0])
+          v (+ e1 (* 3 e2))
+          w (* 2 (+ e2 e1))]
+      (is (= (str (∧ v w)) "-4*e12")))))
+
 (deftest commutation
   (testing "commutator product"
     (is (= (str (ga/commutator a (ga/multivector [[4 [3]]] (:signature a))))

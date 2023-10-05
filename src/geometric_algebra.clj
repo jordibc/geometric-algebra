@@ -191,6 +191,32 @@
         (if (>= n 0) v (div (multivector 1 (:signature a)) v))
         (recur (prod v a) (dec i))))))
 
+(defn dot
+  "Return the dot product (inner product) of multivectors a and b."
+  [a b]
+  (let [grades-a (set (for [[_ e] (:blades a)] (count e)))
+        grades-b (set (for [[_ e] (:blades b)] (count e)))]
+    (assert (and (= 1 (count grades-a)) (= 1 (count grades-b)))
+            "can only dot blades (for the moment)")
+    (let [ga (first grades-a)
+          gb (first grades-b)]
+      (assert (and (not= 0 ga) (not= 0 gb))
+              "dot not defined (yet) for scalars")
+      (-> (prod a b) (grade (abs (- ga gb)))))))
+
+(defn wedge
+  "Return the wedge product (exterior/outer product) of multivectors a and b."
+  [a b]
+  (let [grades-a (set (for [[_ e] (:blades a)] (count e)))
+        grades-b (set (for [[_ e] (:blades b)] (count e)))]
+    (assert (and (= 1 (count grades-a)) (= 1 (count grades-b)))
+            "can only wedge blades (for the moment)")
+    (let [ga (first grades-a)
+          gb (first grades-b)]
+      (assert (and (not= 0 ga) (not= 0 gb))
+              "wedge not defined (yet) for scalars")
+      (-> (prod a b) (grade (+ ga gb))))))
+
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
   [a b]
