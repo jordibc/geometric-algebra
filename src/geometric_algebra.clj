@@ -18,6 +18,9 @@
       "0"
       (str/join " + " (map blade->str blades))))) ; "7*e3 + 6*e14 + 4*e23"
 
+(defmethod print-method MultiVector [a w]
+  (.write w (str a))) ; so on the console the multivectors will look nice too
+
 
 ;; Simplifying a collection of blades to construct a "normalized" multivector.
 
