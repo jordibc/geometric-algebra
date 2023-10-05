@@ -30,19 +30,51 @@ The output should be:
 You can add, multiply, etc., those elements to create arbitrary
 multivectors.
 
-If you run:
-
 ```clojure
 (require '[geometric-algebra :as ga])
 
-(def a (ga/multivector [[7 [3]]
-                        [6 [1 4]]
-                        [4 [2 3]]]))
-
-(println (ga/add a a))
+(let [[+ - * /] [ga/add ga/sub ga/prod ga/div]
+      [e e1 e2 e12] (ga/basis [2 0])
+      v (+ 3 (* 4 e12))
+      w (+ 5 e1 (* 3 e2))]
+  (println "v =" v)                       ; 3 + 4*e12
+  (println "w =" w)                       ; 5 + e1 + 3*e2
+  (println "3*v =" (* 3 v))               ; 9 + 12*e12
+  (println "v + w =" (+ v w))             ; 8 + e1 + 3*e2 + 4*e12
+  (println "v - (1 + w) =" (- v (+ 1 w))) ; -3 + -1*e1 + -3*e2 + 4*e12
+  (println "v * w =" (* v w))             ; 15 + 15*e1 + 5*e2 + 20*e12
+  (println "w * v =" (* w v))             ; 15 + -9*e1 + 13*e2 + 20*e12
+  (println "v / (2*e2) =" (/ v (* 2 e2))) ; 2*e1 + 3/2*e2
+  (println "v^2 =" (ga/pow v 2)))         ; -7 + 24*e12
 ```
 
-It will show `14*e3 + 12*e14 + 8*e23`.
+
+## Signatures
+
+A geometric algebra is characterized by its
+[signature](https://en.wikipedia.org/wiki/Metric_signature).
+
+A signature looks like `[p q]` or `[p q r]`, saying how many basis
+vectors have a positive square (+1), negative (-1) and zero (0)
+respectively.
+
+When using the `basis` function to create the basis multivectors, you
+can pass the signature as a vector. But you can also instead use a map
+that says for each basis element its square. For example,
+astrophysicists normally would use for spacetime:
+
+```clojure
+(def signature {0 -1, 1 +1, 2 +1, 3 +1}) ; t, x, y, z  with e0 = e_t
+```
+
+whereas particle physicists normally would use:
+
+```clojure
+(def signature {0 +1, 1 -1, 2 -1, 3 -1})
+```
+
+which is the same signature as `[1 3]`, or `[1 3 0]`, in the vector
+notation.
 
 
 ## Tests
