@@ -33,10 +33,12 @@ multivectors.
 ```clojure
 (require '[geometric-algebra :as ga])
 
-(let [[+ - * /] [ga/add ga/sub ga/prod ga/div]
+(let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
       [e e1 e2 e12] (ga/basis [2 0])
       v (+ 3 (* 4 e12))
-      w (+ 5 e1 (* 3 e2))]
+      w (+ 5 e1 (* 3 e2))
+      a (+ (* 2 e1) (* 3 e2))
+      b (- (* 4 e1) (* 0.5 e2))]
   (println "v =" v)                       ; 3 + 4*e12
   (println "w =" w)                       ; 5 + e1 + 3*e2
   (println "3*v =" (* 3 v))               ; 9 + 12*e12
@@ -45,7 +47,10 @@ multivectors.
   (println "v * w =" (* v w))             ; 15 + 15*e1 + 5*e2 + 20*e12
   (println "w * v =" (* w v))             ; 15 + -9*e1 + 13*e2 + 20*e12
   (println "v / (2*e2) =" (/ v (* 2 e2))) ; 2*e1 + 3/2*e2
-  (println "v^2 =" (ga/pow v 2)))         ; -7 + 24*e12
+  (println "v^2 =" (ga/pow v 2))          ; -7 + 24*e12
+  (println "|v| =" (ga/norm v))           ; 5.0
+  (println "a · b =" (· a b))             ; 6.5
+  (println "a ∧ b =" (∧ a b)))            ; -13.0*e12
 ```
 
 

@@ -191,6 +191,9 @@
         (if (>= n 0) v (div (multivector 1 (:signature a)) v))
         (recur (prod v a) (dec i))))))
 
+(defn norm [a]
+  (Math/sqrt (scalar (prod a (rev a)))))
+
 (defn dot
   "Return the dot product (inner product) of multivectors a and b."
   [a b]
