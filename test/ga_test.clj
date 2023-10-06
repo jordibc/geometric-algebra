@@ -70,6 +70,15 @@
   (testing "multivector to integer power"
     (is (= (str (ga/pow a 3)) "-301*e3 + 954*e14 + -172*e23"))))
 
+(deftest norm
+  (testing "multivector norm"
+    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+          [e e1 e2 e12] (ga/basis [2 0])
+          v (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (< 3 (ga/norm v) 4))
+      (is (< 2 (ga/norm w) 3)))))
+
 (deftest dot
   (testing "inner product"
     (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
