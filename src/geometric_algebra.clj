@@ -208,6 +208,7 @@
 (defn dot
   "Return the dot product (inner product) of multivectors a and b."
   [a b]
+  {:pre [(= (:signature a) (:signature b))]}
   (let [grades-a (set (for [[_ e] (:blades a)] (count e)))
         grades-b (set (for [[_ e] (:blades b)] (count e)))]
     (assert (and (= 1 (count grades-a)) (= 1 (count grades-b)))
@@ -219,17 +220,22 @@
       (-> (prod a b) (grade (abs (- ga gb)))))))
 
 (defn wedge
-  "Return the wedge product (exterior/outer product) of multivectors a and b."
+  "Return the wedge product (also exterior/outer) of multivectors a and b."
   [a b]
-  (let [grades-a (set (for [[_ e] (:blades a)] (count e)))
-        grades-b (set (for [[_ e] (:blades b)] (count e)))]
-    (assert (and (= 1 (count grades-a)) (= 1 (count grades-b)))
-            "can only wedge blades (for the moment)")
-    (let [ga (first grades-a)
-          gb (first grades-b)]
-      (assert (and (not= 0 ga) (not= 0 gb))
-              "wedge not defined (yet) for scalars")
-      (-> (prod a b) (grade (+ ga gb))))))
+  {:pre [(= (:signature a) (:signature b))]}
+  (apply add
+         (for [r (range (grade-min a) (inc (grade-max a)))
+               s (range (grade-min b) (inc (grade-max b)))]
+           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+               (grade (+ r s)))))) ; <  >_(r+s)
+
+(defn antiwedge
+  "Return the antiwedge product (also regressive/meet) of multivectors a and b."
+  [a b]
+  (let [sig (:signature a)
+        i (->MultiVector [[1 (vec (keys sig))]] sig) ; unit pseudoscalar
+        i-inv (div i)] ; inverse (equal to i, except for maybe a sign)
+    (prod (wedge (prod a i-inv) (prod b i-inv)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
@@ -296,14 +302,18 @@
                    "*" prod
                    "/" div
                    "·" dot
-                   "∧" wedge}]
+                   "∧" wedge
+                   "∨" antiwedge
+                   "×" commutator}]
     `(do
        ~@(for [[op f] operators]
            `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
        (println "Defined operators:" ~(str/join " " (keys operators))))))
 
 
-(comment ; "Rich comment", with small examples of how to use the functions
+;; "Rich comment", with small examples of how to use the functions.
+
+(comment
 
   (def a (multivector [[4 [2 3]]
                        [7 [3]]
