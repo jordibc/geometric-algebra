@@ -82,6 +82,36 @@ which is the same signature as `[1 3]`, or `[1 3 0]`, in the vector
 notation.
 
 
+## Working on the repl
+
+When working on the repl, it is inconvenient to have to define a
+symbol for each multivector basis (or keep binding them in a `let`).
+
+There are a couple of handy macros that facilitate working with
+multivectors from the repl: `def-basis` and `def-ops`. They work by
+creating automatically all the symbols that we would expect.
+
+```clojure
+(require '[geometric-algebra :as ga])
+
+(ga/def-basis [3 1])
+;; Will print:
+;; Defined basis multivectors: e1 e2 e3 e4 e12 e13 e14 e23 e24 e34 e123 e124 e134 e234 e1234
+
+(ga/def-ops)
+;; Will print some warnings for replacing +, -, *, /, and then:
+;; Defined operators: + - * / · ∧
+
+;; Now we can easily create multivectors and operate with them.
+
+(* (+ 3 (* 4 e12))
+   (+ 5 e1 (* 3 e2))) ; => 15 + 15*e1 + 5*e2 + 20*e12
+
+(∧ (+ (* 2 e1) (* 3 e2))
+   (- (* 4 e1) (* 0.5 e2))) ; => -13.0*e12
+```
+
+
 ## Tests
 
 You can run some tests with:
