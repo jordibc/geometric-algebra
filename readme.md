@@ -33,7 +33,7 @@ multivectors.
 ```clojure
 (require '[geometric-algebra :as ga])
 
-(let [[+ - * / · ∧ ∨ ×] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge ga/antiwedge]
+(let [[+ - * / · ∧ ∨] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge ga/antiwedge]
       [e e1 e2 e12] (ga/basis [2 0])
       v (+ 3 (* 4 e12))
       w (+ 5 e1 (* 3 e2))
