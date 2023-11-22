@@ -180,6 +180,16 @@
   (->MultiVector (filter #(= (count (second %)) r) (:blades a))
                  (:signature a)))
 
+(defn grade-min
+  "Return the minimum grade in multivector a."
+  [a]
+  (count (second (first (:blades a))))) ; [[1 [1 2]] [1 [0 1 4]]] -> 2
+
+(defn grade-max
+  "Return the maximum grade in multivector a."
+  [a]
+  (count (second (last (:blades a))))) ; [[1 [1 2]] [1 [0 1 4]]] -> 3
+
 (defn pow
   "Return  a^n  (a raised to the nth power)."
   [a n]
