@@ -24,14 +24,14 @@
 
 ;; Simplifying a collection of blades to construct a "normalized" multivector.
 
-(defn add-values
+(defn- add-values
   "Return blade with the sum of the values of the given blades.
   It assumes (and doesn't check) that all blades have the same basis element."
   [blades]
   (let [[_ element] (first blades)] ; common element, like e13
     [(reduce + (map first blades)) element]))
 
-(defn merge-same-elements
+(defn- merge-same-elements
   "Return the blades, with the ones that have the same basis element combined.
   Example: e1 + 2*e2 + 3*e2  ->  e1 + 5*e2"
   [blades]
@@ -228,12 +228,12 @@
 
 ;; Basis.
 
-(defn last?
+(defn- last?
   "Is e the last of the blades with that number of vectors?"
   ([e n] (last? e n 1))
   ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
 
-(defn next-element
+(defn- next-element
   "Return the multivector (in dim n) base element next to e."
   [e n start]
   (if (last? e n start)
