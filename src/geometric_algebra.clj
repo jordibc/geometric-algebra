@@ -118,13 +118,14 @@
                                 (:signature b))
      (number? b) (->MultiVector (for [[y e] (:blades a)] [(* y b) e])
                                 (:signature a))
-     :else (let [signature (:signature a)]
-             (assert (= (:signature b) signature) "different signatures")
+     :else (let [sig (:signature a)]
+             (assert (= (:signature b) sig) "different signatures")
              (multivector
-              (for [[x ei] (:blades a), [y ej] (:blades b)]
-                (let [[elem factor] (simplify-element (concat ei ej) signature)]
+              (for [[x ei] (:blades a)
+                    [y ej] (:blades b)]
+                (let [[elem factor] (simplify-element (concat ei ej) sig)]
                   [(* factor x y) elem]))
-              signature))))
+              sig))))
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
