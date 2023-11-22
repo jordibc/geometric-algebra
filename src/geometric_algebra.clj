@@ -46,7 +46,7 @@
   (->> blades
        (sort-by second) ; sort by element
        (merge-same-elements) ; 2*e12 + 3*e12  ->  5*e12
-       (filterv #(not= (first %) 0)))) ; remove terms that are 0
+       (filterv #((complement zero?) (first %))))) ; remove terms that are 0
 
 (defn simplify-element
   "Return the simplification of a basis element, and the factor it carries.
