@@ -74,26 +74,34 @@
   (testing "multivector norm"
     (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
           [e e1 e2 e12] (ga/basis [2 0])
-          v (+ e1 (* 3 e2))
+          u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (< 3 (ga/norm v) 4))
+      (is (< 3 (ga/norm u) 4))
       (is (< 2 (ga/norm w) 3)))))
 
 (deftest dot
   (testing "inner product"
     (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
           [e e1 e2 e12] (ga/basis [2 0])
-          v (+ e1 (* 3 e2))
+          u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (· v w)) "7")))))
+      (is (= (str (· u w)) "7")))))
 
 (deftest wedge
   (testing "outer product"
-    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+    (let [[+ - * ∧] [ga/add ga/sub ga/prod ga/wedge]
           [e e1 e2 e12] (ga/basis [2 0])
-          v (+ e1 (* 3 e2))
+          u (+ e1 (* 3 e2))
           w (* 2 (+ e2 e1))]
-      (is (= (str (∧ v w)) "-4*e12")))))
+      (is (= (str (∧ u w)) "-4*e12")))))
+
+(deftest antiwedge
+  (testing "regressive product"
+    (let [[+ - * ∨] [ga/add ga/sub ga/prod ga/antiwedge]
+          [e e1 e2 e12] (ga/basis [2 0])
+          u (+ e1 (* 3 e2))
+          w (* 2 (+ e2 e1))]
+      (is (= (str (∨ u w)) "4")))))
 
 (deftest commutation
   (testing "commutator product"
