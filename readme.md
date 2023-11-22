@@ -33,7 +33,7 @@ multivectors.
 ```clojure
 (require '[geometric-algebra :as ga])
 
-(let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+(let [[+ - * / · ∧ ∨ ×] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge ga/antiwedge ga/commutator]
       [e e1 e2 e12] (ga/basis [2 0])
       v (+ 3 (* 4 e12))
       w (+ 5 e1 (* 3 e2))
@@ -50,7 +50,9 @@ multivectors.
   (println "v^2 =" (ga/pow v 2))          ; -7 + 24*e12
   (println "|v| =" (ga/norm v))           ; 5.0
   (println "a · b =" (· a b))             ; 6.5
-  (println "a ∧ b =" (∧ a b)))            ; -13.0*e12
+  (println "a ∧ b =" (∧ a b))             ; -13.0*e12
+  (println "a ∨ b =" (∨ a b))             ; 13.0
+  (println "a × b =" (× a b)))            ; -13.0*e12
 ```
 
 
@@ -94,18 +96,18 @@ creating automatically all the symbols that we would expect.
 ```clojure
 (require '[geometric-algebra :as ga])
 
-(ga/def-basis [3 1])
+(ga/def-basis [1 3] 0) ; start with e0, the "space-time algebra"
 ;; Will print:
-;; Defined basis multivectors: e1 e2 e3 e4 e12 e13 e14 e23 e24 e34 e123 e124 e134 e234 e1234
+;; Defined basis multivectors: e0 e1 e2 e3 e01 e02 e03 e12 e13 e23 e012 e013 e023 e123 e0123
 
 (ga/def-ops)
 ;; Will print some warnings for replacing +, -, *, /, and then:
-;; Defined operators: + - * / · ∧
+;; Defined operators: + - * / · ∧ ∨ ×
 
 ;; Now we can easily create multivectors and operate with them.
 
 (* (+ 3 (* 4 e12))
-   (+ 5 e1 (* 3 e2))) ; => 15 + 15*e1 + 5*e2 + 20*e12
+   (+ 5 e1 (* 3 e2))) ; => 15 + -9*e1 + 13*e2 + 20*e12
 
 (∧ (+ (* 2 e1) (* 3 e2))
    (- (* 4 e1) (* 0.5 e2))) ; => -13.0*e12
