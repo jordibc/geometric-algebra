@@ -285,14 +285,18 @@
              (for [e (iterate #(next-element % n i0) [])] ; e: basis element
                (->MultiVector [[1 e]] signature))))))) ; as multivector
 
+
+;; Macros to define basis elements and operators (great for the repl).
+
 (defmacro def-basis
   "Create global vars with the names of the multivector basis."
-  [signature]
-  (let [elems (rest (basis signature))] ; all but "1", which is not a symbol
-    `(do
-       ~@(for [e elems]
-           `(def ~(symbol (str e)) ~e)) ; looks like (def e1 #object[e1])
-       (println "Defined basis multivectors:" ~(str/join " " elems)))))
+  ([signature] `(def-basis ~signature nil))
+  ([signature start]
+   (let [elems (rest (basis signature start))] ; exclude "1" (not a symbol)
+     `(do
+        ~@(for [e elems]
+            `(def ~(symbol (str e)) ~e)) ; looks like (def e1 #object[e1])
+        (println "Defined basis multivectors:" ~(str/join " " elems))))))
 
 (defmacro def-ops
   "Create global vars with multivector operators, replacing some core ones."
