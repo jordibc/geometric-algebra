@@ -237,6 +237,47 @@
   [a b]
   (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
+(defn lcontract
+  "Return the left contraction of multivectors a and b."
+  [a b]
+  {:pre [(= (:signature a) (:signature b))]}
+  (apply add
+         (for [r (grades a)
+               s (grades b)]
+           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+               (grade (- s r)))))) ; <  >_(s-r)
+
+(defn rcontract
+  "Return the right contraction of multivectors a and b."
+  [a b]
+  {:pre [(= (:signature a) (:signature b))]}
+  (apply add
+         (for [r (grades a)
+               s (grades b)]
+           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+               (grade (- r s)))))) ; <  >_(r-s)
+
+(defn scalar-prod
+  "Return the scalar product of multivectors a and b."
+  [a b]
+  {:pre [(= (:signature a) (:signature b))]}
+  (scalar
+   (apply add
+          (for [r (grades a)
+                s (grades b)]
+            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                (grade 0)))))) ; <  >_0
+
+(defn fat-dot
+  "Return the \"fat dot\" product of multivectors a and b."
+  [a b]
+  {:pre [(= (:signature a) (:signature b))]}
+  (apply add
+         (for [r (grades a)
+               s (grades b)]
+           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+               (grade (abs (- r s))))))) ; <  >_|r-s|
+
 
 ;; Basis.
 
@@ -296,14 +337,19 @@
 (defmacro def-ops
   "Create global vars with multivector operators, replacing some core ones."
   []
-  (let [operators {"+" add
+  (let [operators (array-map ; so they appear in order
+                   "+" add
                    "-" sub
                    "*" prod
                    "/" div
                    "·" dot
                    "∧" wedge
                    "∨" antiwedge
-                   "×" commutator}]
+                   "×" commutator
+                   "⌋" lcontract
+                   "⌊" rcontract
+                   "∘" scalar-prod ; NOTE: we use "*" for prod
+                   "•" fat-dot)]
     `(do
        ~@(for [[op f] operators]
            `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on

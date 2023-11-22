@@ -72,7 +72,7 @@
 
 (deftest norm
   (testing "multivector norm"
-    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+    (let [[+ - *] [ga/add ga/sub ga/prod]
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
@@ -81,7 +81,7 @@
 
 (deftest dot
   (testing "inner product"
-    (let [[+ - * / · ∧] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge]
+    (let [[+ - * ·] [ga/add ga/sub ga/prod ga/dot]
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
@@ -92,21 +92,56 @@
     (let [[+ - * ∧] [ga/add ga/sub ga/prod ga/wedge]
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
-          w (* 2 (+ e2 e1))]
-      (is (= (str (∧ u w)) "-4*e12")))))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (∧ u w)) "-1*e12")))))
 
 (deftest antiwedge
   (testing "regressive product"
     (let [[+ - * ∨] [ga/add ga/sub ga/prod ga/antiwedge]
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
-          w (* 2 (+ e2 e1))]
-      (is (= (str (∨ u w)) "4")))))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (∨ u w)) "1")))))
 
-(deftest commutation
+(deftest commutator
   (testing "commutator product"
-    (is (= (str (ga/commutator a (ga/multivector [[4 [3]]] (:signature a))))
-           "16*e2"))))
+    (let [[+ - * ×] [ga/add ga/sub ga/prod ga/commutator]
+          [e e1 e2 e12] (ga/basis [2 0])
+          u (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (× u w)) "-1*e12")))))
+
+(deftest lcontract
+  (testing "left contraction"
+    (let [[+ - * ⌋] [ga/add ga/sub ga/prod ga/lcontract]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (str (⌋ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
+      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e2))) "1"))
+      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e12))) "-1 + -1*e1 + e2")))))
+
+(deftest rcontract
+  (testing "right contraction"
+    (let [[+ - * ⌊] [ga/add ga/sub ga/prod ga/rcontract]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (str (⌊ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
+      (is (= (str (⌊ (+ e1 e2 e12) (+ 1 e2))) "1 + 2*e1 + e2 + e12"))
+      (is (= (str (⌊ (+ e1 e2 e12) (+ 1 e12))) "-1 + e1 + e2 + e12")))))
+
+(deftest scalar-prod
+  (testing "scalar product"
+    (let [[+ - * ∘] [ga/add ga/sub ga/prod ga/scalar-prod]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (str (∘ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
+      (is (= (str (∘ (+ e1 e2 e12) (+ 1 e2))) "1"))
+      (is (= (str (∘ (+ e1 e2 e12) (+ 1 e12))) "-1")))))
+
+(deftest fat-dot
+  (testing "fat-dot product"
+    (let [[+ - * •] [ga/add ga/sub ga/prod ga/fat-dot]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (str (• (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
+      (is (= (str (• (+ e1 e2 e12) (+ 1 e2))) "1 + 2*e1 + e2 + e12"))
+      (is (= (str (• (+ e1 e2 e12) (+ 1 e12))) "-1 + 2*e2 + e12")))))
 
 (deftest basis
   (testing "using basis elements"
