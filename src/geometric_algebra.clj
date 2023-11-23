@@ -348,9 +348,11 @@
                    "×" commutator
                    "⌋" lcontract
                    "⌊" rcontract
-                   "∘" scalar-prod ; NOTE: we use "*" for prod
+                   "∘" scalar-prod ; NOTE: not standard, but we use "*" for prod
                    "•" fat-dot)]
     `(do
+       (println "Replacing operators + - * / with generalized versions."
+                "You may see the corresponding warnings.")
        ~@(for [[op f] operators]
            `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
        (println "Defined operators:" ~(str/join " " (keys operators))))))
