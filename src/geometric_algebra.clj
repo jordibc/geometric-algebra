@@ -203,26 +203,22 @@
 (defn dot
   "Return the dot product (inner product) of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
-  (let [grades-a (set (for [[_ e] (:blades a)] (count e)))
-        grades-b (set (for [[_ e] (:blades b)] (count e)))]
-    (assert (and (= 1 (count grades-a)) (= 1 (count grades-b)))
-            "can only dot blades (for the moment)")
-    (let [ga (first grades-a)
-          gb (first grades-b)]
-      (assert (and (not= 0 ga) (not= 0 gb))
-              "dot not defined (yet) for scalars")
-      (-> (prod a b) (grade (abs (- ga gb)))))))
+  (reduce add
+          (for [r (grades a)
+                s (grades b)]
+            (if (or (zero? r) (zero? s))
+              0
+              (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                  (grade (abs (- r s)))))))) ; <  >_|r-s|
 
 (defn wedge
   "Return the wedge product (also exterior/outer) of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
-  (apply add
-         (for [r (grades a)
-               s (grades b)]
-           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-               (grade (+ r s)))))) ; <  >_(r+s)
+  (reduce add
+          (for [r (grades a)
+                s (grades b)]
+            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                (grade (+ r s)))))) ; <  >_(r+s)
 
 (defn antiwedge
   "Return the antiwedge product (also regressive/meet) of multivectors a and b."
@@ -240,43 +236,39 @@
 (defn lcontract
   "Return the left contraction of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
-  (apply add
-         (for [r (grades a)
-               s (grades b)]
-           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-               (grade (- s r)))))) ; <  >_(s-r)
+  (reduce add
+          (for [r (grades a)
+                s (grades b)]
+            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                (grade (- s r)))))) ; <  >_(s-r)
 
 (defn rcontract
   "Return the right contraction of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
-  (apply add
-         (for [r (grades a)
-               s (grades b)]
-           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-               (grade (- r s)))))) ; <  >_(r-s)
+  (reduce add
+          (for [r (grades a)
+                s (grades b)]
+            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                (grade (- r s)))))) ; <  >_(r-s)
 
 (defn scalar-prod
   "Return the scalar product of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
   (scalar
-   (apply add
-          (for [r (grades a)
-                s (grades b)]
-            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                (grade 0)))))) ; <  >_0
+   (reduce add
+           (for [r (grades a)
+                 s (grades b)]
+             (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                 (grade 0)))))) ; <  >_0
 
 (defn fat-dot
   "Return the \"fat dot\" product of multivectors a and b."
   [a b]
-  {:pre [(= (:signature a) (:signature b))]}
-  (apply add
-         (for [r (grades a)
-               s (grades b)]
-           (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-               (grade (abs (- r s))))))) ; <  >_|r-s|
+  (reduce add
+          (for [r (grades a)
+                s (grades b)]
+            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                (grade (abs (- r s))))))) ; <  >_|r-s|
 
 
 ;; Basis.
