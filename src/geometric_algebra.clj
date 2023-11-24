@@ -129,7 +129,7 @@
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
-  "Return the reverse of multivector. For example: e12 -> e21 = -e12."
+  "Return the reverse of multivector a. For example: e12 -> e21 = -e12."
   [a]
   (if (number? a)
     a
@@ -139,7 +139,7 @@
        (:signature a)))))
 
 (defn scalar?
-  "Return true if it is a number or a multivector with only a scalar blade."
+  "Return true if a is a number or a multivector with only a scalar blade."
   [a]
   (or
    (number? a)
@@ -300,13 +300,13 @@
   ([signature start]
    {:pre [(or (vector? signature) (map? signature))]}
    (if (vector? signature)
-     (let [[p q r_] signature
+     (let [[p q r_] signature ; signature is a vector -> convert to map
            r (or r_ 0)
            i0 (or start 1)
            sigmap (zipmap (range i0 (+ i0 p q r))
                           (concat (repeat p +1) (repeat q -1) (repeat r 0)))]
-       (basis sigmap nil))
-     (let [n (count signature)
+       (recur sigmap nil)) ; call again, but with signature as a map
+     (let [n (count signature) ; signature is a map
            i0 (apply min (keys signature))]
        (assert (nil? start) "cannot use start when using a map as signature")
        (take (Math/pow 2 n)
