@@ -181,8 +181,8 @@
                  (:signature a)))
 
 (defn grades
-  [a]
   "Return the grades present in multivector a."
+  [a]
   (distinct (map (comp count second) (:blades a)))) ; e1 + e2 + e0245 -> (1, 4)
 
 (defn pow
