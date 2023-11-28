@@ -129,11 +129,21 @@
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
-  "Return the reverse of multivector a. For example: e12 -> e21 = -e12."
+  "Return  a^~  , the reverse of multivector a. Example: e12 -> e21 = -e12."
   [a]
   (if (number? a)
     a
     (let [keeps-sign #(-> (count %) (quot 2) even?)]
+      (->MultiVector
+       (for [[x e] (:blades a)] [(if (keeps-sign e) x (- x)) e])
+       (:signature a)))))
+
+(defn invol
+  "Return  a^^  , the involution of multivector a. Example: 1 + e1 -> 1 - e1."
+  [a]
+  (if (number? a)
+    a
+    (let [keeps-sign #(-> (count %) even?)]
       (->MultiVector
        (for [[x e] (:blades a)] [(if (keeps-sign e) x (- x)) e])
        (:signature a)))))
@@ -159,20 +169,34 @@
           [x _] (first blades)]
       (if (empty? blades) 0 x))))
 
+(defn inv
+  "Return  1 / a  , the inverse of multivector a if it exists."
+  [a]
+  (if (number? a)
+    (/ 1 a)
+    (let [ar (rev a)
+          aar (prod a ar)]
+      (assert (scalar? aar) (str "multivector has no inverse: " a))
+      (let [norm2 (scalar aar)]
+        (assert ((complement zero?) norm2) (str "multivector has 0 norm: " a))
+        (prod ar (/ 1 norm2))))))
+
 (defn div
   "Return  a / b = a * b-inv  (if b has an inverse)."
-  ([a] (if (number? a) (/ 1 a) (div (multivector 1 (:signature a)) a)))
+  ([a] (div 1 a))
   ([a b]
    (cond
      (and (number? a) (number? b)) (/ a b)
      (number? a) (div (multivector a (:signature b)) b)
      (number? b) (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
                                 (:signature a))
-     :else (let [b-r (rev b)
-                 b-norm2 (scalar (prod b b-r)) ; fails if b*br is not a scalar
-                 b-inv (div b-r b-norm2)]
-             (prod a b-inv))))
+     :else (prod a (inv b))))
   ([a b & more] (reduce div (div a b) more)))
+
+(defn pseudoscalar-unit
+  "Return the pseudoscalar unit corresponding to signature sig."
+  [sig]
+  (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn grade
   "Grade-projection operator  <a>_r  (select only blades of the given grade)."
@@ -194,7 +218,7 @@
     (loop [v (multivector 1 (:signature a))
            i (abs n)]
       (if (zero? i)
-        (if (>= n 0) v (div (multivector 1 (:signature a)) v))
+        (if (>= n 0) v (inv v))
         (recur (prod v a) (dec i))))))
 
 (defn norm [a]
@@ -203,30 +227,34 @@
 (defn dot
   "Return the dot product (inner product) of multivectors a and b."
   [a b]
-  (reduce add
-          (for [r (grades a)
-                s (grades b)]
-            (if (or (zero? r) (zero? s))
-              0
-              (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                  (grade (abs (- r s)))))))) ; <  >_|r-s|
+  (if (or (number? a) (number? b))
+    0
+    (reduce add
+            (for [r (grades a)
+                  s (grades b)]
+              (if (or (zero? r) (zero? s))
+                0
+                (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                    (grade (abs (- r s))))))))) ; <  >_|r-s|
 
 (defn wedge
   "Return the wedge product (also exterior/outer) of multivectors a and b."
   [a b]
-  (reduce add
-          (for [r (grades a)
-                s (grades b)]
-            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                (grade (+ r s)))))) ; <  >_(r+s)
+  (cond
+    (and (number? a) (number? b)) (* a b)
+    (number? a) (wedge (multivector a (:signature b)) b)
+    (number? b) (wedge a (multivector b (:signature a)))
+    :else (reduce add
+                  (for [r (grades a)
+                        s (grades b)]
+                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                        (grade (+ r s))))))) ; <  >_(r+s)
 
 (defn antiwedge
   "Return the antiwedge product (also regressive/meet) of multivectors a and b."
   [a b]
-  (let [sig (:signature a)
-        i (->MultiVector [[1 (vec (keys sig))]] sig) ; unit pseudoscalar
-        i-inv (div i)] ; inverse (equal to i, except for maybe a sign)
-    (prod (wedge (prod a i-inv) (prod b i-inv)) i))) ; ((a i^-1) ^ (b i^-1)) i
+  (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
+    (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
@@ -236,39 +264,60 @@
 (defn lcontract
   "Return the left contraction of multivectors a and b."
   [a b]
-  (reduce add
-          (for [r (grades a)
-                s (grades b)]
-            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                (grade (- s r)))))) ; <  >_(s-r)
+  (cond
+    (and (number? a) (number? b)) (* a b)
+    (number? a) (lcontract (multivector a (:signature b)) b)
+    (number? b) (lcontract a (multivector b (:signature a)))
+    :else (reduce add
+                  (for [r (grades a)
+                        s (grades b)]
+                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                        (grade (- s r))))))) ; <  >_(s-r)
 
 (defn rcontract
   "Return the right contraction of multivectors a and b."
   [a b]
-  (reduce add
-          (for [r (grades a)
-                s (grades b)]
-            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                (grade (- r s)))))) ; <  >_(r-s)
+  (cond
+    (and (number? a) (number? b)) (* a b)
+    (number? a) (rcontract (multivector a (:signature b)) b)
+    (number? b) (rcontract a (multivector b (:signature a)))
+    :else (reduce add
+                  (for [r (grades a)
+                        s (grades b)]
+                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                        (grade (- r s))))))) ; <  >_(r-s)
 
 (defn scalar-prod
   "Return the scalar product of multivectors a and b."
   [a b]
-  (scalar
-   (reduce add
-           (for [r (grades a)
-                 s (grades b)]
-             (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                 (grade 0)))))) ; <  >_0
+  (cond
+    (and (number? a) (number? b)) (* a b)
+    (number? a) (scalar-prod (multivector a (:signature b)) b)
+    (number? b) (scalar-prod a (multivector b (:signature a)))
+    :else (scalar
+           (reduce add
+                   (for [r (grades a)
+                         s (grades b)]
+                     (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                         (grade 0))))))) ; <  >_0
 
 (defn fat-dot
   "Return the \"fat dot\" product of multivectors a and b."
   [a b]
-  (reduce add
-          (for [r (grades a)
-                s (grades b)]
-            (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                (grade (abs (- r s))))))) ; <  >_|r-s|
+  (cond
+    (and (number? a) (number? b)) (* a b)
+    (number? a) (fat-dot (multivector a (:signature b)) b)
+    (number? b) (fat-dot a (multivector b (:signature a)))
+    :else (reduce add
+                  (for [r (grades a)
+                        s (grades b)]
+                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                        (grade (abs (- r s)))))))) ; <  >_|r-s|
+
+(defn proj
+  "Return  P_b(a)  , the projection of multivector a on b."
+  [a b]
+  (-> (lcontract a (inv b)) (lcontract b)))
 
 
 ;; Basis.
