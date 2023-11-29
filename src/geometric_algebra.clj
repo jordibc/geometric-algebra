@@ -187,7 +187,6 @@
   ([a b]
    (cond
      (and (number? a) (number? b)) (/ a b)
-     (number? a) (div (multivector a (:signature b)) b)
      (number? b) (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
                                 (:signature a))
      :else (prod a (inv b))))
