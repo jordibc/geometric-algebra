@@ -291,7 +291,7 @@
 (defn proj
   "Return  P_b(a)  , the projection of multivector a on b."
   [a b]
-  (-> (lcontract a (inv b)) (lcontract b)))
+  (-> (lcontract a (inv b)) (prod b))) ; also equal to  ( a _| b^-1 ) _| b
 
 
 ;; Basis.
