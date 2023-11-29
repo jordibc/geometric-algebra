@@ -254,27 +254,27 @@
 (defn wedge
   "Return the wedge product (also exterior/outer) of multivectors a and b."
   [a b]
-  (graded-prod a b +)) ; < >_(r+s)
+  (graded-prod a b +)) ; sum  < <a>_r * <b>_s >_(r+s)
 
 (defn lcontract
   "Return the left contraction of multivectors a and b."
   [a b]
-  (graded-prod a b (fn [r s] (- s r)))) ; < >_(s-r)
+  (graded-prod a b (fn [r s] (- s r)))) ; sum  < <a>_r * <b>_s >_(s-r)
 
 (defn rcontract
   "Return the right contraction of multivectors a and b."
   [a b]
-  (graded-prod a b -)) ; < >_(r-s)
+  (graded-prod a b -)) ; sum  < <a>_r * <b>_s >_(r-s)
 
 (defn scalar-prod
   "Return the scalar product of multivectors a and b."
   [a b]
-  (scalar (graded-prod a b (fn [r s] 0)))) ; < >_0
+  (scalar (graded-prod a b (fn [r s] 0)))) ; sum  < <a>_r * <b>_s >_0
 
 (defn fat-dot
   "Return the \"fat dot\" product of multivectors a and b."
   [a b]
-  (graded-prod a b (fn [r s] (abs (- r s))))) ; < >_|r-s|
+  (graded-prod a b (fn [r s] (abs (- r s))))) ; sum  < <a>_r * <b>_s >_|r-s|
 
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
