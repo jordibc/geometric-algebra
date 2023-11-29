@@ -101,7 +101,7 @@
   "Return  -a  for one argument, a - b  for two, a - b - c  etc."
   ([a] (if (number? a)
          (- a)
-         (multivector
+         (->MultiVector
           (for [[value element] (:blades a)] [(- value) element])
           (:signature a))))
   ([a b] (add a (sub b)))
