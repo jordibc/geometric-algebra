@@ -184,12 +184,7 @@
 (defn div
   "Return  a / b = a * b-inv  (if b has an inverse)."
   ([a] (div 1 a))
-  ([a b]
-   (cond
-     (and (number? a) (number? b)) (/ a b)
-     (number? b) (->MultiVector (for [[x e] (:blades a)] [(/ x b) e])
-                                (:signature a))
-     :else (prod a (inv b))))
+  ([a b] (prod a (inv b)))
   ([a b & more] (reduce div (div a b) more)))
 
 (defn pseudoscalar-unit
