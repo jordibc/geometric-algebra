@@ -170,7 +170,7 @@
       (if (empty? blades) 0 x))))
 
 (defn inv
-  "Return  1 / a  , the inverse of multivector a if it exists."
+  "Return  a^-1  , the inverse of multivector a if it exists."
   [a]
   (if (number? a)
     (/ 1 a)
@@ -182,7 +182,7 @@
         (prod ar (/ 1 norm2))))))
 
 (defn div
-  "Return  a / b = a * b-inv  (if b has an inverse)."
+  "Return  a / b = a * b^-1  (if b has an inverse)."
   ([a] (div 1 a))
   ([a b] (prod a (inv b)))
   ([a b & more] (reduce div (div a b) more)))
@@ -209,7 +209,7 @@
   {:pre [(or (scalar? a) (int? n))]}
   (if (scalar? a)
     (Math/pow (scalar a) n)
-    (loop [v (multivector 1 (:signature a))
+    (loop [v 1
            i (abs n)]
       (if (zero? i)
         (if (>= n 0) v (inv v))
