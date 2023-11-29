@@ -237,82 +237,56 @@
                 (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
                     (grade (abs (- r s))))))))) ; <  >_|r-s|
 
-(defn wedge
-  "Return the wedge product (also exterior/outer) of multivectors a and b."
-  [a b]
+(defn- graded-prod
+  "Return a \"graded product\" of multivectors a and b. That is a product that
+  looks like  sum_r,s ( < <a>_r * <b>_s >_g )  where g is the grade obtained
+  from r,s with (select-grade r s)."
+  [a b select-grade]
   (cond
     (and (number? a) (number? b)) (* a b)
-    (number? a) (wedge (multivector a (:signature b)) b)
-    (number? b) (wedge a (multivector b (:signature a)))
+    (number? a) (graded-prod (multivector a (:signature b)) b select-grade)
+    (number? b) (graded-prod a (multivector b (:signature a)) select-grade)
     :else (reduce add
                   (for [r (grades a)
                         s (grades b)]
                     (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                        (grade (+ r s))))))) ; <  >_(r+s)
+                        (grade (select-grade r s))))))) ; < >_(select-grade r s)
 
-(defn antiwedge
-  "Return the antiwedge product (also regressive/meet) of multivectors a and b."
+(defn wedge
+  "Return the wedge product (also exterior/outer) of multivectors a and b."
   [a b]
-  (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
-    (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
+  (graded-prod a b +)) ; < >_(r+s)
+
+(defn lcontract
+  "Return the left contraction of multivectors a and b."
+  [a b]
+  (graded-prod a b (fn [r s] (- s r)))) ; < >_(s-r)
+
+(defn rcontract
+  "Return the right contraction of multivectors a and b."
+  [a b]
+  (graded-prod a b -)) ; < >_(r-s)
+
+(defn scalar-prod
+  "Return the scalar product of multivectors a and b."
+  [a b]
+  (scalar (graded-prod a b (fn [r s] 0)))) ; < >_0
+
+(defn fat-dot
+  "Return the \"fat dot\" product of multivectors a and b."
+  [a b]
+  (graded-prod a b (fn [r s] (abs (- r s))))) ; < >_|r-s|
 
 (defn commutator
   "Return  a x b , the commutator product of multivectors a and b."
   [a b]
   (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
-(defn lcontract
-  "Return the left contraction of multivectors a and b."
+(defn antiwedge
+  "Return the antiwedge product (also regressive/meet) of multivectors a and b."
   [a b]
-  (cond
-    (and (number? a) (number? b)) (* a b)
-    (number? a) (lcontract (multivector a (:signature b)) b)
-    (number? b) (lcontract a (multivector b (:signature a)))
-    :else (reduce add
-                  (for [r (grades a)
-                        s (grades b)]
-                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                        (grade (- s r))))))) ; <  >_(s-r)
-
-(defn rcontract
-  "Return the right contraction of multivectors a and b."
-  [a b]
-  (cond
-    (and (number? a) (number? b)) (* a b)
-    (number? a) (rcontract (multivector a (:signature b)) b)
-    (number? b) (rcontract a (multivector b (:signature a)))
-    :else (reduce add
-                  (for [r (grades a)
-                        s (grades b)]
-                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                        (grade (- r s))))))) ; <  >_(r-s)
-
-(defn scalar-prod
-  "Return the scalar product of multivectors a and b."
-  [a b]
-  (cond
-    (and (number? a) (number? b)) (* a b)
-    (number? a) (scalar-prod (multivector a (:signature b)) b)
-    (number? b) (scalar-prod a (multivector b (:signature a)))
-    :else (scalar
-           (reduce add
-                   (for [r (grades a)
-                         s (grades b)]
-                     (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                         (grade 0))))))) ; <  >_0
-
-(defn fat-dot
-  "Return the \"fat dot\" product of multivectors a and b."
-  [a b]
-  (cond
-    (and (number? a) (number? b)) (* a b)
-    (number? a) (fat-dot (multivector a (:signature b)) b)
-    (number? b) (fat-dot a (multivector b (:signature a)))
-    :else (reduce add
-                  (for [r (grades a)
-                        s (grades b)]
-                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                        (grade (abs (- r s)))))))) ; <  >_|r-s|
+  (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
+    (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn proj
   "Return  P_b(a)  , the projection of multivector a on b."
