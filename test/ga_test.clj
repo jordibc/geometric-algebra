@@ -13,7 +13,7 @@
                         [5 [1 4]]]
                        {1 +1, 2 -1, 3 +1, 4 +1, 5 +1}))
 
-(def a2 (ga/multivector [[11 [2]] [1 [2 4]]]))
+(def a2 (ga/multivector [[11 [2]] [1 [2 4]]] {0 1, 1 1, 2 1, 3 1, 4 1}))
 
 
 ;; The tests themselves.
@@ -23,7 +23,7 @@
     (is (= a #geometric_algebra.MultiVector{:blades [[7 [3]] [6 [1 4]] [4 [2 3]]]
                                             :signature {1 1, 2 -1, 3 1, 4 1, 5 1}}))
     (is (= a2 #geometric_algebra.MultiVector{:blades [[11 [2]] [1 [2 4]]]
-                                             :signature nil}))))
+                                             :signature {0 1, 1 1, 2 1, 3 1, 4 1}}))))
 (deftest to-string
   (testing "transforming to string"
     (is (= (str a) "7*e3 + 6*e14 + 4*e23"))
@@ -52,7 +52,7 @@
 (deftest reversion
   (testing "multivector reversion"
     (is (= (str (ga/rev a)) "7*e3 + -6*e14 + -4*e23"))
-    (is (= (str (ga/rev (ga/multivector 1))) "1"))))
+    (is (= (str (ga/rev (ga/multivector 1 {}))) "1"))))
 
 (deftest division
   (testing "geometric division"
@@ -154,10 +154,11 @@
 
 (deftest simplify-element
   (testing "simplification of basis elements"
-    (is (= (ga/simplify-element [3 2 3] nil) [[2] -1]))
-    (is (= (ga/simplify-element [5 4 1 2 3] nil) [[1 2 3 4 5] -1]))
-    (is (= (ga/simplify-element [5 4 2 2 3] {2 -1, 3 1, 4 1, 5 1}) [[3 4 5] 1]))
-    (is (= (ga/simplify-element [1 1 2 2 3] nil) [[3] 1]))))
+    (let [sig {1 1, 2 1, 3 1, 4 1, 5 1}]
+      (is (= (ga/simplify-element [3 2 3] sig) [[2] -1]))
+      (is (= (ga/simplify-element [5 4 1 2 3] sig) [[1 2 3 4 5] -1]))
+      (is (= (ga/simplify-element [5 4 2 2 3] {2 -1, 3 1, 4 1, 5 1}) [[3 4 5] 1]))
+      (is (= (ga/simplify-element [1 1 2 2 3] sig) [[3] 1])))))
 
 (deftest simplify-blades
   (testing "simplification of blades"

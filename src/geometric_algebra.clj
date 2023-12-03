@@ -60,7 +60,7 @@
         (nil? e-rest) [(if e0 (conj result e0) result) factor] ; we are done!
         (= e0 e1) (recur (rest e-rest) ; repeated element -> contract
                          result
-                         (* factor (if signature (signature e0) +1)))
+                         (* factor (signature e0)))
         (> e0 e1) (if (empty? result) ; unsorted order -> swap
                     (recur (concat [e0] (rest e-rest))
                            [e1]
@@ -74,12 +74,27 @@
 
 (defn multivector ; constructor
   "Create a new multivector."
-  ([blades-or-num] (multivector blades-or-num nil))
-  ([blades-or-num signature]
-   (->MultiVector (if (number? blades-or-num)
-                    [[blades-or-num []]] ; "upgrade" number to single blade
-                    (simplify-blades blades-or-num)) ; just blades
-                  signature)))
+  [blades-or-num signature]
+  (->MultiVector (if (number? blades-or-num)
+                   (if (zero? blades-or-num)
+                     [] ; 0 has no blades
+                     [[blades-or-num []]]) ; "upgrade" number to single blade
+                   (simplify-blades blades-or-num)) ; just blades
+                 signature))
+
+(defn multivector?
+  "Return true if a is a multivector (numbers are multivectors too)."
+  [a]
+  (or
+   (number? a)
+   (= (class a) geometric_algebra.MultiVector)))
+
+(defn same-algebra?
+  "Return true if the arguments belong to the same geometric algebra."
+  [a b]
+  {:pre [(and (multivector? a) (multivector? b))]}
+  (or (number? a) (number? b) ; numbers operate as themselves in any algebra
+      (= (:signature a) (:signature b)))) ; multivectors must share signature
 
 
 ;; Operations.
@@ -89,37 +104,37 @@
   ([] 0)
   ([a] a)
   ([a b]
+   {:pre [(same-algebra? a b)]}
    (cond
      (and (number? a) (number? b)) (+ a b)
      (number? a) (add (multivector a (:signature b)) b)
      (number? b) (add a (multivector b (:signature a)))
-     :else (do (assert (= (:signature a) (:signature b)) "different signatures")
-               (multivector (concat (:blades a) (:blades b)) (:signature a)))))
+     :else (multivector (concat (:blades a) (:blades b)) (:signature a))))
   ([a b & more] (reduce add (add a b) more)))
 
 (defn sub
-  "Return  -a  for one argument, a - b  for two, a - b - c  etc."
-  ([a] (if (number? a)
-         (- a)
-         (->MultiVector
-          (for [[value element] (:blades a)] [(- value) element])
-          (:signature a))))
+  "Return -a for one argument, a - b for two, a - b - c, etc."
+  ([a]
+   {:pre [(multivector? a)]}
+   (if (number? a)
+     (- a)
+     (->MultiVector
+      (for [[value element] (:blades a)] [(- value) element])
+      (:signature a))))
   ([a b] (add a (sub b)))
   ([a b & more] (reduce sub (sub a b) more)))
 
 (defn prod
-  "Return  a * b , the geometric product of multivectors a and b."
+  "Return a * b, the geometric product of multivectors a and b."
   ([] 1)
   ([a] a)
   ([a b]
+   {:pre [(same-algebra? a b)]}
    (cond
      (and (number? a) (number? b)) (* a b)
-     (number? a) (->MultiVector (for [[x e] (:blades b)] [(* a x) e])
-                                (:signature b))
-     (number? b) (->MultiVector (for [[y e] (:blades a)] [(* y b) e])
-                                (:signature a))
+     (number? a) (prod (multivector a (:signature b)) b)
+     (number? b) (prod a (multivector b (:signature a)))
      :else (let [sig (:signature a)]
-             (assert (= (:signature b) sig) "different signatures")
              (multivector
               (for [[x ei] (:blades a)
                     [y ej] (:blades b)]
@@ -129,8 +144,9 @@
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
-  "Return  a^~  , the reverse of multivector a. Example: e12 -> e21 = -e12."
+  "Return a^~, the reverse of multivector a. Example: e12 -> e21 = -e12."
   [a]
+  {:pre [(multivector? a)]}
   (if (number? a)
     a
     (let [keeps-sign #(-> (count %) (quot 2) even?)]
@@ -139,8 +155,9 @@
        (:signature a)))))
 
 (defn invol
-  "Return  a^^  , the involution of multivector a. Example: 1 + e1 -> 1 - e1."
+  "Return a^^, the involution of multivector a. Example: 1 + e1 -> 1 - e1."
   [a]
+  {:pre [(multivector? a)]}
   (if (number? a)
     a
     (let [keeps-sign #(-> (count %) even?)]
@@ -151,6 +168,7 @@
 (defn scalar?
   "Return true if a is a number or a multivector with only a scalar blade."
   [a]
+  {:pre [(multivector? a)]}
   (or
    (number? a)
    (let [blades (:blades a)
@@ -170,7 +188,7 @@
       (if (empty? blades) 0 x))))
 
 (defn inv
-  "Return  a^-1  , the inverse of multivector a if it exists."
+  "Return a^-1, the inverse of multivector a if it exists."
   [a]
   (if (number? a)
     (/ 1 a)
@@ -182,7 +200,7 @@
         (prod ar (/ 1 norm2))))))
 
 (defn div
-  "Return  a / b = a * b^-1  (if b has an inverse)."
+  "Return a / b = a * b^-1 (if b has an inverse)."
   ([a] (div 1 a))
   ([a b] (prod a (inv b)))
   ([a b & more] (reduce div (div a b) more)))
@@ -193,20 +211,28 @@
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn grade
-  "Grade-projection operator  <a>_r  (select only blades of the given grade)."
+  "Grade-projection operator <a>_r (select only blades of the given grade).
+  Example: (grade (+ e1 e2 e0245) 1) -> (+ e1 e2)."
   [a r]
-  (->MultiVector (filter #(= (count (second %)) r) (:blades a))
-                 (:signature a)))
+  {:pre [(multivector? a)]}
+  (if (number? a)
+    (if (zero? r) a 0)
+    (->MultiVector (filter #(= (count (second %)) r) (:blades a))
+                   (:signature a))))
 
 (defn grades
-  "Return the grades present in multivector a."
+  "Return the grades present in multivector a.
+  Example: e1 + e2 + e0245 -> (1, 4)."
   [a]
-  (distinct (map (comp count second) (:blades a)))) ; e1 + e2 + e0245 -> (1, 4)
+  {:pre [(multivector? a)]}
+  (if (number? a)
+    [0]
+    (distinct (map (comp count second) (:blades a)))))
 
 (defn pow
-  "Return  a^n  (a raised to the nth power)."
+  "Return a^n (a raised to the nth power)."
   [a n]
-  {:pre [(or (scalar? a) (int? n))]}
+  {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
   (if (scalar? a)
     (Math/pow (scalar a) n)
     (loop [v 1
@@ -285,7 +311,71 @@
 (defn proj
   "Return  P_b(a)  , the projection of multivector a on b."
   [a b]
-  (-> (lcontract a (inv b)) (prod b))) ; also equal to  ( a _| b^-1 ) _| b
+  (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b
+
+(defn- blade-combos
+  "Return all the different pairs of blades extracted from multivector a."
+  [a]
+  {:pre [(multivector? a)]}
+  (let [blades (:blades a)
+        sig (:signature a)
+        blade (fn [i] (->MultiVector [(blades i)] sig)) ; 1-blade multivector
+        n (count blades)]
+    (for [i (range (dec n)) ; i = 0, 1, ..., n-2
+          j (range (inc i) n)] ; j = i+1, i+2, ..., n-1
+      [(blade i) (blade j)])))
+
+(defn- all-blades-commute?
+  "Return true if all the blades of multivector a commute."
+  [a]
+  (every? true? (for [[bi bj] (blade-combos a)]
+                  (= (prod bi bj) (prod bj bi))))) ; bi * bj == bj * bi
+
+(defn- exp-squared-scalar
+  "Return the exponentiation of a multivector whose square is a scalar."
+  [a]
+  (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
+        norm (Math/sqrt (abs a2))]
+    (cond (> a2 0) (add (Math/cosh norm) (prod (/ (Math/sinh norm) norm) a))
+          (< a2 0) (add (Math/cos  norm) (prod (/ (Math/sin  norm) norm) a))
+          :else (add 1 a))))
+
+(defn- exp-blade
+  "Return the exponentiation of a single blade, given its signature too."
+  [blade signature]
+  (exp-squared-scalar (->MultiVector [blade] signature))) ; blade as multivector
+
+(defn sum-exp-series
+  "Return exp(a) by adding the terms in its expansion in powers of a."
+  ([a] (sum-exp-series a 1e-8 20))
+  ([a precision max-terms]
+   (loop [term-last 1 ; last term in the series evaluated
+          sum-last 1 ; the sum of all the terms so far
+          i 1] ; index of current term
+     (let [term (prod term-last a (float (/ i))) ; next term
+           size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
+           sum (add sum-last term)] ; our best approximation of exp(a) so far
+       (if (< size precision)
+         sum ; we are done!
+         (if (< i max-terms)
+           (recur term sum (inc i))
+           (do
+             (printf (str "Warning: max terms reached (%d), but error (~ %g) "
+                          "is bigger than the desired precision (%g)")
+                     i size precision)
+             sum)))))))
+
+(defn exp
+  "Return exp(a), the exponentiation of multivector a."
+  [a]
+  {:pre [(multivector? a)]}
+  (cond
+    (number? a) (Math/exp a)
+    (scalar? (prod a a)) (exp-squared-scalar a)
+    (all-blades-commute? a) (let [sig (:signature a)]
+                              (reduce prod ; exp(b1) * exp(b2) * ...
+                                      (for [b (:blades a)] (exp-blade b sig))))
+    :else (sum-exp-series a)))
 
 
 ;; Basis.
