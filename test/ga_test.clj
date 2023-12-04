@@ -154,6 +154,25 @@
       (is (= (ga/proj w e12) w))
       (is (= (str (ga/proj u w)) "7/5*e1 + 14/5*e2")))))
 
+(defn- approx?
+  "Return true if multivectors a and b are approximately equal."
+  [a b]
+  (let [small? #(< (abs %) 1e-10)]
+    (every? small? (for [[x _] (:blades (ga/sub a b))] x))))
+
+(deftest exp
+  (testing "multivector exponentiation"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e3 e12 e13 e23 e123] (ga/basis [1 1 1])
+          u (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (approx? (ga/exp e1) (+ (Math/cosh 1) (* e1 (Math/sinh 1)))))
+      (is (approx? (ga/exp e2) (+ (Math/cos 1) (* e2 (Math/sin 1)))))
+      (is (approx? (ga/exp e3) (+ 1 e3)))
+      (is (approx? (ga/exp (* e1 (Math/log 2))) (+ 1.25 (* 0.75 e1))))
+      (is (approx? (ga/exp (* e2 (/ Math/PI 2))) e2))
+      (is (approx? (ga/exp (ga/pow e3 0)) (* Math/E e))))))
+
 (deftest basis
   (testing "using basis elements"
     (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]]
