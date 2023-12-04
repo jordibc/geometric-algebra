@@ -298,7 +298,7 @@
   (graded-prod a b (fn [r s] (abs (- r s))))) ; sum  < <a>_r * <b>_s >_|r-s|
 
 (defn commutator
-  "Return  a x b , the commutator product of multivectors a and b."
+  "Return a x b, the commutator product of multivectors a and b."
   [a b]
   (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
