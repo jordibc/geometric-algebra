@@ -95,22 +95,6 @@
           w (+ (* 2 e2) e1)]
       (is (= (str (∧ u w)) "-1*e12")))))
 
-(deftest antiwedge
-  (testing "regressive product"
-    (let [[+ - * ∨] [ga/add ga/sub ga/prod ga/antiwedge]
-          [e e1 e2 e12] (ga/basis [2 0])
-          u (+ e1 (* 3 e2))
-          w (+ (* 2 e2) e1)]
-      (is (= (str (∨ u w)) "1")))))
-
-(deftest commutator
-  (testing "commutator product"
-    (let [[+ - * ×] [ga/add ga/sub ga/prod ga/commutator]
-          [e e1 e2 e12] (ga/basis [2 0])
-          u (+ e1 (* 3 e2))
-          w (+ (* 2 e2) e1)]
-      (is (= (str (× u w)) "-1*e12")))))
-
 (deftest lcontract
   (testing "left contraction"
     (let [[+ - * ⌋] [ga/add ga/sub ga/prod ga/lcontract]
@@ -142,6 +126,33 @@
       (is (= (str (• (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
       (is (= (str (• (+ e1 e2 e12) (+ 1 e2))) "1 + 2*e1 + e2 + e12"))
       (is (= (str (• (+ e1 e2 e12) (+ 1 e12))) "-1 + 2*e2 + e12")))))
+
+(deftest commutator
+  (testing "commutator product"
+    (let [[+ - * ×] [ga/add ga/sub ga/prod ga/commutator]
+          [e e1 e2 e12] (ga/basis [2 0])
+          u (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (× u w)) "-1*e12")))))
+
+(deftest antiwedge
+  (testing "regressive product"
+    (let [[+ - * ∨] [ga/add ga/sub ga/prod ga/antiwedge]
+          [e e1 e2 e12] (ga/basis [2 0])
+          u (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (= (str (∨ u w)) "1")))))
+
+(deftest projection
+  (testing "multivector projection"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e12] (ga/basis [2 0])
+          u (+ e1 (* 3 e2))
+          w (+ (* 2 e2) e1)]
+      (is (= (ga/proj u e12) u))
+      (is (= (ga/proj u (- e12)) u))
+      (is (= (ga/proj w e12) w))
+      (is (= (str (ga/proj u w)) "7/5*e1 + 14/5*e2")))))
 
 (deftest basis
   (testing "using basis elements"
