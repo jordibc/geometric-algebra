@@ -1,5 +1,7 @@
 (ns geometric-algebra
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]
+   [clojure.edn :as edn]))
 
 ;; The MultiVector record, and how to convert it to string.
 
@@ -458,6 +460,27 @@
        ~@(for [[op f] operators]
            `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
        (println "Defined operators:" ~(str/join " " (keys operators))))))
+
+
+;; How to get a multivector from a simple string representation.
+
+(defn str->blade
+  "Return a product of all the parts that appear in the string s."
+  [s]
+  (apply prod (for [x (str/split s #"(\s*\*\s*|\s+)")] ; x*y  or  x y
+                (eval (edn/read-string x)))))
+
+(defn str->multivector
+  "Return a sum of all the terms that appear in the string s."
+  [s]
+  (apply add (for [term (str/split s #"\s*\+\s*")] ; x + y
+               (str->blade term))))
+
+
+;; TODO: Consider having *signature* as a global var?
+
+;; TODO: Add tests for invol, inv, pseudoscalar-unit, exp and more
+;; for the generalized products (testing numbers, etc.).
 
 
 ;; "Rich comment", with small examples of how to use the functions.

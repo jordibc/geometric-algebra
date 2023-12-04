@@ -163,15 +163,27 @@
 (deftest exp
   (testing "multivector exponentiation"
     (let [[+ - *] [ga/add ga/sub ga/prod]
-          [e e1 e2 e3 e12 e13 e23 e123] (ga/basis [1 1 1])
-          u (+ e1 (* 3 e2))
-          w (+ (* 2 e2) e1)]
+          [e e1 e2 e3 e12 e13 e23 e123] (ga/basis [1 1 1])]
       (is (approx? (ga/exp e1) (+ (Math/cosh 1) (* e1 (Math/sinh 1)))))
       (is (approx? (ga/exp e2) (+ (Math/cos 1) (* e2 (Math/sin 1)))))
       (is (approx? (ga/exp e3) (+ 1 e3)))
       (is (approx? (ga/exp (* e1 (Math/log 2))) (+ 1.25 (* 0.75 e1))))
       (is (approx? (ga/exp (* e2 (/ Math/PI 2))) e2))
-      (is (approx? (ga/exp (ga/pow e3 0)) (* Math/E e))))))
+      (is (approx? (ga/exp (ga/pow e3 0)) (* Math/E e))) ; e is the scalar 1
+      (is (approx? (ga/exp (+ 1 (* 3 e1) e123)) ; all commute
+                   (+ 27.36674265819042 (* 27.231407374953815 e1)
+                      (* 27.36674265819042 e123) (* 27.231407374953815 e23))))
+      (is (approx? (ga/exp (+ (* 2 e1) e2 (* 1.2 e3))) ; all anticommute
+                   (+ 2.9145774401759277 (* 3.161173127133336 e1)
+                      (* 1.580586563566668 e2) (* 1.8967038762800015 e3))))
+      ;; TODO: Check the next two:
+      #_(is (approx? (ga/exp (+ 1 (* 3 e1) e123))
+                   (ga/sum-exp-series (+ 1 (* 3 e1) e123) 1e-10 30)))
+      #_(is (approx? (ga/exp (+ (* 2 e1) e2 (* 1.2 e3)))
+                   (ga/sum-exp-series (+ (* 2 e1) e2 (* 1.2 e3)) 1e-10 20)))
+      (is (approx? (ga/exp (+ 1 (* 2 e1) (* 3 e2) (* 0.5 e12))) ; no symmetries
+                   (+ -1.554212991570579 (* 2.0465072566520486 e1)
+                      (* 3.069760884978074 e2) (* 0.5116268141630121 e12)))))))
 
 (deftest basis
   (testing "using basis elements"
