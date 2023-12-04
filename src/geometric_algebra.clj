@@ -309,9 +309,12 @@
     (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn proj
-  "Return  P_b(a)  , the projection of multivector a on b."
+  "Return P_b(a), the projection of multivector a on b."
   [a b]
   (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b
+
+
+;; More advanced operations: exp.
 
 (defn- blade-combos
   "Return all the different pairs of blades extracted from multivector a."
@@ -371,9 +374,9 @@
   {:pre [(multivector? a)]}
   (cond
     (number? a) (Math/exp a)
-    (scalar? (prod a a)) (exp-squared-scalar a)
-    (all-blades-commute? a) (let [sig (:signature a)]
-                              (reduce prod ; exp(b1) * exp(b2) * ...
+    (scalar? (prod a a)) (exp-squared-scalar a) ; works for anticommuting blades
+    (all-blades-commute? a) (let [sig (:signature a)] ; exp(b1 + b2) =
+                              (reduce prod            ; exp(b1) * exp(b2)
                                       (for [b (:blades a)] (exp-blade b sig))))
     :else (sum-exp-series a)))
 
