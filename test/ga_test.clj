@@ -33,7 +33,9 @@
   (testing "geometric addition"
     (let [+ ga/add]
       (is (= (str (+ a a)) "14*e3 + 12*e14 + 8*e23"))
-      (is (= (str (+ a2 a2 a2)) "33*e2 + 3*e24")))))
+      (is (= (str (+ a2 a2 a2)) "33*e2 + 3*e24"))
+      (is (thrown? java.lang.AssertionError (+ a "")))
+      (is (thrown? java.lang.AssertionError (+ a a2))))))
 
 (deftest subtraction
   (testing "geometric subtraction"
@@ -41,18 +43,47 @@
       (is (= (- 3) -3))
       (is (= (- 3 2) 1))
       (is (= (str (- a)) "-7*e3 + -6*e14 + -4*e23"))
-      (is (= (- a) (- (ga/multivector 0 (:signature a)) a))))))
+      (is (= (- a) (- (ga/multivector 0 (:signature a)) a)))
+      (is (thrown? java.lang.AssertionError (- ""))))))
 
 (deftest product
   (testing "geometric product"
     (let [* ga/prod]
       (is (= (str (* a 2)) "14*e3 + 12*e14 + 8*e23"))
-      (is (= (str (* a a)) "29 + -84*e134 + 48*e1234")))))
+      (is (= (str (* a a)) "29 + -84*e134 + 48*e1234"))
+      (is (thrown? java.lang.AssertionError (* a ""))))))
 
 (deftest reversion
   (testing "multivector reversion"
     (is (= (str (ga/rev a)) "7*e3 + -6*e14 + -4*e23"))
     (is (= (str (ga/rev (ga/multivector 1 {}))) "1"))))
+
+(deftest involution
+  (testing "multivector involution"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (ga/invol (+ 1 e1)) (+ 1 (- e1)))))))
+
+(deftest scalar
+  (testing "multivector as a scalar"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (ga/scalar? e))
+      (is (ga/scalar? (+ (* 8 e) 5)))
+      (is (ga/scalar? (* e12 e12)))
+      (is (false? (ga/scalar? (* e1 e12))))
+      (is (= (ga/scalar (+ (* 8 e) 5)) 13))
+      (is (= (ga/scalar (* (* 8 e) 5)) 40)))))
+
+(deftest inverse
+  (testing "geometric inversion"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (ga/inv 4) (/ 1 4)))
+      (is (= (ga/inv e1) e1))
+      (is (= (ga/inv e12) (- e12)))
+      (is (= (str (ga/inv (+ e1 (* 2 e2)))) "1/5*e1 + 2/5*e2"))
+      (is (thrown? java.lang.AssertionError (ga/inv (+ e1 e12)))))))
 
 (deftest division
   (testing "geometric division"
@@ -61,6 +92,14 @@
       (is (= (/ 2 3) 2/3))
       (is (= (str (/ a (ga/multivector [[4 [3]]] (:signature a))))
              "7/4 + e2 + -3/2*e134")))))
+
+(deftest pseudoscalar-unit
+  (testing "pseudoscalar unit"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e12] (ga/basis [2 0])]
+      (is (= (ga/pseudoscalar-unit (:signature e1))
+             (ga/pseudoscalar-unit (:signature e12))))
+      (is (= (ga/pseudoscalar-unit (:signature e1)) e12)))))
 
 (deftest grade-selection
   (testing "grade selection"
@@ -133,7 +172,11 @@
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (× u w)) "-1*e12")))))
+      (is (= (str (× u w)) "-1*e12"))
+      (is (= (str (× w u)) "e12"))
+      (is (= (str (× e1 e12)) "e2"))
+      (is (= (str (× e12 e12)) "0"))
+      (is (= (str (× e12 e1)) "-1*e2")))))
 
 (deftest antiwedge
   (testing "regressive product"
