@@ -29,24 +29,20 @@
   It assumes (and doesn't check) that all blades have the same basis element."
   [blades]
   (let [[_ element] (first blades)] ; common element, like e13
-    [(reduce + (map first blades)) element]))
+    [(reduce + (mapv first blades)) element]))
 
-(defn- merge-same-elements
-  "Return the blades, with the ones that have the same basis element combined.
-  Example: e1 + 2*e2 + 3*e2  ->  e1 + 5*e2"
-  [blades]
-  (->> blades
-       (partition-by second) ; group blades with same element
-       (map add-values)))
+(def ^:private merge-and-clean ; transducer to merge and clean blades
+  (comp
+   (partition-by second) ; group blades with same basis element
+   (map add-values) ; merge blades with same basis element
+   (remove #(zero? (first %))))) ; remove terms that are 0
 
 (defn simplify-blades
   "Return the blades of a multivector simplified.
   Example: 3*e24 + 5*e7 + 0*e4 + e24  ->  5*e7 + 4*e24"
   [blades]
-  (->> blades
-       (sort-by second) ; sort by element
-       (merge-same-elements) ; 2*e12 + 3*e12  ->  5*e12
-       (filterv #((complement zero?) (first %))))) ; remove terms that are 0
+  (let [sorted-blades (sort-by second blades)] ; sorted by basis element
+    (into [] merge-and-clean sorted-blades)))
 
 (defn simplify-element
   "Return the simplification of a basis element, and the factor it carries.
