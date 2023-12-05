@@ -355,7 +355,7 @@
    (loop [term-last 1 ; last term in the series evaluated
           sum-last 1 ; the sum of all the terms so far
           i 1] ; index of current term
-     (let [term (prod term-last a (float (/ i))) ; next term
+     (let [term (prod term-last a (double (/ i))) ; next term
            size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
            sum (add sum-last term)] ; our best approximation of exp(a) so far
        (if (< size precision)
