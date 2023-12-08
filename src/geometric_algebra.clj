@@ -115,9 +115,8 @@
    {:pre [(multivector? a)]}
    (if (number? a)
      (- a)
-     (->MultiVector
-      (for [[value element] (:blades a)] [(- value) element])
-      (:signature a))))
+     (->MultiVector (mapv (fn [[v e]] [(- v) e]) (:blades a))
+                    (:signature a))))
   ([a b] (add a (sub b)))
   ([a b & more] (reduce sub (sub a b) more)))
 
@@ -146,10 +145,10 @@
   {:pre [(multivector? a)]}
   (if (number? a)
     a
-    (let [keeps-sign #(-> (count %) (quot 2) even?)]
-      (->MultiVector
-       (for [[x e] (:blades a)] [(if (keeps-sign e) x (- x)) e])
-       (:signature a)))))
+    (let [keeps-sign? #(-> (count %) (quot 2) even?)
+          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+      (->MultiVector (mapv transform-blade (:blades a))
+                     (:signature a)))))
 
 (defn invol
   "Return a^^, the involution of multivector a. Example: 1 + e1 -> 1 - e1."
@@ -157,10 +156,10 @@
   {:pre [(multivector? a)]}
   (if (number? a)
     a
-    (let [keeps-sign #(-> (count %) even?)]
-      (->MultiVector
-       (for [[x e] (:blades a)] [(if (keeps-sign e) x (- x)) e])
-       (:signature a)))))
+    (let [keeps-sign? #(-> (count %) even?)
+          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+      (->MultiVector (mapv transform-blade (:blades a))
+                     (:signature a)))))
 
 (defn scalar?
   "Return true if a is a number or a multivector with only a scalar blade."
@@ -214,7 +213,7 @@
   {:pre [(multivector? a)]}
   (if (number? a)
     (if (zero? r) a 0)
-    (->MultiVector (filter #(= (count (second %)) r) (:blades a))
+    (->MultiVector (filterv (fn [[_ e]] (= (count e) r)) (:blades a))
                    (:signature a))))
 
 (defn grades
