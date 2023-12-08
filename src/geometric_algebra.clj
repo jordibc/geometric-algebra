@@ -208,7 +208,7 @@
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn dual
-  "Return the dual of multivector a. Example: e0245 -> e13.
+  "Return the dual of multivector a. Example: 2*e12 + e024 -> 2*e034 + e13.
   There are other types of duals, for example i*a or a*i. The dual in
   this function works even for degenerate algebras (algebras with i*i = 0)."
   [a]
