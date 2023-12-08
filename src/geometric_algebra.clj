@@ -385,7 +385,7 @@
   ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
 
 (defn- next-element
-  "Return the multivector (in dim n) base element next to e."
+  "Return the multivector (in dim n) basis element next to e."
   [e n start]
   (if (last? e n start)
     (if (< (count e) n) (vec (range start (+ start (count e) 1))))
