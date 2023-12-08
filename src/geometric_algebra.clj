@@ -1,5 +1,6 @@
 (ns geometric-algebra
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.math :as math]))
 
 ;; The MultiVector record, and how to convert it to string.
 
@@ -230,7 +231,7 @@
   [a n]
   {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
   (if (scalar? a)
-    (Math/pow (scalar a) n)
+    (math/pow (scalar a) n)
     (loop [v 1
            i (abs n)]
       (if (zero? i)
@@ -238,7 +239,7 @@
         (recur (prod v a) (dec i))))))
 
 (defn norm [a]
-  (Math/sqrt (scalar (prod a (rev a)))))
+  (math/sqrt (scalar (prod a (rev a)))))
 
 (defn dot
   "Return the dot product (inner product) of multivectors a and b."
@@ -334,9 +335,9 @@
   "Return the exponentiation of a multivector whose square is a scalar."
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
-        norm (Math/sqrt (abs a2))]
-    (cond (> a2 0) (add (Math/cosh norm) (prod (/ (Math/sinh norm) norm) a))
-          (< a2 0) (add (Math/cos  norm) (prod (/ (Math/sin  norm) norm) a))
+        norm (math/sqrt (abs a2))]
+    (cond (> a2 0) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
+          (< a2 0) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
           :else (add 1 a))))
 
 (defn- exp-blade
@@ -369,7 +370,7 @@
   [a]
   {:pre [(multivector? a)]}
   (cond
-    (number? a) (Math/exp a)
+    (number? a) (math/exp a)
     (scalar? (prod a a)) (exp-squared-scalar a) ; works for anticommuting blades
     (all-blades-commute? a) (let [sig (:signature a)] ; exp(b1 + b2) =
                               (reduce prod            ; exp(b1) * exp(b2)
@@ -415,7 +416,7 @@
      (let [n (count signature) ; signature is a map
            i0 (apply min (keys signature))]
        (assert (nil? start) "cannot use start when using a map as signature")
-       (take (Math/pow 2 n)
+       (take (math/pow 2 n)
              (for [e (iterate #(next-element % n i0) [])] ; e: basis element
                (->MultiVector [[1 e]] signature))))))) ; as multivector
 
