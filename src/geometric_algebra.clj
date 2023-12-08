@@ -207,6 +207,16 @@
   [sig]
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
+(defn dual
+  "Return the dual of multivector a. Example: e0245 -> e13.
+  There are other types of duals, for example i*a or a*i. The dual in
+  this function works even for degenerate algebras (algebras with i*i = 0)."
+  [a]
+  (let [indices (vec (keys (:signature a))) ; indices of all basis vectors
+        e-dual #(vec (remove (set %) indices))] ; dual of basis multivector
+    (->MultiVector (mapv (fn [[v e]] [v (e-dual e)]) (:blades a))
+                   (:signature a))))
+
 (defn grade
   "Grade-projection operator <a>_r (select only blades of the given grade).
   Example: (grade (+ e1 e2 e0245) 1) -> (+ e1 e2)."

@@ -101,6 +101,11 @@
              (ga/pseudoscalar-unit (:signature e12))))
       (is (= (ga/pseudoscalar-unit (:signature e1)) e12)))))
 
+(deftest dual-test
+  (testing "dual of multivector"
+    (is (= (str (ga/dual a)) "7*e1245 + 6*e235 + 4*e145"))
+    (is (= (ga/dual (ga/dual a)) a))))
+
 (deftest grade-selection-test
   (testing "grade selection"
     (is (= (str (ga/grade a 2)) "6*e14 + 4*e23"))))
