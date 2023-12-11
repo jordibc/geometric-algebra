@@ -31,7 +31,7 @@
   It assumes (and doesn't check) that all blades have the same basis element."
   [blades]
   (let [[_ element] (first blades)] ; common element, like e13
-    [(reduce + (mapv first blades)) element]))
+    [(reduce + (map first blades)) element]))
 
 (def ^:private merge-and-clean ; transducer to merge and clean blades
   (comp
