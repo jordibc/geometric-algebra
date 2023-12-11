@@ -20,10 +20,11 @@
 
 (deftest representation-test
   (testing "multivector representation"
-    (is (= a #geometric_algebra.MultiVector{:blades [[7 [3]] [6 [1 4]] [4 [2 3]]]
-                                            :signature {1 1, 2 -1, 3 1, 4 1, 5 1}}))
+    (is (= a (ga/->MultiVector [[7 [3]] [6 [1 4]] [4 [2 3]]]
+                               {1 1, 2 -1, 3 1, 4 1, 5 1})))
     (is (= a2 #geometric_algebra.MultiVector{:blades [[11 [2]] [1 [2 4]]]
                                              :signature {0 1, 1 1, 2 1, 3 1, 4 1}}))))
+
 (deftest to-string-test
   (testing "transforming to string"
     (is (= (str a) "7*e3 + 6*e14 + 4*e23"))
