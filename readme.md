@@ -10,6 +10,32 @@ their geometric product are the simplest and most powerful tools for
 mathematical analysis that I know of.
 
 
+## Installation
+
+### Clojure CLI/deps.edn
+
+```clojure
+com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}
+```
+
+Which means, to use this library you can add that to the `:deps` in
+your `deps.edn` file. If you only had that dependency, this is how
+`deps.edn` would look like:
+
+```clojure
+{:deps
+ {com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}}}
+```
+
+Then you can for example run `clj` and from there `(require
+'geometric-algebra)`, and so on (see examples).
+
+
+### Cloning this repository
+
+You can instead simply clone this repository and run clojure from it.
+
+
 ## Examples
 
 To create the basis vectors of a geometric algebra with the given signature:
