@@ -9,9 +9,9 @@
   [[v e]]
   (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
         hide-v (and (= v 1) (not hide-e))] ; so we write e1 instead of 1*e1
-    (str (if (not hide-v) v)                          ; 7
-         (if (not (or hide-e hide-v)) "*")            ; *
-         (if (not hide-e) (str "e" (apply str e)))))) ; e134
+    (str (if-not hide-v v)                          ; 7
+         (if-not (or hide-e hide-v) "*")            ; *
+         (if-not hide-e (str "e" (apply str e)))))) ; e134
 
 (defrecord MultiVector [blades signature]
   Object

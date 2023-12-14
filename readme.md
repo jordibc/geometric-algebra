@@ -27,8 +27,8 @@ your `deps.edn` file. If you only had that dependency, this is how
  {com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}}}
 ```
 
-Then you can for example run `clj` and from there `(require
-'geometric-algebra)`, and so on (see examples).
+Then you can for example run `clj`, and from there do `(require
+'geometric-algebra)` and so on (see examples).
 
 
 ### Cloning this repository
