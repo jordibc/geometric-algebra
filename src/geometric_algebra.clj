@@ -4,7 +4,7 @@
 
 ;; The MultiVector record, and how to convert it to string.
 
-(defn blade->str
+(defn- blade->str
   "Return a string that represents the blade. Examples: 3*e1, e23, 5."
   [[v e]]
   (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
@@ -39,14 +39,14 @@
    (map add-values) ; merge blades with same basis element
    (remove #(zero? (first %))))) ; remove terms that are 0
 
-(defn simplify-blades
+(defn- simplify-blades
   "Return the blades of a multivector simplified.
   Example: 3*e24 + 5*e7 + 0*e4 + e24  ->  5*e7 + 4*e24"
   [blades]
   (let [sorted-blades (sort-by second blades)] ; sorted by basis element
     (into [] merge-and-clean sorted-blades)))
 
-(defn simplify-element
+(defn- simplify-element
   "Return the simplification of a basis element, and the factor it carries.
    Example: e13512  ->  e235, +1  (if  e1*e1 = +1)"
   [element signature]

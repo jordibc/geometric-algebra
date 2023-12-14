@@ -263,16 +263,20 @@
 (deftest simplify-element-test
   (testing "Simplification of basis elements"
     (let [sig {1 1, 2 1, 3 1, 4 1, 5 1}]
-      (is (= (ga/simplify-element [3 2 3] sig) [[2] -1]))
-      (is (= (ga/simplify-element [5 4 1 2 3] sig) [[1 2 3 4 5] -1]))
-      (is (= (ga/simplify-element [5 4 2 2 3] {2 -1, 3 1, 4 1, 5 1}) [[3 4 5] 1]))
-      (is (= (ga/simplify-element [1 1 2 2 3] sig) [[3] 1])))))
+      (is (= (#'ga/simplify-element [3 2 3] sig)
+             [[2] -1]))
+      (is (= (#'ga/simplify-element [5 4 1 2 3] sig)
+             [[1 2 3 4 5] -1]))
+      (is (= (#'ga/simplify-element [5 4 2 2 3] {2 -1, 3 1, 4 1, 5 1})
+             [[3 4 5] 1]))
+      (is (= (#'ga/simplify-element [1 1 2 2 3] sig)
+             [[3] 1])))))
 
 (deftest simplify-blades-test
   (testing "Simplification of blades"
-    (is (= (ga/simplify-blades [[4 [2 3]]
-                                [7 [3]]
-                                [1 [1 4]]
-                                [0 [1 2 3]]
-                                [5 [1 4]]])
+    (is (= (#'ga/simplify-blades [[4 [2 3]]
+                                  [7 [3]]
+                                  [1 [1 4]]
+                                  [0 [1 2 3]]
+                                  [5 [1 4]]])
            [[7 [3]] [6 [1 4]] [4 [2 3]]]))))
