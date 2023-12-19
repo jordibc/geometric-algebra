@@ -144,7 +144,7 @@ creating automatically all the symbols that we would expect.
 You can run some tests with:
 
 ```sh
-clj -M:test
+clojure -T:build test
 ```
 
 
@@ -158,3 +158,12 @@ clj -M:test
 I developed a similar library in python, which shares the same
 internal representation for a multivector:
 [multivector](https://gitlab.com/jordibc/multivector).
+
+
+## License
+
+This library is dual licensed under the [GNU General Public License
+version 3](license-gpl-3.0.md), and the [Eclipse Public License
+version 1](license-epl-v1.0.md). It means that you can choose to use
+it under either license, whatever is more convenient for you. You can
+also choose any later version of those licenses.

@@ -1,4 +1,4 @@
-(ns geometric-algebra
+(ns jordibc.geometric-algebra
   (:require [clojure.string :as str]
             [clojure.math :as math]))
 
@@ -6,12 +6,12 @@
 
 (defn- blade->str
   "Return a string that represents the blade. Examples: 3*e1, e23, 5."
-  [[v e]]
-  (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
-        hide-v (and (= v 1) (not hide-e))] ; so we write e1 instead of 1*e1
-    (str (if-not hide-v v)                          ; 7
-         (if-not (or hide-e hide-v) "*")            ; *
-         (if-not hide-e (str "e" (apply str e)))))) ; e134
+  [[x e]]
+  (let [show-e (seq e) ; show the basis element for scalars (4, not 4*e)
+        show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1*e1
+    (str (if show-x x)                          ; 7
+         (if (and show-e show-x) "*")           ; *
+         (if show-e (str "e" (apply str e)))))) ; e134
 
 (defrecord MultiVector [blades signature]
   Object
@@ -85,7 +85,7 @@
   [a]
   (or
    (number? a)
-   (= (class a) geometric_algebra.MultiVector)))
+   (= (class a) jordibc.geometric_algebra.MultiVector)))
 
 (defn same-algebra?
   "Return true if the arguments belong to the same geometric algebra."
@@ -116,7 +116,7 @@
    {:pre [(multivector? a)]}
    (if (number? a)
      (- a)
-     (->MultiVector (mapv (fn [[v e]] [(- v) e]) (:blades a))
+     (->MultiVector (mapv (fn [[x e]] [(- x) e]) (:blades a))
                     (:signature a))))
   ([a b] (add a (sub b)))
   ([a b & more] (reduce sub (sub a b) more)))
@@ -147,7 +147,7 @@
   (if (number? a)
     a
     (let [keeps-sign? #(-> (count %) (quot 2) even?)
-          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+          transform-blade (fn [[x e]] [(if (keeps-sign? e) x (- x)) e])]
       (->MultiVector (mapv transform-blade (:blades a))
                      (:signature a)))))
 
@@ -158,7 +158,7 @@
   (if (number? a)
     a
     (let [keeps-sign? #(-> (count %) even?)
-          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+          transform-blade (fn [[x e]] [(if (keeps-sign? e) x (- x)) e])]
       (->MultiVector (mapv transform-blade (:blades a))
                      (:signature a)))))
 
@@ -214,7 +214,7 @@
   [a]
   (let [indices (vec (keys (:signature a))) ; indices of all basis vectors
         e-dual #(vec (remove (set %) indices))] ; dual of basis multivector
-    (->MultiVector (mapv (fn [[v e]] [v (e-dual e)]) (:blades a))
+    (->MultiVector (mapv (fn [[x e]] [x (e-dual e)]) (:blades a))
                    (:signature a))))
 
 (defn grade
@@ -242,11 +242,11 @@
   {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
   (if (scalar? a)
     (math/pow (scalar a) n)
-    (loop [v 1
+    (loop [a-pow-i 1
            i (abs n)]
       (if (zero? i)
-        (if (>= n 0) v (inv v))
-        (recur (prod v a) (dec i))))))
+        (if (>= n 0) a-pow-i (inv a-pow-i))
+        (recur (prod a-pow-i a) (dec i))))))
 
 (defn norm [a]
   (math/sqrt (scalar (prod a (rev a)))))

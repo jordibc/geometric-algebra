@@ -1,8 +1,6 @@
-(ns ga-test
-  (:require
-   [clojure.test :as t :refer [deftest is testing]]
-   [geometric-algebra :as ga]))
-
+(ns jordibc.geometric-algebra-test
+  (:require [clojure.test :refer [deftest is testing]]
+            [jordibc.geometric-algebra :as ga]))
 
 ;; Some multivectors that we will use as example.
 
@@ -25,8 +23,8 @@
                                  {1 1, 2 -1, 3 1, 4 1, 5 1}))))
     (testing "from reader"
       (is (= a2
-             #geometric_algebra.MultiVector{:blades [[11 [2]] [1 [2 3]]]
-                                            :signature {0 1, 1 1, 2 1, 3 1}})))
+             #jordibc.geometric_algebra.MultiVector{:blades [[11 [2]] [1 [2 3]]]
+                                                    :signature {0 1, 1 1, 2 1, 3 1}})))
     (testing "from map"
       (is (= a2 (ga/map->MultiVector {:blades [[11 [2]] [1 [2 3]]]
                                       :signature {0 1, 1 1, 2 1, 3 1}}))))
