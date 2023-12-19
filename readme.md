@@ -17,7 +17,7 @@ mathematical analysis that I know of.
 ### Clojure CLI / deps.edn
 
 ```clojure
-com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}
+com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.1", :git/sha "5b3fa4a"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
