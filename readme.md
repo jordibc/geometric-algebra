@@ -1,5 +1,7 @@
 # Geometric Algebra
 
+[![Clojars Project](https://img.shields.io/clojars/v/net.clojars.jordibc/geometric-algebra.svg)](https://clojars.org/net.clojars.jordibc/geometric-algebra)
+
 A library to do [geometric
 algebra](https://en.wikipedia.org/wiki/Geometric_algebra) in clojure.
 
