@@ -278,3 +278,40 @@
                                   [0 [1 2 3]]
                                   [5 [1 4]]])
            [[7 [3]] [6 [1 4]] [4 [2 3]]]))))
+
+(deftest reduce-stack-test
+  (testing "Reduction of stacks of values and operations"
+    (let [[+ - * •] [ga/add ga/sub ga/prod ga/fat-dot]]
+      (is (= (#'ga/reduce-stack '(2) 3) '(2)))
+      (is (= (#'ga/reduce-stack '(2 + 1) 3) '(2 + 1)))
+      (is (= (#'ga/reduce-stack '(2 + 1) 0) '((+ 1 2))))
+      (is (= (#'ga/reduce-stack '(3 * 2 + 1) 2) '((* 2 3) + 1)))
+      (is (= (#'ga/reduce-stack '(3 * 2 + 1) 1) '((+ 1 (* 2 3)))))
+      (is (= (#'ga/reduce-stack '(4 • 3 * 2 + 1) 0) '((+ 1 (* 2 (• 3 4))))))
+      (is (= (#'ga/reduce-stack '(4 • 3 * 2 + 1) 1) '((+ 1 (* 2 (• 3 4))))))
+      (is (= (#'ga/reduce-stack '(4 • 3 * 2 + 1) 2) '((* 2 (• 3 4)) + 1)))
+      (is (= (#'ga/reduce-stack '(4 • 3 * 2 + 1) 3) '((• 3 4) * 2 + 1)))
+      (is (= (#'ga/reduce-stack '(4 • 3 * 2 + 1) 4) '(4 • 3 * 2 + 1))))))
+
+(deftest infix->sexpr-test
+  (testing "Infix to S-expression"
+    (is (= (#'ga/infix->sexpr 1) 1))
+    (is (= (#'ga/infix->sexpr '(1)) 1))
+    (is (= (#'ga/infix->sexpr '(1 + 2)) '(+ 1 2)))
+    (is (= (#'ga/infix->sexpr '((1 + 2))) '(+ 1 2)))
+    (is (= (#'ga/infix->sexpr '(1 + 2 * 3)) '(+ 1 (* 2 3))))
+    (is (= (#'ga/infix->sexpr '(1 * 2 + 3)) '(+ (* 1 2) 3)))
+    (is (= (#'ga/infix->sexpr '(1 * (2 + 3))) '(* 1 (+ 2 3))))
+    (is (= (#'ga/infix->sexpr '(1 2)) '(* 1 2)))
+    (is (= (#'ga/infix->sexpr '(1 2 + 3)) '(+ (* 1 2) 3)))
+    (is (= (#'ga/infix->sexpr '((1 + 2) * 3)) '(* (+ 1 2) 3)))))
+
+(deftest infix-test
+  (testing "Infix evaluation"
+    (is (= (ga/infix 1) 1))
+    (is (= (ga/infix 1 + 2) 3))
+    (is (= (ga/infix 1 + 2 + 3) 6))
+    (is (= (ga/infix 1 + 2 * 3) 7))
+    (is (= (ga/infix 2 * 3 + 4) 10))
+    (is (= (ga/infix 2 * (3 + 4)) 14))
+    (is (= (ga/infix 2 4 + 5) 13))))

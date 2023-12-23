@@ -467,6 +467,48 @@
        (println "Defined operators:" ~(str/join " " (keys operators))))))
 
 
+;; Infix notation.
+
+(def ^:private precedences ; operator precedence
+  {'+ 1, '- 1, '* 2, '/ 2, '· 3, '∧ 3, '∨ 3, '× 3, '⌋ 3, '⌊ 3, '∘ 3, '• 3})
+
+(defn- reduce-stack
+  "Return a reduced stack of values and operations.
+  The last element will have all operations with precedence > prec applied."
+  [stack prec]
+  (let [[val-1 op-1 val-0 & stack-more] stack]
+    (if (or (nil? op-1) (< (precedences op-1) prec))
+      stack
+      (let [val-new (list op-1 val-0 val-1)
+            stack-new (conj stack-more val-new)]
+        (if (empty? stack-more)
+          stack-new
+          (recur stack-new prec))))))
+
+(defn- infix->sexpr
+  "Return the S-expression corresponding to the given infix expression."
+  [expr]
+  (if-not (seq? expr)
+    expr
+    (let [[val-0 & expr-butfirst] expr]
+      (loop [[op val & expr-more] expr-butfirst
+             stack (list (infix->sexpr val-0))]
+        (if (nil? op)
+          (peek (reduce-stack stack 0)) ; return the top of the reduced stack
+          (if-not (contains? precedences op) ; no operator? make it *
+            (recur (conj expr-more val op '*)
+                   stack)
+            (let [stack-reduced (reduce-stack stack (precedences op))
+                  stack-new (conj stack-reduced op (infix->sexpr val))]
+              (recur expr-more
+                     stack-new))))))))
+
+(defmacro infix
+  "Evaluate the given operations given in infix notation."
+  [& form]
+  (infix->sexpr form))
+
+
 ;; "Rich comment", with small examples of how to use the functions.
 
 (comment
@@ -512,5 +554,35 @@
   (let [[+ - * /] [add sub prod div]
         [e e0 e1 e01] (basis [1 1] 0)]
     (str (+ e0 (* 3 e1)))) ; => "e0 + 3*e1"
+
+  (reduce-stack '(2) 3) ; => (2)
+  (reduce-stack '(2 + 1) 3) ; => (2 + 1)
+  (reduce-stack '(2 + 1) 0) ; => ((+ 1 2))
+  (reduce-stack '(3 * 2 + 1) 2) ; => ((* 2 3) + 1)
+  (reduce-stack '(3 * 2 + 1) 1) ; => ((+ 1 (* 2 3)))
+  (reduce-stack '(4 • 3 * 2 + 1) 0) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 1) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 2) ; => ((* 2 (• 3 4)) + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 3) ; => ((• 3 4) * 2 + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 4) ; => (4 • 3 * 2 + 1)
+
+  (infix->sexpr 1) ; => 1
+  (infix->sexpr '(1)) ; => 1
+  (infix->sexpr '(1 + 2)) ; => (+ 1 2)
+  (infix->sexpr '((1 + 2))) ; => (+ 1 2)
+  (infix->sexpr '(1 + 2 * 3)) ; => (+ 1 (* 2 3))
+  (infix->sexpr '(1 * 2 + 3)) ; => (+ (* 1 2) 3)
+  (infix->sexpr '(1 * (2 + 3))) ; => (* 1 (+ 2 3))
+  (infix->sexpr '(1 2)) ; => (* 1 2)
+  (infix->sexpr '(1 2 + 3)) ; => (+ (* 1 2) 3)
+  (infix->sexpr '((1 + 2) * 3)) ; => (* (+ 1 2) 3)
+
+  (infix 1) ; => 1
+  (infix 1 + 2) ; => 3
+  (infix 1 + 2 + 3) ; => 6
+  (infix 1 + 2 * 3) ; => 7
+  (infix 2 * 3 + 4) ; => 10
+  (infix 2 * (3 + 4)) ; => 14
+  (infix 2 4 + 5) ; => 13
 
   )
