@@ -167,6 +167,8 @@ clojure -T:build test
 
 This library is dual licensed under the [GNU General Public License
 version 3](doc/license-gpl-3.0.md), and the [Eclipse Public License
-version 1](doc/license-epl-v1.0.md). It means that you can choose to
-use it under either license, whatever is more convenient for you. You
-can also choose any later version of those licenses.
+version 1](doc/license-epl-v1.0.md).
+
+It means that you can choose to use it under either license, whatever
+is more convenient for you. You can also choose any later version of
+those licenses.
