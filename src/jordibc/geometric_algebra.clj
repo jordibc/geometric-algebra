@@ -81,7 +81,7 @@
                  signature))
 
 (defn multivector?
-  "Return true if a is a multivector (numbers are multivectors too)."
+  "Return true if `a` is a multivector (numbers are multivectors too)."
   [a]
   (or
    (number? a)
@@ -122,7 +122,7 @@
   ([a b & more] (reduce sub (sub a b) more)))
 
 (defn prod
-  "Return a * b, the geometric product of multivectors a and b."
+  "Return a * b, the geometric product of multivectors `a` and `b`."
   ([] 1)
   ([a] a)
   ([a b]
@@ -141,7 +141,7 @@
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
-  "Return a^~, the reverse of multivector a. Example: e12 -> e21 = -e12."
+  "Return a^~, the reverse of multivector `a`. Example: e12 -> e21 = -e12."
   [a]
   {:pre [(multivector? a)]}
   (if (number? a)
@@ -152,7 +152,7 @@
                      (:signature a)))))
 
 (defn invol
-  "Return a^^, the involution of multivector a. Example: 1 + e1 -> 1 - e1."
+  "Return a^^, the involution of multivector `a`. Example: 1 + e1 -> 1 - e1."
   [a]
   {:pre [(multivector? a)]}
   (if (number? a)
@@ -163,7 +163,7 @@
                      (:signature a)))))
 
 (defn scalar?
-  "Return true if a is a number or a multivector with only a scalar blade."
+  "Return true if `a` is a number or a multivector with only a scalar blade."
   [a]
   {:pre [(multivector? a)]}
   (or
@@ -175,7 +175,7 @@
       (and (= (count blades) 1) (= elem [])))))) ; a is like [[x []]]
 
 (defn scalar
-  "Return the given multivector as a number (if it is a scalar)."
+  "Return the given multivector `a` as a number (if it is a scalar)."
   [a]
   {:pre [(scalar? a)]}
   (if (number? a)
@@ -185,7 +185,7 @@
       (if (empty? blades) 0 x))))
 
 (defn inv
-  "Return a^-1, the inverse of multivector a if it exists."
+  "Return a^-1, the inverse of multivector `a` if it exists."
   [a]
   (if (number? a)
     (/ 1 a)
@@ -197,18 +197,18 @@
         (prod ar (/ 1 norm2))))))
 
 (defn div
-  "Return a / b = a * b^-1 (if b has an inverse)."
+  "Return a / b = a * b^-1 (if `b` has an inverse)."
   ([a] (div 1 a))
   ([a b] (prod a (inv b)))
   ([a b & more] (reduce div (div a b) more)))
 
 (defn pseudoscalar-unit
-  "Return the pseudoscalar unit corresponding to signature sig."
+  "Return the pseudoscalar unit corresponding to signature `sig`."
   [sig]
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn dual
-  "Return the dual of multivector a. Example: 2 e12 + e024 -> 2 e034 + e13.
+  "Return the dual of multivector `a`. Example: 2 e12 + e024 -> 2 e034 + e13.
   There are other types of duals, for example i*a or a*i. The dual in
   this function works even for degenerate algebras (algebras with i*i = 0)."
   [a]
@@ -218,7 +218,7 @@
                    (:signature a))))
 
 (defn grade
-  "Grade-projection operator <a>_r (select only blades of the given grade).
+  "Grade-projection operator <a>_r (select only blades of the given grade `r`).
   Example: (grade (+ e1 e2 e0245) 1) -> (+ e1 e2)."
   [a r]
   {:pre [(multivector? a)]}
@@ -228,7 +228,7 @@
                    (:signature a))))
 
 (defn grades
-  "Return the grades present in multivector a.
+  "Return the grades present in multivector `a`.
   Example: e1 + e2 + e0245 -> (1, 4)."
   [a]
   {:pre [(multivector? a)]}
@@ -237,7 +237,7 @@
     (distinct (map (comp count second) (:blades a)))))
 
 (defn pow
-  "Return a^n (a raised to the nth power)."
+  "Return a^n (`a` raised to the nth power)."
   [a n]
   {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
   (if (scalar? a)
@@ -252,7 +252,7 @@
   (math/sqrt (scalar (prod a (rev a)))))
 
 (defn dot
-  "Return the dot product (inner product) of multivectors a and b."
+  "Return the dot product (inner product) of multivectors `a` and `b`."
   [a b]
   (if (or (number? a) (number? b))
     0
@@ -265,9 +265,9 @@
                     (grade (abs (- r s))))))))) ; <  >_|r-s|
 
 (defn- graded-prod
-  "Return a \"graded product\" of multivectors a and b. That is a product that
-  looks like  sum_r,s ( < <a>_r * <b>_s >_g )  where g is the grade obtained
-  from r,s with (select-grade r s)."
+  "Return a \"graded product\" of multivectors `a` and `b`.
+  That is a product that looks like sum_r,s ( < <a>_r * <b>_s >_g )
+  where `g` is the grade obtained from r,s with (select-grade r s)."
   [a b select-grade]
   (cond
     (and (number? a) (number? b)) (* a b)
@@ -280,43 +280,43 @@
                         (grade (select-grade r s))))))) ; < >_(select-grade r s)
 
 (defn wedge
-  "Return the wedge product (also exterior/outer) of multivectors a and b."
+  "Return the wedge product (also exterior/outer) of multivectors `a` and `b`."
   [a b]
   (graded-prod a b +)) ; sum  < <a>_r * <b>_s >_(r+s)
 
 (defn lcontract
-  "Return the left contraction of multivectors a and b."
+  "Return the left contraction of multivectors `a` and `b`."
   [a b]
   (graded-prod a b (fn [r s] (- s r)))) ; sum  < <a>_r * <b>_s >_(s-r)
 
 (defn rcontract
-  "Return the right contraction of multivectors a and b."
+  "Return the right contraction of multivectors `a` and `b`."
   [a b]
   (graded-prod a b -)) ; sum  < <a>_r * <b>_s >_(r-s)
 
 (defn scalar-prod
-  "Return the scalar product of multivectors a and b."
+  "Return the scalar product of multivectors `a` and `b`."
   [a b]
   (scalar (graded-prod a b (fn [r s] 0)))) ; sum  < <a>_r * <b>_s >_0
 
 (defn fat-dot
-  "Return the \"fat dot\" product of multivectors a and b."
+  "Return the \"fat dot\" product of multivectors `a` and `b`."
   [a b]
   (graded-prod a b (fn [r s] (abs (- r s))))) ; sum  < <a>_r * <b>_s >_|r-s|
 
 (defn commutator
-  "Return a x b, the commutator product of multivectors a and b."
+  "Return a x b, the commutator product of multivectors `a` and `b`."
   [a b]
   (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
 (defn antiwedge
-  "Return the antiwedge product (also regressive/meet) of multivectors a and b."
+  "Return the antiwedge product (also regressive/meet) of `a` and `b`."
   [a b]
   (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
     (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn proj
-  "Return P_b(a), the projection of multivector a on b."
+  "Return P_b(a), the projection of multivector `a` on `b`."
   [a b]
   (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b
 
@@ -324,7 +324,7 @@
 ;; More advanced operations: exp.
 
 (defn- blade-combos
-  "Return all the different pairs of blades extracted from multivector a."
+  "Return all the different pairs of blades extracted from multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (let [blades (:blades a)
@@ -336,13 +336,13 @@
       [(blade i) (blade j)])))
 
 (defn- all-blades-commute?
-  "Return true if all the blades of multivector a commute."
+  "Return true if all the blades of multivector `a` commute."
   [a]
   (every? true? (for [[bi bj] (blade-combos a)]
                   (= (prod bi bj) (prod bj bi))))) ; bi * bj == bj * bi
 
 (defn- exp-squared-scalar
-  "Return the exponentiation of a multivector whose square is a scalar."
+  "Return the exponentiation of multivector `a` whose square is a scalar."
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
         norm (math/sqrt (abs a2))]
@@ -356,7 +356,7 @@
   (exp-squared-scalar (->MultiVector [blade] signature))) ; blade as multivector
 
 (defn sum-exp-series
-  "Return exp(a) by adding the terms in its expansion in powers of a."
+  "Return exp(a) by adding the terms in its expansion in powers of `a`."
   ([a] (sum-exp-series a 1e-8 20))
   ([a precision max-terms]
    (loop [term-last 1 ; last term in the series evaluated
@@ -376,7 +376,7 @@
              sum)))))))
 
 (defn exp
-  "Return exp(a), the exponentiation of multivector a."
+  "Return exp(a), the exponentiation of multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (cond
@@ -391,12 +391,12 @@
 ;; Basis.
 
 (defn- last?
-  "Is e the last of the blades with that number of vectors?"
+  "Is `e` the last of the blades with number of vectors `n`?"
   ([e n] (last? e n 1))
   ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
 
 (defn- next-element
-  "Return the multivector (in dim n) basis element next to e."
+  "Return the multivector (in dim `n`) basis element next to `e`."
   [e n start]
   (if (last? e n start)
     (if (< (count e) n) (vec (range start (+ start (count e) 1))))
@@ -501,9 +501,9 @@
                      stack-new))))))))
 
 (defmacro infix
-  "Evaluate the given operations given in infix notation."
-  [& form]
-  (infix->sexpr form))
+  "Evaluate the given expression `expr` given in infix notation."
+  [& expr]
+  (infix->sexpr expr))
 
 
 ;; "Rich comment", with small examples of how to use the functions.
