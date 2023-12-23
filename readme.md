@@ -140,6 +140,14 @@ creating automatically all the symbols that we would expect.
    (- (* 4 e1) (* 0.5 e2))) ; => -13.0 e12
 ```
 
+Or, using the `infix` macro to use infix notation:
+
+```clojure
+(ga/infix (3 + 4 e12) (5 + e1 + 3 e2)) ; => 15 + -9 e1 + 13 e2 + 20 e12
+
+(ga/infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
+```
+
 
 ## Tests
 
@@ -158,7 +166,7 @@ clojure -T:build test
 ## License
 
 This library is dual licensed under the [GNU General Public License
-version 3](license-gpl-3.0.md), and the [Eclipse Public License
-version 1](license-epl-v1.0.md). It means that you can choose to use
-it under either license, whatever is more convenient for you. You can
-also choose any later version of those licenses.
+version 3](doc/license-gpl-3.0.md), and the [Eclipse Public License
+version 1](doc/license-epl-v1.0.md). It means that you can choose to
+use it under either license, whatever is more convenient for you. You
+can also choose any later version of those licenses.
