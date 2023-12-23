@@ -5,20 +5,20 @@
 ;; The MultiVector record, and how to convert it to string.
 
 (defn- blade->str
-  "Return a string that represents the blade. Examples: 3*e1, e23, 5."
+  "Return a string that represents the blade. Examples: 3 e1, e23, 5."
   [[x e]]
-  (let [show-e (seq e) ; show the basis element for scalars (4, not 4*e)
-        show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1*e1
-    (str (if show-x x)                          ; 7
-         (if (and show-e show-x) "*")           ; *
-         (if show-e (str "e" (apply str e)))))) ; e134
+  (let [show-e (seq e) ; show the basis element for scalars (4, not 4 e)
+        show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
+    (str (if show-x x)                          ; "7"
+         (if (and show-e show-x) " ")           ; " "
+         (if show-e (str "e" (apply str e)))))) ; "e134"
 
 (defrecord MultiVector [blades signature]
   Object
   (toString [_]
     (if (empty? blades)
       "0"
-      (str/join " + " (map blade->str blades))))) ; "7*e3 + 6*e14 + 4*e23"
+      (str/join " + " (map blade->str blades))))) ; "7 e3 + 6 e14 + 4 e23"
 
 (defmethod print-method MultiVector [a w]
   (.write w (str a))) ; so on the console the multivectors will look nice too
@@ -41,14 +41,14 @@
 
 (defn- simplify-blades
   "Return the blades of a multivector simplified.
-  Example: 3*e24 + 5*e7 + 0*e4 + e24  ->  5*e7 + 4*e24"
+  Example: 3 e24 + 5 e7 + 0 e4 + e24  ->  5 e7 + 4 e24"
   [blades]
   (let [sorted-blades (sort-by second blades)] ; sorted by basis element
     (into [] merge-and-clean sorted-blades)))
 
 (defn- simplify-element
   "Return the simplification of a basis element, and the factor it carries.
-   Example: e13512  ->  e235, +1  (if  e1*e1 = +1)"
+   Example: e13512  ->  e235, +1  (if  e1 e1 = +1)"
   [element signature]
   (loop [[e0 & e-rest] element
          result []
@@ -208,7 +208,7 @@
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn dual
-  "Return the dual of multivector a. Example: 2*e12 + e024 -> 2*e034 + e13.
+  "Return the dual of multivector a. Example: 2 e12 + e024 -> 2 e034 + e13.
   There are other types of duals, for example i*a or a*i. The dual in
   this function works even for degenerate algebras (algebras with i*i = 0)."
   [a]
@@ -519,41 +519,41 @@
                        [0 [1 2 3]]
                        [5 [1 4]]] {1 1, 2 -1, 3 1, 4 1, 5 1}))
   a
-  (str a) ; => "7*e3 + 6*e14 + 4*e23"
+  (str a) ; => "7 e3 + 6 e14 + 4 e23"
 
   (def + add)
-  (str (+ a a)) ; => "14*e3 + 12*e14 + 8*e23"
+  (str (+ a a)) ; => "14 e3 + 12 e14 + 8 e23"
 
   (def - sub)
-  (str (- a)) ; => "-7*e3 + -6*e14 + -4*e23"
+  (str (- a)) ; => "-7 e3 + -6 e14 + -4 e23"
   (str (- a a)) ; => "0"
 
   (def * prod)
-  (str (* a 2)) ; => "14*e3 + 12*e14 + 8*e23"
-  (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
+  (str (* a 2)) ; => "14 e3 + 12 e14 + 8 e23"
+  (str (* a a)) ; => "29 + -84 e134 + 48 e1234"
 
-  (str (rev a)) ; => "7*e3 + -6*e14 + -4*e23"
+  (str (rev a)) ; => "7 e3 + -6 e14 + -4 e23"
 
-  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2*e134"
+  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2 e134"
 
-  (str (grade a 2)) ; => "6*e14 + 4*e23"
+  (str (grade a 2)) ; => "6 e14 + 4 e23"
 
-  (str (pow a 3)) ; => "-301*e3 + 954*e14 + -172*e23"
+  (str (pow a 3)) ; => "-301 e3 + 954 e14 + -172 e23"
 
-  (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16*e2"
+  (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16 e2"
 
   (str/join ", " (map str (basis {1 1, 2 1}))) ; => "1, e1, e2, e12"
 
   (let [[e e1 e2 e12] (basis {1 1, 2 1})]
-    (str (add e1 (prod 3 e2)))) ; => "e1 + 3*e2"
+    (str (add e1 (prod 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
         [e e1 e2 e12] (basis {1 1, 2 1} 3)]
-    (str (+ e1 (* 3 e2)))) ; => "e1 + 3*e2"
+    (str (+ e1 (* 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
         [e e0 e1 e01] (basis [1 1] 0)]
-    (str (+ e0 (* 3 e1)))) ; => "e0 + 3*e1"
+    (str (+ e0 (* 3 e1)))) ; => "e0 + 3 e1"
 
   (reduce-stack '(2) 3) ; => (2)
   (reduce-stack '(2 + 1) 3) ; => (2 + 1)

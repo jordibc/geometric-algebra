@@ -34,14 +34,14 @@
 
 (deftest to-string-test
   (testing "Transforming to string"
-    (is (= (str a) "7*e3 + 6*e14 + 4*e23"))
-    (is (= (str a2) "11*e2 + e23"))))
+    (is (= (str a) "7 e3 + 6 e14 + 4 e23"))
+    (is (= (str a2) "11 e2 + e23"))))
 
 (deftest addition-test
   (testing "Geometric addition"
     (let [+ ga/add]
-      (is (= (str (+ a a)) "14*e3 + 12*e14 + 8*e23"))
-      (is (= (str (+ a2 a2 a2)) "33*e2 + 3*e23"))
+      (is (= (str (+ a a)) "14 e3 + 12 e14 + 8 e23"))
+      (is (= (str (+ a2 a2 a2)) "33 e2 + 3 e23"))
       (is (thrown? java.lang.AssertionError (+ a "")))
       (is (thrown? java.lang.AssertionError (+ a a2))))))
 
@@ -50,20 +50,20 @@
     (let [- ga/sub]
       (is (= (- 3) -3))
       (is (= (- 3 2) 1))
-      (is (= (str (- a)) "-7*e3 + -6*e14 + -4*e23"))
+      (is (= (str (- a)) "-7 e3 + -6 e14 + -4 e23"))
       (is (= (- a) (- (ga/multivector 0 (:signature a)) a)))
       (is (thrown? java.lang.AssertionError (- ""))))))
 
 (deftest product-test
   (testing "Geometric product"
     (let [* ga/prod]
-      (is (= (str (* a 2)) "14*e3 + 12*e14 + 8*e23"))
-      (is (= (str (* a a)) "29 + -84*e134 + 48*e1234"))
+      (is (= (str (* a 2)) "14 e3 + 12 e14 + 8 e23"))
+      (is (= (str (* a a)) "29 + -84 e134 + 48 e1234"))
       (is (thrown? java.lang.AssertionError (* a ""))))))
 
 (deftest reversion-test
   (testing "Multivector reversion"
-    (is (= (str (ga/rev a)) "7*e3 + -6*e14 + -4*e23"))
+    (is (= (str (ga/rev a)) "7 e3 + -6 e14 + -4 e23"))
     (is (= (str (ga/rev (ga/multivector 1 {}))) "1"))))
 
 (deftest involution-test
@@ -90,7 +90,7 @@
       (is (= (ga/inv 4) (/ 1 4)))
       (is (= (ga/inv e1) e1))
       (is (= (ga/inv e12) (- e12)))
-      (is (= (str (ga/inv (+ e1 (* 2 e2)))) "1/5*e1 + 2/5*e2"))
+      (is (= (str (ga/inv (+ e1 (* 2 e2)))) "1/5 e1 + 2/5 e2"))
       (is (thrown? java.lang.AssertionError (ga/inv (+ e1 e12)))))))
 
 (deftest division-test
@@ -99,7 +99,7 @@
       (is (= (/ 2) 1/2))
       (is (= (/ 2 3) 2/3))
       (is (= (str (/ a (ga/multivector [[4 [3]]] (:signature a))))
-             "7/4 + e2 + -3/2*e134")))))
+             "7/4 + e2 + -3/2 e134")))))
 
 (deftest pseudoscalar-unit-test
   (testing "Pseudoscalar unit"
@@ -111,16 +111,16 @@
 
 (deftest dual-test
   (testing "Dual of multivector"
-    (is (= (str (ga/dual a)) "7*e1245 + 6*e235 + 4*e145"))
+    (is (= (str (ga/dual a)) "7 e1245 + 6 e235 + 4 e145"))
     (is (= (ga/dual (ga/dual a)) a))))
 
 (deftest grade-selection-test
   (testing "Grade selection"
-    (is (= (str (ga/grade a 2)) "6*e14 + 4*e23"))))
+    (is (= (str (ga/grade a 2)) "6 e14 + 4 e23"))))
 
 (deftest power-test
   (testing "Multivector to integer power"
-    (is (= (str (ga/pow a 3)) "-301*e3 + 954*e14 + -172*e23"))))
+    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 + -172 e23"))))
 
 (deftest norm-test
   (testing "Multivector norm"
@@ -145,7 +145,7 @@
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (∧ u w)) "-1*e12")))))
+      (is (= (str (∧ u w)) "-1 e12")))))
 
 (deftest lcontract-test
   (testing "Left contraction"
@@ -153,14 +153,14 @@
           [e e1 e2 e12] (ga/basis [2 0])]
       (is (= (str (⌋ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
       (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e2))) "1"))
-      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e12))) "-1 + -1*e1 + e2")))))
+      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e12))) "-1 + -1 e1 + e2")))))
 
 (deftest rcontract-test
   (testing "Right contraction"
     (let [[+ - * ⌊] [ga/add ga/sub ga/prod ga/rcontract]
           [e e1 e2 e12] (ga/basis [2 0])]
       (is (= (str (⌊ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
-      (is (= (str (⌊ (+ e1 e2 e12) (+ 1 e2))) "1 + 2*e1 + e2 + e12"))
+      (is (= (str (⌊ (+ e1 e2 e12) (+ 1 e2))) "1 + 2 e1 + e2 + e12"))
       (is (= (str (⌊ (+ e1 e2 e12) (+ 1 e12))) "-1 + e1 + e2 + e12")))))
 
 (deftest scalar-prod-test
@@ -176,8 +176,8 @@
     (let [[+ - * •] [ga/add ga/sub ga/prod ga/fat-dot]
           [e e1 e2 e12] (ga/basis [2 0])]
       (is (= (str (• (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
-      (is (= (str (• (+ e1 e2 e12) (+ 1 e2))) "1 + 2*e1 + e2 + e12"))
-      (is (= (str (• (+ e1 e2 e12) (+ 1 e12))) "-1 + 2*e2 + e12")))))
+      (is (= (str (• (+ e1 e2 e12) (+ 1 e2))) "1 + 2 e1 + e2 + e12"))
+      (is (= (str (• (+ e1 e2 e12) (+ 1 e12))) "-1 + 2 e2 + e12")))))
 
 (deftest commutator-test
   (testing "Commutator product"
@@ -185,11 +185,11 @@
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (× u w)) "-1*e12"))
+      (is (= (str (× u w)) "-1 e12"))
       (is (= (str (× w u)) "e12"))
       (is (= (str (× e1 e12)) "e2"))
       (is (= (str (× e12 e12)) "0"))
-      (is (= (str (× e12 e1)) "-1*e2")))))
+      (is (= (str (× e12 e1)) "-1 e2")))))
 
 (deftest antiwedge-test
   (testing "Regressive product"
@@ -208,7 +208,7 @@
       (is (= (ga/proj u e12) u))
       (is (= (ga/proj u (- e12)) u))
       (is (= (ga/proj w e12) w))
-      (is (= (str (ga/proj u w)) "7/5*e1 + 14/5*e2")))))
+      (is (= (str (ga/proj u w)) "7/5 e1 + 14/5 e2")))))
 
 (defn- approx?
   "Return true if multivectors a and b are approximately equal."
@@ -253,9 +253,9 @@
   (testing "Using basis elements"
     (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]]
       (let [[e e1 e2 e12] (ga/basis {1 +1, 2 +1})]
-        (is (= (str (+ e1 (* 3 e2))) "e1 + 3*e2")))
+        (is (= (str (+ e1 (* 3 e2))) "e1 + 3 e2")))
       (let [[e e0 e1 e01] (ga/basis [1 1] 0)]
-        (is (= (str (+ e0 (* 3 e1)))) "e0 + 3*e1")
+        (is (= (str (+ e0 (* 3 e1)))) "e0 + 3 e1")
         (is (= (str (* e1 e1)) "-1"))))))
 
 (deftest simplify-element-test
