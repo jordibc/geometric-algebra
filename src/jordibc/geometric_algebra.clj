@@ -476,14 +476,12 @@
   "Return a reduced stack of values and operations.
   The last element will have all operations with precedence > prec applied."
   [stack prec]
-  (let [[val-1 op-1 val-0 & stack-more] stack]
-    (if (or (nil? op-1) (< (precedences op-1) prec))
-      stack
-      (let [val-new (list op-1 val-0 val-1)
-            stack-new (conj stack-more val-new)]
-        (if (empty? stack-more)
-          stack-new
-          (recur stack-new prec))))))
+  (let [[y op x & stack-more] stack] ; we use a list as a stack (y is last)
+    (if (or (nil? op) (< (precedences op) prec))
+      stack ; we are done!
+      (let [z (list op x y) ; x op y -> (op x y)
+            stack-new (conj stack-more z)]
+        (recur stack-new prec)))))
 
 (defn- infix->sexpr
   "Return the S-expression corresponding to the given infix expression."
