@@ -17,7 +17,7 @@ mathematical analysis that I know of.
 ### Clojure CLI / deps.edn
 
 ```clojure
-com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.1", :git/sha "5b3fa4a"}
+com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.2", :git/sha "6d73694"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
@@ -26,7 +26,7 @@ your `deps.edn` file. If you only had that dependency, this is how
 
 ```clojure
 {:deps
- {com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.1", :git/sha "5b3fa4a"}}}
+ {com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.2", :git/sha "6d73694"}}}
 ```
 
 Then you can for example run `clj`, and from there do `(require
