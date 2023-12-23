@@ -474,30 +474,29 @@
 
 (defn- reduce-stack
   "Return a reduced stack of values and operations.
-  The last element will have all operations with precedence > prec applied."
+  The last element will have all operations with precedence >= `prec` applied."
   [stack prec]
-  (let [[y op x & stack-more] stack] ; we use a list as a stack (y is last)
+  (let [[y op x & stack-more] stack] ; we use a list as a stack (`y` is last)
     (if (or (nil? op) (< (precedences op) prec))
       stack ; we are done!
-      (let [z (list op x y) ; x op y -> (op x y)
-            stack-new (conj stack-more z)]
-        (recur stack-new prec)))))
+      (let [z (list op x y)] ; x op y -> (op x y)
+        (recur (conj stack-more z) prec)))))
 
 (defn- infix->sexpr
-  "Return the S-expression corresponding to the given infix expression."
+  "Return the S-expression corresponding to the given infix expression `expr`."
   [expr]
   (if-not (seq? expr)
     expr
-    (let [[val-0 & expr-butfirst] expr]
-      (loop [[op val & expr-more] expr-butfirst
-             stack (list (infix->sexpr val-0))]
+    (let [[x & expr-butfirst] expr]
+      (loop [[op y & expr-more] expr-butfirst
+             stack (list (infix->sexpr x))]
         (if (nil? op)
           (peek (reduce-stack stack 0)) ; return the top of the reduced stack
-          (if-not (contains? precedences op) ; no operator? make it *
-            (recur (conj expr-more val op '*)
+          (if-not (contains? precedences op) ; no operator? will make it `*`
+            (recur (conj expr-more y op '*) ; recreate expr and add `*`
                    stack)
             (let [stack-reduced (reduce-stack stack (precedences op))
-                  stack-new (conj stack-reduced op (infix->sexpr val))]
+                  stack-new (conj stack-reduced op (infix->sexpr y))]
               (recur expr-more
                      stack-new))))))))
 
