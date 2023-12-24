@@ -501,7 +501,7 @@
                      stack-new))))))))
 
 (defmacro infix
-  "Evaluate the given expression `expr` given in infix notation."
+  "Evaluate the expression `expr` given in infix notation."
   [& expr]
   (infix->sexpr expr))
 
