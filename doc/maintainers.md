@@ -1,7 +1,7 @@
-# Mantainers
+# Maintainers
 
-This information is meant for project mantainers. You don't need it if
-you just want to use the library.
+This information is meant for project maintainers. You don't need it
+if you just want to use the library.
 
 
 ## Structure
