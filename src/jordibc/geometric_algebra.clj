@@ -1,24 +1,24 @@
-(ns geometric-algebra
+(ns jordibc.geometric-algebra
   (:require [clojure.string :as str]
             [clojure.math :as math]))
 
 ;; The MultiVector record, and how to convert it to string.
 
 (defn- blade->str
-  "Return a string that represents the blade. Examples: 3*e1, e23, 5."
-  [[v e]]
-  (let [hide-e (empty? e) ; hide the basis element for scalars (4, not 4*e)
-        hide-v (and (= v 1) (not hide-e))] ; so we write e1 instead of 1*e1
-    (str (if-not hide-v v)                          ; 7
-         (if-not (or hide-e hide-v) "*")            ; *
-         (if-not hide-e (str "e" (apply str e)))))) ; e134
+  "Return a string that represents the blade. Examples: 3 e1, e23, 5."
+  [[x e]]
+  (let [show-e (seq e) ; show the basis element for scalars (4, not 4 e)
+        show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
+    (str (if show-x x)                          ; "7"
+         (if (and show-e show-x) " ")           ; " "
+         (if show-e (str "e" (apply str e)))))) ; "e134"
 
 (defrecord MultiVector [blades signature]
   Object
   (toString [_]
     (if (empty? blades)
       "0"
-      (str/join " + " (map blade->str blades))))) ; "7*e3 + 6*e14 + 4*e23"
+      (str/join " + " (map blade->str blades))))) ; "7 e3 + 6 e14 + 4 e23"
 
 (defmethod print-method MultiVector [a w]
   (.write w (str a))) ; so on the console the multivectors will look nice too
@@ -41,14 +41,14 @@
 
 (defn- simplify-blades
   "Return the blades of a multivector simplified.
-  Example: 3*e24 + 5*e7 + 0*e4 + e24  ->  5*e7 + 4*e24"
+  Example: 3 e24 + 5 e7 + 0 e4 + e24  ->  5 e7 + 4 e24"
   [blades]
   (let [sorted-blades (sort-by second blades)] ; sorted by basis element
     (into [] merge-and-clean sorted-blades)))
 
 (defn- simplify-element
   "Return the simplification of a basis element, and the factor it carries.
-   Example: e13512  ->  e235, +1  (if  e1*e1 = +1)"
+   Example: e13512  ->  e235, +1  (if  e1 e1 = +1)"
   [element signature]
   (loop [[e0 & e-rest] element
          result []
@@ -81,11 +81,11 @@
                  signature))
 
 (defn multivector?
-  "Return true if a is a multivector (numbers are multivectors too)."
+  "Return true if `a` is a multivector (numbers are multivectors too)."
   [a]
   (or
    (number? a)
-   (= (class a) geometric_algebra.MultiVector)))
+   (= (class a) jordibc.geometric_algebra.MultiVector)))
 
 (defn same-algebra?
   "Return true if the arguments belong to the same geometric algebra."
@@ -116,13 +116,13 @@
    {:pre [(multivector? a)]}
    (if (number? a)
      (- a)
-     (->MultiVector (mapv (fn [[v e]] [(- v) e]) (:blades a))
+     (->MultiVector (mapv (fn [[x e]] [(- x) e]) (:blades a))
                     (:signature a))))
   ([a b] (add a (sub b)))
   ([a b & more] (reduce sub (sub a b) more)))
 
 (defn prod
-  "Return a * b, the geometric product of multivectors a and b."
+  "Return a * b, the geometric product of multivectors `a` and `b`."
   ([] 1)
   ([a] a)
   ([a b]
@@ -141,29 +141,29 @@
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
-  "Return a^~, the reverse of multivector a. Example: e12 -> e21 = -e12."
+  "Return a^~, the reverse of multivector `a`. Example: e12 -> e21 = -e12."
   [a]
   {:pre [(multivector? a)]}
   (if (number? a)
     a
     (let [keeps-sign? #(-> (count %) (quot 2) even?)
-          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+          transform-blade (fn [[x e]] [(if (keeps-sign? e) x (- x)) e])]
       (->MultiVector (mapv transform-blade (:blades a))
                      (:signature a)))))
 
 (defn invol
-  "Return a^^, the involution of multivector a. Example: 1 + e1 -> 1 - e1."
+  "Return a^^, the involution of multivector `a`. Example: 1 + e1 -> 1 - e1."
   [a]
   {:pre [(multivector? a)]}
   (if (number? a)
     a
     (let [keeps-sign? #(-> (count %) even?)
-          transform-blade (fn [[v e]] [(if (keeps-sign? e) v (- v)) e])]
+          transform-blade (fn [[x e]] [(if (keeps-sign? e) x (- x)) e])]
       (->MultiVector (mapv transform-blade (:blades a))
                      (:signature a)))))
 
 (defn scalar?
-  "Return true if a is a number or a multivector with only a scalar blade."
+  "Return true if `a` is a number or a multivector with only a scalar blade."
   [a]
   {:pre [(multivector? a)]}
   (or
@@ -175,7 +175,7 @@
       (and (= (count blades) 1) (= elem [])))))) ; a is like [[x []]]
 
 (defn scalar
-  "Return the given multivector as a number (if it is a scalar)."
+  "Return the given multivector `a` as a number (if it is a scalar)."
   [a]
   {:pre [(scalar? a)]}
   (if (number? a)
@@ -185,7 +185,7 @@
       (if (empty? blades) 0 x))))
 
 (defn inv
-  "Return a^-1, the inverse of multivector a if it exists."
+  "Return a^-1, the inverse of multivector `a` if it exists."
   [a]
   (if (number? a)
     (/ 1 a)
@@ -197,28 +197,28 @@
         (prod ar (/ 1 norm2))))))
 
 (defn div
-  "Return a / b = a * b^-1 (if b has an inverse)."
+  "Return a / b = a * b^-1 (if `b` has an inverse)."
   ([a] (div 1 a))
   ([a b] (prod a (inv b)))
   ([a b & more] (reduce div (div a b) more)))
 
 (defn pseudoscalar-unit
-  "Return the pseudoscalar unit corresponding to signature sig."
+  "Return the pseudoscalar unit corresponding to signature `sig`."
   [sig]
   (->MultiVector [[1 (vec (keys sig))]] sig))
 
 (defn dual
-  "Return the dual of multivector a. Example: 2*e12 + e024 -> 2*e034 + e13.
+  "Return the dual of multivector `a`. Example: 2 e12 + e024 -> 2 e034 + e13.
   There are other types of duals, for example i*a or a*i. The dual in
   this function works even for degenerate algebras (algebras with i*i = 0)."
   [a]
   (let [indices (vec (keys (:signature a))) ; indices of all basis vectors
         e-dual #(vec (remove (set %) indices))] ; dual of basis multivector
-    (->MultiVector (mapv (fn [[v e]] [v (e-dual e)]) (:blades a))
+    (->MultiVector (mapv (fn [[x e]] [x (e-dual e)]) (:blades a))
                    (:signature a))))
 
 (defn grade
-  "Grade-projection operator <a>_r (select only blades of the given grade).
+  "Grade-projection operator <a>_r (select only blades of the given grade `r`).
   Example: (grade (+ e1 e2 e0245) 1) -> (+ e1 e2)."
   [a r]
   {:pre [(multivector? a)]}
@@ -228,7 +228,7 @@
                    (:signature a))))
 
 (defn grades
-  "Return the grades present in multivector a.
+  "Return the grades present in multivector `a`.
   Example: e1 + e2 + e0245 -> (1, 4)."
   [a]
   {:pre [(multivector? a)]}
@@ -237,22 +237,22 @@
     (distinct (map (comp count second) (:blades a)))))
 
 (defn pow
-  "Return a^n (a raised to the nth power)."
+  "Return a^n (`a` raised to the nth power)."
   [a n]
   {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
   (if (scalar? a)
     (math/pow (scalar a) n)
-    (loop [v 1
+    (loop [a-pow-i 1
            i (abs n)]
       (if (zero? i)
-        (if (>= n 0) v (inv v))
-        (recur (prod v a) (dec i))))))
+        (if (>= n 0) a-pow-i (inv a-pow-i))
+        (recur (prod a-pow-i a) (dec i))))))
 
 (defn norm [a]
   (math/sqrt (scalar (prod a (rev a)))))
 
 (defn dot
-  "Return the dot product (inner product) of multivectors a and b."
+  "Return the dot product (inner product) of multivectors `a` and `b`."
   [a b]
   (if (or (number? a) (number? b))
     0
@@ -265,9 +265,9 @@
                     (grade (abs (- r s))))))))) ; <  >_|r-s|
 
 (defn- graded-prod
-  "Return a \"graded product\" of multivectors a and b. That is a product that
-  looks like  sum_r,s ( < <a>_r * <b>_s >_g )  where g is the grade obtained
-  from r,s with (select-grade r s)."
+  "Return a \"graded product\" of multivectors `a` and `b`.
+  That is a product that looks like sum_r,s ( < <a>_r * <b>_s >_g )
+  where `g` is the grade obtained from r,s with (select-grade r s)."
   [a b select-grade]
   (cond
     (and (number? a) (number? b)) (* a b)
@@ -280,43 +280,43 @@
                         (grade (select-grade r s))))))) ; < >_(select-grade r s)
 
 (defn wedge
-  "Return the wedge product (also exterior/outer) of multivectors a and b."
+  "Return the wedge product (also exterior/outer) of multivectors `a` and `b`."
   [a b]
   (graded-prod a b +)) ; sum  < <a>_r * <b>_s >_(r+s)
 
 (defn lcontract
-  "Return the left contraction of multivectors a and b."
+  "Return the left contraction of multivectors `a` and `b`."
   [a b]
   (graded-prod a b (fn [r s] (- s r)))) ; sum  < <a>_r * <b>_s >_(s-r)
 
 (defn rcontract
-  "Return the right contraction of multivectors a and b."
+  "Return the right contraction of multivectors `a` and `b`."
   [a b]
   (graded-prod a b -)) ; sum  < <a>_r * <b>_s >_(r-s)
 
 (defn scalar-prod
-  "Return the scalar product of multivectors a and b."
+  "Return the scalar product of multivectors `a` and `b`."
   [a b]
   (scalar (graded-prod a b (fn [r s] 0)))) ; sum  < <a>_r * <b>_s >_0
 
 (defn fat-dot
-  "Return the \"fat dot\" product of multivectors a and b."
+  "Return the \"fat dot\" product of multivectors `a` and `b`."
   [a b]
   (graded-prod a b (fn [r s] (abs (- r s))))) ; sum  < <a>_r * <b>_s >_|r-s|
 
 (defn commutator
-  "Return a x b, the commutator product of multivectors a and b."
+  "Return a x b, the commutator product of multivectors `a` and `b`."
   [a b]
   (-> (prod a b) (sub (prod b a)) (div 2))) ; (a * b - b * a) / 2
 
 (defn antiwedge
-  "Return the antiwedge product (also regressive/meet) of multivectors a and b."
+  "Return the antiwedge product (also regressive/meet) of `a` and `b`."
   [a b]
   (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
     (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
 
 (defn proj
-  "Return P_b(a), the projection of multivector a on b."
+  "Return P_b(a), the projection of multivector `a` on `b`."
   [a b]
   (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b
 
@@ -324,7 +324,7 @@
 ;; More advanced operations: exp.
 
 (defn- blade-combos
-  "Return all the different pairs of blades extracted from multivector a."
+  "Return all the different pairs of blades extracted from multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (let [blades (:blades a)
@@ -336,18 +336,18 @@
       [(blade i) (blade j)])))
 
 (defn- all-blades-commute?
-  "Return true if all the blades of multivector a commute."
+  "Return true if all the blades of multivector `a` commute."
   [a]
   (every? true? (for [[bi bj] (blade-combos a)]
                   (= (prod bi bj) (prod bj bi))))) ; bi * bj == bj * bi
 
 (defn- exp-squared-scalar
-  "Return the exponentiation of a multivector whose square is a scalar."
+  "Return the exponentiation of multivector `a` whose square is a scalar."
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
         norm (math/sqrt (abs a2))]
-    (cond (> a2 0) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
-          (< a2 0) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
+    (cond (pos? a2) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
+          (neg? a2) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
           :else (add 1 a))))
 
 (defn- exp-blade
@@ -356,7 +356,7 @@
   (exp-squared-scalar (->MultiVector [blade] signature))) ; blade as multivector
 
 (defn sum-exp-series
-  "Return exp(a) by adding the terms in its expansion in powers of a."
+  "Return exp(a) by adding the terms in its expansion in powers of `a`."
   ([a] (sum-exp-series a 1e-8 20))
   ([a precision max-terms]
    (loop [term-last 1 ; last term in the series evaluated
@@ -376,7 +376,7 @@
              sum)))))))
 
 (defn exp
-  "Return exp(a), the exponentiation of multivector a."
+  "Return exp(a), the exponentiation of multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (cond
@@ -391,12 +391,12 @@
 ;; Basis.
 
 (defn- last?
-  "Is e the last of the blades with that number of vectors?"
+  "Is `e` the last of the blades with number of vectors `n`?"
   ([e n] (last? e n 1))
   ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
 
 (defn- next-element
-  "Return the multivector (in dim n) basis element next to e."
+  "Return the multivector (in dim `n`) basis element next to `e`."
   [e n start]
   (if (last? e n start)
     (if (< (count e) n) (vec (range start (+ start (count e) 1))))
@@ -467,6 +467,45 @@
        (println "Defined operators:" ~(str/join " " (keys operators))))))
 
 
+;; Infix notation.
+
+(def ^:private precedences ; operator precedence
+  {'+ 1, '- 1, '* 2, '/ 2, '· 3, '∧ 3, '∨ 3, '× 3, '⌋ 3, '⌊ 3, '∘ 3, '• 3})
+
+(defn- reduce-stack
+  "Return a reduced stack of values and operations.
+  The last element will have all operations with precedence >= `prec` applied."
+  [stack prec]
+  (let [[y op x & stack-more] stack] ; we use a list as a stack (`y` is last)
+    (if (or (nil? op) (< (precedences op) prec))
+      stack ; we are done!
+      (let [z (list op x y)] ; x op y -> (op x y)
+        (recur (conj stack-more z) prec)))))
+
+(defn- infix->sexpr
+  "Return the S-expression corresponding to the given infix expression `expr`."
+  [expr]
+  (if-not (seq? expr)
+    expr
+    (let [[x & expr-butfirst] expr]
+      (loop [[op y & expr-more] expr-butfirst
+             stack (list (infix->sexpr x))]
+        (if (nil? op)
+          (peek (reduce-stack stack 0)) ; return the top of the reduced stack
+          (if-not (contains? precedences op) ; no operator? will make it `*`
+            (recur (conj expr-more y op '*) ; recreate expr and add `*`
+                   stack)
+            (let [stack-reduced (reduce-stack stack (precedences op))
+                  stack-new (conj stack-reduced op (infix->sexpr y))]
+              (recur expr-more
+                     stack-new))))))))
+
+(defmacro infix
+  "Evaluate the given expression `expr` given in infix notation."
+  [& expr]
+  (infix->sexpr expr))
+
+
 ;; "Rich comment", with small examples of how to use the functions.
 
 (comment
@@ -477,40 +516,70 @@
                        [0 [1 2 3]]
                        [5 [1 4]]] {1 1, 2 -1, 3 1, 4 1, 5 1}))
   a
-  (str a) ; => "7*e3 + 6*e14 + 4*e23"
+  (str a) ; => "7 e3 + 6 e14 + 4 e23"
 
   (def + add)
-  (str (+ a a)) ; => "14*e3 + 12*e14 + 8*e23"
+  (str (+ a a)) ; => "14 e3 + 12 e14 + 8 e23"
 
   (def - sub)
-  (str (- a)) ; => "-7*e3 + -6*e14 + -4*e23"
+  (str (- a)) ; => "-7 e3 + -6 e14 + -4 e23"
   (str (- a a)) ; => "0"
 
   (def * prod)
-  (str (* a 2)) ; => "14*e3 + 12*e14 + 8*e23"
-  (str (* a a)) ; => "29 + -84*e134 + 48*e1234"
+  (str (* a 2)) ; => "14 e3 + 12 e14 + 8 e23"
+  (str (* a a)) ; => "29 + -84 e134 + 48 e1234"
 
-  (str (rev a)) ; => "7*e3 + -6*e14 + -4*e23"
+  (str (rev a)) ; => "7 e3 + -6 e14 + -4 e23"
 
-  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2*e134"
+  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2 e134"
 
-  (str (grade a 2)) ; => "6*e14 + 4*e23"
+  (str (grade a 2)) ; => "6 e14 + 4 e23"
 
-  (str (pow a 3)) ; => "-301*e3 + 954*e14 + -172*e23"
+  (str (pow a 3)) ; => "-301 e3 + 954 e14 + -172 e23"
 
-  (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16*e2"
+  (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16 e2"
 
   (str/join ", " (map str (basis {1 1, 2 1}))) ; => "1, e1, e2, e12"
 
   (let [[e e1 e2 e12] (basis {1 1, 2 1})]
-    (str (add e1 (prod 3 e2)))) ; => "e1 + 3*e2"
+    (str (add e1 (prod 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
         [e e1 e2 e12] (basis {1 1, 2 1} 3)]
-    (str (+ e1 (* 3 e2)))) ; => "e1 + 3*e2"
+    (str (+ e1 (* 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
         [e e0 e1 e01] (basis [1 1] 0)]
-    (str (+ e0 (* 3 e1)))) ; => "e0 + 3*e1"
+    (str (+ e0 (* 3 e1)))) ; => "e0 + 3 e1"
+
+  (reduce-stack '(2) 3) ; => (2)
+  (reduce-stack '(2 + 1) 3) ; => (2 + 1)
+  (reduce-stack '(2 + 1) 0) ; => ((+ 1 2))
+  (reduce-stack '(3 * 2 + 1) 2) ; => ((* 2 3) + 1)
+  (reduce-stack '(3 * 2 + 1) 1) ; => ((+ 1 (* 2 3)))
+  (reduce-stack '(4 • 3 * 2 + 1) 0) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 1) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 2) ; => ((* 2 (• 3 4)) + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 3) ; => ((• 3 4) * 2 + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 4) ; => (4 • 3 * 2 + 1)
+
+  (infix->sexpr 1) ; => 1
+  (infix->sexpr '(1)) ; => 1
+  (infix->sexpr '(1 + 2)) ; => (+ 1 2)
+  (infix->sexpr '((1 + 2))) ; => (+ 1 2)
+  (infix->sexpr '(1 + 2 * 3)) ; => (+ 1 (* 2 3))
+  (infix->sexpr '(1 * 2 + 3)) ; => (+ (* 1 2) 3)
+  (infix->sexpr '(1 * (2 + 3))) ; => (* 1 (+ 2 3))
+  (infix->sexpr '(1 2)) ; => (* 1 2)
+  (infix->sexpr '(1 2 + 3)) ; => (+ (* 1 2) 3)
+  (infix->sexpr '((1 + 2) * 3)) ; => (* (+ 1 2) 3)
+
+  (infix 1) ; => 1
+  (infix 1 + 2) ; => 3
+  (infix 1 + 2 + 3) ; => 6
+  (infix 1 + 2 * 3) ; => 7
+  (infix 2 * 3 + 4) ; => 10
+  (infix 2 * (3 + 4)) ; => 14
+  (infix 2 4 + 5) ; => 13
 
   )
