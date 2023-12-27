@@ -27,7 +27,7 @@ working library with some tests.
 ### Clojure CLI / deps.edn
 
 ```clojure
-com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}
+com.gitlab.jordibc/geometric-algebra {:git/tag "v0.9.2-simpler", :git/sha "2000dd4"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
@@ -36,7 +36,7 @@ your `deps.edn` file. If you only had that dependency, this is how
 
 ```clojure
 {:deps
- {com.gitlab.jordibc/geometric-algebra {:git/tag "0.9.0", :git/sha "9f8754"}}}
+ {com.gitlab.jordibc/geometric-algebra {:git/tag "v0.9.2-simpler", :git/sha "2000dd4"}}}
 ```
 
 Then you can for example run `clj`, and from there do `(require
