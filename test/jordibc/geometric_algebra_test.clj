@@ -119,8 +119,16 @@
     (is (= (str (ga/grade a 2)) "6 e14 + 4 e23"))))
 
 (deftest power-test
-  (testing "Multivector to integer power"
-    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 + -172 e23"))))
+  (testing "Raise to power"
+    (is (== (ga/pow 2 3) 8))
+    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 + -172 e23"))
+    (let [[+ *] [ga/add ga/prod]
+          [e e1 e2 e12] (ga/basis [0 2])]
+      (is (== (ga/scalar (ga/pow 1 (+ 1 e1 e2))) 1))
+      (is (= (ga/pow (ga/exp 1) (+ 1 e1 e2)) (ga/exp (+ 1 e1 e2))))
+      (is (= (str (ga/pow 2 (+ 1 e1 e2)))
+             (str "1.1136162813753347 + 1.1747039578631577 e1 + "
+                  "1.1747039578631577 e2"))))))
 
 (deftest norm-test
   (testing "Multivector norm"

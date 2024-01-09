@@ -236,17 +236,22 @@
     [0]
     (distinct (map (comp count second) (:blades a)))))
 
+(declare exp) ; so we can use it in `pow`
+
 (defn pow
-  "Return a^n (`a` raised to the nth power)."
-  [a n]
-  {:pre [(or (scalar? a) (and (multivector? a) (int? n)))]}
+  "Return a^b (`a` raised to the power of `b`)."
+  [a b]
   (if (scalar? a)
-    (math/pow (scalar a) n)
-    (loop [a-pow-i 1
-           i (abs n)]
-      (if (zero? i)
-        (if (>= n 0) a-pow-i (inv a-pow-i))
-        (recur (prod a-pow-i a) (dec i))))))
+    (if (scalar? b)
+      (math/pow (scalar a) (scalar b))
+      (exp (prod b (math/log (scalar a)))))
+    (do
+      (assert (int? b) "can only raise multivector to an integer")
+      (loop [a-pow-n 1
+             i (abs b)]
+        (if (zero? i)
+          (if (>= b 0) a-pow-n (inv a-pow-n))
+          (recur (prod a-pow-n a) (dec i)))))))
 
 (defn norm [a]
   (math/sqrt (scalar (prod a (rev a)))))
