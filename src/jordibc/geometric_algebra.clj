@@ -351,9 +351,10 @@
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
         norm (math/sqrt (abs a2))]
-    (cond (pos? a2) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
-          (neg? a2) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
-          :else (add 1 a))))
+    (cond
+      (pos? a2) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
+      (neg? a2) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
+      :else (add 1 a))))
 
 (defn- exp-blade
   "Return the exponentiation of a single blade, given its signature too."
