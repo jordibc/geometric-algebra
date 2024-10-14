@@ -10,7 +10,7 @@
   (let [show-e (seq e) ; show the basis element for scalars (4, not 4 e)
         show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
     (str (if show-x x)                          ; "7"
-         (if (and show-e show-x) " ")           ; " "
+         (if (and show-x show-e) " ")           ; " "
          (if show-e (str "e" (apply str e)))))) ; "e134"
 
 (defrecord MultiVector [blades signature]
