@@ -317,8 +317,7 @@
 (defn antiwedge
   "Return the antiwedge product (also regressive/meet) of `a` and `b`."
   [a b]
-  (let [i (pseudoscalar-unit (:signature a))] ; note that i^-1 = +/- i
-    (prod (wedge (prod a i) (prod b i)) i))) ; ((a i^-1) ^ (b i^-1)) i
+  (dual (wedge (dual a) (dual b)))) ; (a* ^ b*)*
 
 (defn proj
   "Return P_b(a), the projection of multivector `a` on `b`."
