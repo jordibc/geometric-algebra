@@ -281,8 +281,9 @@
     :else (reduce add
                   (for [r (grades a)
                         s (grades b)]
-                    (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
-                        (grade (select-grade r s))))))) ; < >_(select-grade r s)
+                    (let [g (select-grade r s)]
+                      (-> (prod (grade a r) (grade b s)) ; <a>_r * <b>_s
+                          (grade g))))))) ; < >_g
 
 (defn wedge
   "Return the wedge product (also exterior/outer) of multivectors `a` and `b`."
