@@ -85,7 +85,7 @@
   [a]
   (or
    (number? a)
-   (= (class a) jordibc.geometric_algebra.MultiVector)))
+   (instance? jordibc.geometric_algebra.MultiVector a)))
 
 (defn same-algebra?
   "Return true if the arguments belong to the same geometric algebra."
