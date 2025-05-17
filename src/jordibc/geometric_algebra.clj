@@ -188,7 +188,7 @@
   "Return a^-1, the inverse of multivector `a` if it exists."
   [a]
   (if (number? a)
-    (/ 1 a)
+    (/ a)
     (let [ar (rev a)
           aar (prod a ar)]
       (assert (scalar? aar) (str "multivector has no inverse: " a))
