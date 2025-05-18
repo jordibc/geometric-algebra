@@ -3,10 +3,19 @@
  :tasks {test {:requires ([clojure.test :as t]
                           [jordibc.geometric-algebra-test])
                :task (t/run-tests 'jordibc.geometric-algebra-test)}
-         calc {:requires ([jordibc.geometric-algebra :as ga]
-                          [clojure.edn :as edn])
+         calc {:requires ([clojure.string :as str]
+                          [clojure.edn :as edn]
+                          [jordibc.geometric-algebra :as ga])
                :task (do
                        (ga/def-basis [1 3] 0) ; TODO: let the user choose/change
                        (ga/def-ops)
-                       (let [expr (str "(ga/infix " (read-line) ")")]
-                         (println (eval (edn/read-string expr)))))}}}
+                       (let [ops (keys ga/operators)
+                             op-expand (fn [s op] (str/replace s op (str " " op " ")))
+                             ops-expand (fn [s] (reduce op-expand s ops))]
+                         (loop []
+                           (let [line (ops-expand (read-line))
+                                 expr (str "(ga/infix " line ")")
+                                 val (eval (edn/read-string expr))]
+                             (when-not (nil? val)
+                               (println val)
+                               (recur))))))}}}
