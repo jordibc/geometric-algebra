@@ -449,28 +449,30 @@
             `(def ~(symbol (str e)) ~e)) ; looks like (def e1 #object[e1])
         (println "Defined basis multivectors:" ~(str/join " " elems))))))
 
+(def operators
+  (array-map ; so they appear in order
+   "+" add
+   "-" sub
+   "*" prod
+   "/" div
+   "·" dot
+   "∧" wedge
+   "∨" antiwedge
+   "×" commutator
+   "⌋" lcontract
+   "⌊" rcontract
+   "∘" scalar-prod ; NOTE: not standard, but we use "*" for prod
+   "•" fat-dot))
+
 (defmacro def-ops
   "Create global vars with multivector operators, replacing some core ones."
   []
-  (let [operators (array-map ; so they appear in order
-                   "+" add
-                   "-" sub
-                   "*" prod
-                   "/" div
-                   "·" dot
-                   "∧" wedge
-                   "∨" antiwedge
-                   "×" commutator
-                   "⌋" lcontract
-                   "⌊" rcontract
-                   "∘" scalar-prod ; NOTE: not standard, but we use "*" for prod
-                   "•" fat-dot)]
-    `(do
-       (println "Replacing operators + - * / with generalized versions."
-                "You may see the corresponding warnings.")
-       ~@(for [[op f] operators]
-           `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
-       (println "Defined operators:" ~(str/join " " (keys operators))))))
+  `(do
+     (println "Replacing operators + - * / with generalized versions."
+              "You may see the corresponding warnings.")
+     ~@(for [[op f] operators]
+         `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
+     (println "Defined operators:" ~(str/join " " (keys operators)))))
 
 
 ;; Infix notation.
