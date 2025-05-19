@@ -9,9 +9,9 @@
   [[x e]]
   (let [show-e (seq e) ; show the basis element for scalars (4, not 4 e)
         show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
-    (str (if show-x x)                          ; "7"
-         (if (and show-x show-e) " ")           ; " "
-         (if show-e (str "e" (apply str e)))))) ; "e134"
+    (str (when show-x x)                          ; "7"
+         (when (and show-x show-e) " ")           ; " "
+         (when show-e (str "e" (apply str e)))))) ; "e134"
 
 (defrecord MultiVector [blades signature]
   Object
@@ -405,7 +405,9 @@
   "Return the multivector (in dim `n`) basis element next to `e`."
   [e n start]
   (if (last? e n start)
-    (if (< (count e) n) (vec (range start (+ start (count e) 1))))
+    (if (< (count e) n)
+      (vec (range start (+ start (count e) 1)))
+      nil) ; will stop when we iterate over next-element
     (let [pos (first
                (for [i (range (count e))
                      :when (not= (e (- (count e) (inc i)))
