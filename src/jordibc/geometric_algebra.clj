@@ -83,9 +83,7 @@
 (defn multivector?
   "Return true if `a` is a multivector (numbers are multivectors too)."
   [a]
-  (or
-   (number? a)
-   (instance? jordibc.geometric_algebra.MultiVector a)))
+  (or (number? a) (instance? MultiVector a)))
 
 (defn same-algebra?
   "Return true if the arguments belong to the same geometric algebra."
