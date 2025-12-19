@@ -28,6 +28,12 @@ You can run some tests with:
 clojure -T:build test
 ```
 
+or (faster) with babashka:
+
+```sh
+bb test
+```
+
 
 ## Building a JAR
 
