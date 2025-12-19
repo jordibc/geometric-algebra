@@ -454,7 +454,7 @@
                   signature
                   (vector->signature signature start))
          n (count sigmap)
-         i0 (apply min (keys sigmap))]
+         i0 (when (> n 0) (apply min (keys sigmap)))]
      (take (math/pow 2 n)
            (for [e (iterate #(next-element % n i0) [])] ; e: basis element
              (->MultiVector [[1 e]] sigmap)))))) ; as multivector
