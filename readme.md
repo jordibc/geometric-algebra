@@ -13,6 +13,16 @@ their geometric product are the simplest and most powerful tools for
 mathematical analysis that I know of.
 
 
+## Using it as a calculator
+
+If you have (babashka)[https://babashka.org/], you can launch a quick
+geometric algebra calculator with:
+
+```sh
+bb calc
+```
+
+
 ## Installation
 
 ### Clojure CLI / deps.edn

@@ -513,7 +513,7 @@
       (let [z (list op x y)] ; x op y -> (op x y)
         (recur (conj stack-more z) prec)))))
 
-(defn- infix->sexpr
+(defn infix->sexpr
   "Return the S-expression corresponding to the given infix expression `expr`."
   [expr]
   (if-not (seq? expr)
