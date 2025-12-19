@@ -158,6 +158,12 @@ You can run some tests with:
 clojure -T:build test
 ```
 
+Or with babashka:
+
+```sh
+bb test
+```
+
 
 ## Resources
 
