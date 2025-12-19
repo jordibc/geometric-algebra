@@ -7,15 +7,18 @@
   (eval `(let ~(vec env) ~code)))
 
 (defn- args->signature [args]
-  (let [[a1 a2 a3 a4] args
-        sig-name (ga/name->signature (or a1 "")) ; if signature given as a name
-        p     (parse-long (or a1 "2"))
-        q     (parse-long (or a2 "0"))
-        r     (parse-long (or a3 "0"))
-        start (parse-long (or a4 "1"))]
-    (or sig-name (ga/vector->signature [p q r] start))))
+  (try
+    (let [[a1 a2 a3 a4] args
+          sig-name (ga/name->signature (or a1 "")) ; signature given as a name
+          p     (parse-long (or a1 "2"))
+          q     (parse-long (or a2 "0"))
+          r     (parse-long (or a3 "0"))
+          start (parse-long (or a4 "1"))]
+      (or sig-name (ga/vector->signature [p q r] start)))
+    (catch Exception e (do (println "Error: bad signature" args) {}))))
 
 (defn calc
+  "REPL to get infix GA expressions and show their values."
   [args]
   (let [signature (args->signature args)
         basis (rest (ga/basis signature)) ; basis multivectors
