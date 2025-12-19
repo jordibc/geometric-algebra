@@ -394,6 +394,34 @@
 
 ;; Basis.
 
+(defn name->signature
+  "Return the signature corresponding to the named algebra."
+  [name]
+  (case (str/lower-case name)
+    ("r" "real") {}
+    ("c" "complex") {1 -1}
+    ("h" "quaternion") {1 +1, 2 +1, 3 +1} ; with i=e23, j=-e13, k=e12
+    ("hyperbolic") {1 +1}
+    ("d" "dual") {0 0}
+    ("r2" "2d") {1 +1, 2 +1}
+    ("r3" "3d" "aps") {1 +1, 2 +1, 3 +1}
+    ("pga" "pga2" "pga2d") {0 0, 1 +1, 2 +1}
+    ("pga3" "pga3d") {0 0, 1 +1, 2 +1, 3 +1}
+    ("conformal" "conformal2" "conformal2d") {1 +1, 2 +1, 3 +1, 4 -1}
+    ("conformal3" "conformal3d") {1 +1, 2 +1, 3 +1, 4 +1, 5 -1}
+    ("sta") {0 +1, 1 -1, 2 -1, 3 -1}
+    nil))
+
+(defn vector->signature
+  "Return the signature as a map, corresponding to the given vector signature."
+  ([signature] (vector->signature signature nil))
+  ([signature start]
+   (let [[p q r_] signature
+         r (or r_ 0)
+         i0 (or start 1)]
+     (zipmap (range i0 (+ i0 p q r))
+             (concat (repeat p +1) (repeat q -1) (repeat r 0))))))
+
 (defn- last?
   "Is `e` the last of the blades with number of vectors `n`?"
   ([e n] (last? e n 1))
@@ -421,20 +449,15 @@
   "Return basis elements of a geometric algebra with the given signature."
   ([signature] (basis signature nil))
   ([signature start]
-   {:pre [(or (vector? signature) (map? signature))]}
-   (if (vector? signature)
-     (let [[p q r_] signature ; signature is a vector -> convert to map
-           r (or r_ 0)
-           i0 (or start 1)
-           sigmap (zipmap (range i0 (+ i0 p q r))
-                          (concat (repeat p +1) (repeat q -1) (repeat r 0)))]
-       (recur sigmap nil)) ; call again, but with signature as a map
-     (let [n (count signature) ; signature is a map
-           i0 (apply min (keys signature))]
-       (assert (nil? start) "cannot use start when using a map as signature")
-       (take (math/pow 2 n)
-             (for [e (iterate #(next-element % n i0) [])] ; e: basis element
-               (->MultiVector [[1 e]] signature))))))) ; as multivector
+   {:pre [(or (vector? signature) (and (map? signature) (not start)))]}
+   (let [sigmap (if (map? signature)
+                  signature
+                  (vector->signature signature start))
+         n (count sigmap)
+         i0 (apply min (keys sigmap))]
+     (take (math/pow 2 n)
+           (for [e (iterate #(next-element % n i0) [])] ; e: basis element
+             (->MultiVector [[1 e]] sigmap)))))) ; as multivector
 
 
 ;; Macros to define basis elements and operators (great for the repl).
