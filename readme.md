@@ -30,7 +30,7 @@ bb calc
 ```clojure
 org.codeberg.jordibc/geometric-algebra
 {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
- :git/tag "v0.9.6", :git/sha "9b9bc8c8"}
+ :git/tag "v0.9.6", :git/sha "0ee55766b5"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
@@ -41,7 +41,7 @@ your `deps.edn` file. If you only had that dependency, this is how
 {:deps
  {org.codeberg.jordibc/geometric-algebra
   {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
-   :git/tag "v0.9.2", :git/sha "9b9bc8c8"}}}
+   :git/tag "v0.9.6", :git/sha "0ee55766b5"}}}
 ```
 
 Then you can for example run `clj`, and from there do `(require
