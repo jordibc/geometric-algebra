@@ -1,6 +1,6 @@
 # Geometric Algebra
 
-[![Clojars Project](https://img.shields.io/clojars/v/net.clojars.geometric-algebra/geometric-algebra.svg)](https://clojars.org/net.clojars.geometric-algebra/geometric-algebra)
+[![Clojars Project](https://img.shields.io/clojars/v/net.clojars.jordibc/geometric-algebra.svg)](https://clojars.org/net.clojars.jordibc/geometric-algebra)
 [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://book.babashka.org#badges)
 
 A library to do [geometric
