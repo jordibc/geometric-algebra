@@ -15,11 +15,11 @@ mathematical analysis that I know of.
 
 ## Using it as a calculator
 
-If you have [babashka](https://babashka.org/), you can launch a quick
+With [babashka](https://babashka.org/), we can launch a quick
 geometric algebra calculator with:
 
 ```sh
-bb calc
+bb calc <signature>  # for example, "sta" as signature for spacetime algebra
 ```
 
 
@@ -28,24 +28,32 @@ bb calc
 ### Clojure CLI / deps.edn
 
 ```clojure
-org.codeberg.jordibc/geometric-algebra
-{:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
- :git/tag "v0.9.6", :git/sha "0ee55766b5"}
+net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.6"}
 ```
 
-Which means, to use this library you can add that to the `:deps` in
-your `deps.edn` file. If you only had that dependency, this is how
+Which means, to use this library we can add that to the `:deps` in
+our `deps.edn` file. If we only had that dependency, this is how
 `deps.edn` would look like:
 
 ```clojure
 {:deps
- {org.codeberg.jordibc/geometric-algebra
-  {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
-   :git/tag "v0.9.6", :git/sha "0ee55766b5"}}}
+ {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.6"}}}
 ```
 
-Then you can for example run `clj`, and from there do `(require
+Then we can for example run `clj`, and from there do `(require
 'geometric-algebra.core)` and so on (see examples).
+
+
+#### From Codeberg
+
+We recommend to install from the Clojars release as explained above,
+but we can also install directly from Codeberg with:
+
+```
+org.codeberg.jordibc/geometric-algebra
+{:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
+ :git/tag "v0.9.6", :git/sha "0ee55766b5"}
+```
 
 
 ### Cloning this repository
