@@ -58,6 +58,17 @@ clojure -T:build install
 
 ## Deployment
 
+Before deploying, we normally want to tag the code with the new
+version (which we update in `build.clj`), as in:
+
+```sh
+git tag -a v1.0.0 -m  # and write a description
+git push origin v1.0.0
+```
+
+
+### Clojars
+
 To deploy this library to Clojars, run the `ci` task first, then set
 the environment variables `CLOJARS_USERNAME` and `CLOJARS_PASSWORD`,
 and run:
@@ -67,5 +78,18 @@ clojure -T:build deploy
 ```
 
 The library will be deployed to
-[net.clojars.geometric-algebra/geometric-algebra](https://clojars.org/net.clojars.geometric-algebra/geometric-algebra)
+[net.clojars.jordibc/geometric-algebra](https://clojars.org/net.clojars.jordibc/geometric-algebra)
 on [clojars.org](https://clojars.org/) by default.
+
+
+### Codeberg
+
+To create a new release on [Codeberg](https://codeberg.org/), releases
+for the project must be enabled if they are not already (by going to
+the repository `Settings -> Units -> Overview -> Enable repository
+releases`). Then, in the repository page, we can go to the `Releases`
+tab, click on `New release`, select the tag with the version we want,
+and publish the release.
+
+Finally, we normally edit `readme.md` and reflect the new tag and sha
+in the installation instructions.
