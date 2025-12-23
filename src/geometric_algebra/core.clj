@@ -1,4 +1,4 @@
-(ns jordibc.geometric-algebra
+(ns geometric-algebra.core
   (:require [clojure.string :as str]
             [clojure.math :as math]))
 

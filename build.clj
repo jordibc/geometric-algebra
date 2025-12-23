@@ -3,7 +3,7 @@
   (:require [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]))
 
-(def lib 'net.clojars.jordibc/geometric-algebra)
+(def lib 'net.clojars.geometric-algebra/geometric-algebra)
 (def version "0.9.5")
 (def class-dir "target/classes")
 
@@ -19,7 +19,7 @@
 
 (defn- pom-template [version]
   [[:description "A library to do geometric algebra in clojure."]
-   [:url "https://gitlab.com/jordibc/geometric-algebra"]
+   [:url "https://codeberg.org/jordibc/geometric-algebra"]
    [:licenses
     [:license
      [:name "GNU General Public License v3"]
@@ -31,9 +31,9 @@
     [:developer
      [:name "Jordi Burguet-Castell"]]]
    [:scm
-    [:url "https://gitlab.com/jordibc/geometric-algebra"]
-    [:connection "scm:git:https://gitlab.com/jordibc/geometric-algebra.git"]
-    [:developerConnection "scm:git:ssh:git@gitlab.com:jordibc/geometric-algebra.git"]
+    [:url "https://codeberg.org/jordibc/geometric-algebra"]
+    [:connection "scm:git:https://codeberg.org/jordibc/geometric-algebra.git"]
+    [:developerConnection "scm:git:ssh:git@codeberg.org:jordibc/geometric-algebra.git"]
     [:tag (str "v" version)]]])
 
 (defn- jar-opts [opts]

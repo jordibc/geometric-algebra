@@ -1,8 +1,7 @@
 {:paths ["src" "test"]
 
  :tasks {test {:requires ([clojure.test :as t]
-                          [jordibc.geometric-algebra-test])
-               :task (t/run-tests 'jordibc.geometric-algebra-test)}
-         calc {:requires ([jordibc.calculator :as calc]
-                          [sci.core :as sci])
+                          [geometric-algebra.core-test])
+               :task (t/run-tests 'geometric-algebra.core-test)}
+         calc {:requires ([geometric-algebra.calculator :as calc])
                :task (calc/calc *command-line-args*)}}}

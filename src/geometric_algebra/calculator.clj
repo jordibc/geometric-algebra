@@ -1,5 +1,5 @@
-(ns jordibc.calculator
-  (:require [jordibc.geometric-algebra :as ga]
+(ns geometric-algebra.calculator
+  (:require [geometric-algebra.core :as ga]
             [clojure.edn :as edn]
             [clojure.string :as str]))
 
@@ -21,7 +21,8 @@
   "REPL to get infix GA expressions and show their values."
   [args]
   (if (nil? args)
-    (println "Usage: calc <signature> (name or p q r [start])")
+    (println (str "Usage: calc <signature> (name or p q r [start])\n"
+                  "(for example: calc sta)"))
     (let [signature (args->signature args)
           basis (rest (ga/basis signature)) ; basis multivectors
           env (flatten (concat (for [e basis] [(symbol (str e)) e])

@@ -1,6 +1,6 @@
 # Geometric Algebra
 
-[![Clojars Project](https://img.shields.io/clojars/v/net.clojars.jordibc/geometric-algebra.svg)](https://clojars.org/net.clojars.jordibc/geometric-algebra)
+[![Clojars Project](https://img.shields.io/clojars/v/net.clojars.geometric-algebra/geometric-algebra.svg)](https://clojars.org/net.clojars.geometric-algebra/geometric-algebra)
 [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://book.babashka.org#badges)
 
 A library to do [geometric
@@ -28,7 +28,9 @@ bb calc
 ### Clojure CLI / deps.edn
 
 ```clojure
-com.gitlab.jordibc/geometric-algebra {:git/tag "v0.9.5", :git/sha "9b9bc8c8"}
+org.codeberg.jordibc/geometric-algebra
+{:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
+ :git/tag "v0.9.5", :git/sha "9b9bc8c8"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
@@ -37,11 +39,13 @@ your `deps.edn` file. If you only had that dependency, this is how
 
 ```clojure
 {:deps
- {com.gitlab.jordibc/geometric-algebra {:git/tag "v0.9.5", :git/sha "9b9bc8c8"}}}
+ {org.codeberg.jordibc/geometric-algebra
+  {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
+   :git/tag "v0.9.2", :git/sha "9b9bc8c8"}}}
 ```
 
 Then you can for example run `clj`, and from there do `(require
-'jordibc.geometric-algebra)` and so on (see examples).
+'geometric-algebra.core)` and so on (see examples).
 
 
 ### Cloning this repository
@@ -54,7 +58,7 @@ You can instead simply clone this repository and run clojure from it.
 To create the basis vectors of a geometric algebra with the given signature:
 
 ```clojure
-(require '[jordibc.geometric-algebra :as ga])
+(require '[geometric-algebra.core :as ga])
 
 (def signature [3 0])
 (println (ga/basis signature))
@@ -70,7 +74,7 @@ You can add, multiply, etc., those elements to create arbitrary
 multivectors.
 
 ```clojure
-(require '[jordibc.geometric-algebra :as ga])
+(require '[geometric-algebra.core :as ga])
 
 (let [[+ - * / · ∧ ∨] [ga/add ga/sub ga/prod ga/div ga/dot ga/wedge ga/antiwedge]
       [e e1 e2 e12] (ga/basis [2 0])
@@ -132,7 +136,7 @@ multivectors from the repl: `def-basis` and `def-ops`. They work by
 creating automatically all the symbols that we would expect.
 
 ```clojure
-(require '[jordibc.geometric-algebra :as ga])
+(require '[geometric-algebra.core :as ga])
 
 (ga/def-basis [1 3] 0) ; start with e0, the "space-time algebra"
 ;; Will print:

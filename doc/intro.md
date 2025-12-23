@@ -14,7 +14,7 @@ operations with them.
 Example:
 
 ```clojure
-(require '[jordibc.geometric-algebra :as ga :refer [infix]])
+(require '[geometric-algebra.core :as ga :refer [infix]])
 
 (ga/def-basis [1 3] 0) ; start with e0, the "space-time algebra"
 ;; Will print:
