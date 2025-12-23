@@ -15,7 +15,7 @@ mathematical analysis that I know of.
 
 ## Using it as a calculator
 
-If you have (babashka)[https://babashka.org/], you can launch a quick
+If you have [babashka](https://babashka.org/), you can launch a quick
 geometric algebra calculator with:
 
 ```sh
