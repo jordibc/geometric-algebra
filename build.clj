@@ -3,8 +3,8 @@
   (:require [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]))
 
-(def lib 'net.clojars.geometric-algebra/geometric-algebra)
-(def version "0.9.5")
+(def lib 'net.clojars.jordibc/geometric-algebra)
+(def version "0.9.6")
 (def class-dir "target/classes")
 
 (defn test "Run all the tests." [opts]

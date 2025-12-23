@@ -30,7 +30,7 @@ bb calc
 ```clojure
 org.codeberg.jordibc/geometric-algebra
 {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
- :git/tag "v0.9.5", :git/sha "9b9bc8c8"}
+ :git/tag "v0.9.6", :git/sha "9b9bc8c8"}
 ```
 
 Which means, to use this library you can add that to the `:deps` in
