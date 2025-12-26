@@ -39,8 +39,8 @@
   ([signature infix?]
    (let [basis (rest (ga/basis signature)) ; basis multivectors
          funcs {'rev ga/rev, 'invol ga/invol, 'inv ga/inv, 'dual ga/dual,
-                'grade ga/grade, 'pow ga/pow, 'norm ga/norm, 'proj ga/proj,
-                'exp ga/exp}
+                'grade ga/grade, 'pow ga/pow, 'norm ga/norm, 'exp ga/exp,
+                'proj ga/proj, 'rej ga/rej}
          env (flatten (concat (for [e basis] [(symbol (str e)) e])
                               (for [[op f] ga/operators] [(symbol op) f])
                               funcs))]

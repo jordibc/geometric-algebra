@@ -323,6 +323,11 @@
   [a b]
   (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b
 
+(defn rej
+  "Return the rejection of multivector `a` on `b`."
+  [a b]
+  (sub a (proj a b))) ; a - P_b(a)
+
 
 ;; More advanced operations: exp.
 
