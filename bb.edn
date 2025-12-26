@@ -4,4 +4,8 @@
                           [geometric-algebra.core-test])
                :task (t/run-tests 'geometric-algebra.core-test)}
          calc {:requires ([geometric-algebra.calculator :as calc])
-               :task (calc/calc *command-line-args*)}}}
+               :task (let [args *command-line-args*]
+                       (if (nil? args)
+                         (println (str "Usage: calc <signature> (name or p q r [start])\n"
+                                       "(for example: calc sta)"))
+                         (calc/calc (calc/args->signature args))))}}}
