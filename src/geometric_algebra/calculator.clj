@@ -48,5 +48,6 @@
                     val (eval-with-env expr env)]
                 (when-not (nil? val) ; so it doesn't print "nil" if empty
                   (println val))) ; result
-              (catch Exception e (println (.getMessage e))))
+              (catch Exception e (println (.getMessage e)))
+              (catch AssertionError e (println (.getMessage e))))
             (recur)))))))
