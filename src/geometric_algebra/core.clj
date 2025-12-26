@@ -503,7 +503,9 @@
 (declare infix->sexpr)
 
 (def ^:private arities ; function arities
-  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'grade 2, 'pow 2, 'norm 1, 'proj 2, 'exp 1})
+  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1, 'exp 1,
+   'grade 2, 'pow 2, 'proj 2, 'rej 2,
+   '+ 1, '- 1}) ; special ones, used to parse "-1" and similar
 
 (defn infix->sexpr-1
   "Return expression but with the first element converted to S-expression.
