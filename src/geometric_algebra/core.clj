@@ -252,7 +252,7 @@
           (recur (prod a-pow-n a) (dec i)))))))
 
 (defn norm [a]
-  (math/sqrt (scalar (prod a (rev a)))))
+  (math/sqrt (abs (scalar (prod a (rev a))))))
 
 (defn dot
   "Return the dot product (inner product) of multivectors `a` and `b`."
