@@ -25,8 +25,13 @@
 
 (defn- line->expr [line infix?]
   (if-not infix?
-    (edn/read-string line)
-    (ga/infix->sexpr (edn/read-string (str "(" (ops-expand line) ")")))))
+    (edn/read-string line) ; easy case, read the s-expression and return it
+    (-> line ; less easy case, we have an infix expression
+        (ops-expand) ; put spaces around operators
+        (str/replace #"," ") (") ; function arguments as sexps
+        (#(str "(" % ")")) ; make the full line a single expression
+        (edn/read-string) ; read (parse) it
+        (ga/infix->sexpr)))) ; and transform from infix to sexp
 
 (defn calc
   "REPL to get GA expressions and show their values."
