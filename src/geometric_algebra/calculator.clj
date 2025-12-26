@@ -25,8 +25,12 @@
                   "(for example: calc sta)"))
     (let [signature (args->signature args)
           basis (rest (ga/basis signature)) ; basis multivectors
+          funcs {'rev ga/rev, 'invol ga/invol, 'inv ga/inv, 'dual ga/dual,
+                 'grade ga/grade, 'pow ga/pow, 'norm ga/norm, 'proj ga/proj,
+                 'exp ga/exp}
           env (flatten (concat (for [e basis] [(symbol (str e)) e])
-                               (for [[op f] ga/operators] [(symbol op) f])))
+                               (for [[op f] ga/operators] [(symbol op) f])
+                               funcs))
           op-expand (fn [s op] (str/replace s op (str " " op " ")))
           ops-expand (fn [s] (reduce op-expand s (keys ga/operators)))]
       (println "Basis multivectors:" (str/join " " basis)) ; "e1, e2, e12"
