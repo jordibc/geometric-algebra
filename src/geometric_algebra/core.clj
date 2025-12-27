@@ -210,6 +210,7 @@
   There are other types of duals, for example i*a or a*i. The dual in
   this function works even for degenerate algebras (algebras with i*i = 0)."
   [a]
+  {:pre [(instance? MultiVector a)]}
   (let [indices (vec (keys (:signature a))) ; indices of all basis vectors
         e-dual #(vec (remove (set %) indices))] ; dual of basis multivector
     (->MultiVector (mapv (fn [[x e]] [x (e-dual e)]) (:blades a))
