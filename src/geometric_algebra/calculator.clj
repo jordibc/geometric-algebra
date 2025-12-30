@@ -33,11 +33,12 @@
         (edn/read-string) ; read (parse) it
         (ga/infix->sexpr)))) ; and transform from infix to sexp
 
-(defn info [basis signature]
+(defn info [basis signature functions]
   (str
    "Basis multivectors: " (str/join " " basis) "\n" ; "e1, e2, e12"
    "Signature: " (let [f (fn [[i sig]] (str "e" i "e" i "=" sig))] ; "e1e1=-1"
-                   (str/join ", " (map f signature))) "\n"
+                   (str/join " " (map f signature))) "\n"
+   "Functions: " (str/join " " (keys functions)) "\n"
    "Operators: " (str/join " " (keys ga/operators))))
 
 (defn calc
@@ -51,7 +52,7 @@
          env (flatten (concat (for [e basis] [(symbol (str e)) e])
                               (for [[op f] ga/operators] [(symbol op) f])
                               funcs))]
-     (println (info basis signature))
+     (println (info basis signature funcs))
      (loop []
        (print "> ")
        (flush)
