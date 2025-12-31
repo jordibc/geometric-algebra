@@ -28,7 +28,7 @@ bb calc <signature>  # for example, "sta" as signature for spacetime algebra
 ### Clojure CLI / deps.edn
 
 ```clojure
-net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.6"}
+net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.7"}
 ```
 
 Which means, to use this library we can add that to the `:deps` in
@@ -37,7 +37,7 @@ our `deps.edn` file. If we only had that dependency, this is how
 
 ```clojure
 {:deps
- {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.6"}}}
+ {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.7"}}}
 ```
 
 Then we can for example run `clj`, and from there do `(require
@@ -52,7 +52,7 @@ but we can also install directly from Codeberg with:
 ```
 org.codeberg.jordibc/geometric-algebra
 {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
- :git/tag "v0.9.6", :git/sha "0ee55766b5"}
+ :git/tag "v0.9.7", :git/sha "5daa28bc68"}
 ```
 
 
