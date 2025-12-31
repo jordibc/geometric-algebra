@@ -58,7 +58,7 @@ org.codeberg.jordibc/geometric-algebra
 
 ### Cloning this repository
 
-You can instead simply clone this repository and run clojure from it.
+We can instead simply clone this repository and run clojure from it.
 
 
 ## Examples
@@ -78,7 +78,7 @@ The output should be:
 (1 e1 e2 e3 e12 e13 e23 e123)
 ```
 
-You can add, multiply, etc., those elements to create arbitrary
+We can add, multiply, etc., those elements to create arbitrary
 multivectors.
 
 ```clojure
@@ -115,8 +115,8 @@ A signature looks like `[p q]` or `[p q r]`, saying how many basis
 vectors have a positive square (+1), negative (-1) and zero (0)
 respectively.
 
-When using the `basis` function to create the basis multivectors, you
-can pass the signature as a vector. But you can also instead use a map
+When using the `basis` function to create the basis multivectors, we
+can pass the signature as a vector. But we can also instead use a map
 that says for each basis element its square. For example,
 astrophysicists normally would use for spacetime:
 
@@ -174,7 +174,7 @@ Or, using the `infix` macro to use infix notation:
 
 ## Tests
 
-You can run some tests with:
+We can run some tests with:
 
 ```sh
 clojure -T:build test

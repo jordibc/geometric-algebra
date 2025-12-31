@@ -8,7 +8,7 @@ The main elements are multivectors, which can be vectors, products of
 vectors, and sums of such elements. The main operation is the
 geometric product, which combines multivectors into new multivectors.
 
-With this library you can create multivectors and perform many
+With this library we can create multivectors and perform many
 operations with them.
 
 Example:
