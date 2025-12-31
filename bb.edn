@@ -1,8 +1,10 @@
 {:paths ["src" "test"]
 
  :tasks {test {:requires ([clojure.test :as t]
-                          [geometric-algebra.core-test])
-               :task (t/run-tests 'geometric-algebra.core-test)}
+                          [geometric-algebra.core-test]
+                          [geometric-algebra.calculator-test])
+               :task (t/run-tests 'geometric-algebra.core-test
+                                  'geometric-algebra.calculator-test)}
          calc {:requires ([geometric-algebra.calculator :as calc])
                :task (let [args *command-line-args*]
                        (if (nil? args)
