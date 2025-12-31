@@ -46,8 +46,10 @@ Then we can for example run `clj`, and from there do `(require
 
 #### From Codeberg
 
-We recommend to install from the Clojars release as explained above,
-but we can also simply clone this repository (or download one of the
+We recommend to install from the [Clojars
+release](https://clojars.org/net.clojars.jordibc/geometric-algebra) as
+explained above, but we can also simply clone this repository (or
+download one of the
 [releases](https://codeberg.org/jordibc/geometric-algebra/releases))
 and run clojure from it.
 
@@ -61,11 +63,6 @@ org.codeberg.jordibc/geometric-algebra
 ```
 
 using the desired revision in place of the `:git/sha` value.
-
-
-### Cloning this repository
-
-We can instead simply clone this repository and run clojure from it.
 
 
 ## Examples
