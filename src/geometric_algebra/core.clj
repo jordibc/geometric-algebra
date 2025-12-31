@@ -480,18 +480,18 @@
 
 (def operators
   (array-map ; so they appear in order
-   "+" add
-   "-" sub
-   "*" prod
-   "/" div
-   "·" dot
-   "∧" wedge
-   "∨" antiwedge
-   "×" commutator
-   "⌋" lcontract
-   "⌊" rcontract
-   "∘" scalar-prod ; NOTE: not standard, but we use "*" for prod
-   "•" fat-dot))
+   "+" #'add
+   "-" #'sub
+   "*" #'prod ; NOTE: most natural, though "*" is often scalar-prod in print
+   "/" #'div
+   "·" #'dot
+   "∧" #'wedge
+   "∨" #'antiwedge
+   "×" #'commutator
+   "⌋" #'lcontract
+   "⌊" #'rcontract
+   "∘" #'scalar-prod ; NOTE: not standard, but we use "*" for prod
+   "•" #'fat-dot))
 
 (defmacro def-ops
   "Create global vars with multivector operators, replacing some core ones."
