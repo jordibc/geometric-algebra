@@ -47,13 +47,20 @@ Then we can for example run `clj`, and from there do `(require
 #### From Codeberg
 
 We recommend to install from the Clojars release as explained above,
-but we can also install directly from Codeberg with:
+but we can also simply clone this repository (or download one of the
+[releases](https://codeberg.org/jordibc/geometric-algebra/releases))
+and run clojure from it.
+
+We could also install a specific revision directly from Codeberg with
+something like:
 
 ```
 org.codeberg.jordibc/geometric-algebra
 {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
- :git/tag "v0.9.7", :git/sha "5daa28bc68"}
+ :git/sha "5daa28bc688b059d10839dec5c6b5c3698413dbc"}
 ```
+
+using the desired revision in place of the `:git/sha` value.
 
 
 ### Cloning this repository
