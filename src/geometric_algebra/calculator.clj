@@ -3,7 +3,7 @@
             [clojure.edn :as edn]
             [clojure.string :as str]))
 
-(defn args->signature [args]
+(defn- args->signature [args]
   (try
     (let [[a1 a2 a3 a4] args
           sig-name (ga/name->signature (or a1 "")) ; signature given as a name
