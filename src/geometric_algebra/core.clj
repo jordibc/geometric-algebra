@@ -182,17 +182,21 @@
           [x _] (first blades)]
       (if (empty? blades) 0 x))))
 
+(defn- try-scalar [a f] ; try to get a scalar from  a * f(a)
+  (let [c (f a) ; candidate
+        ac (prod a c)] ; a * c (will it be a scalar?)
+    (when (scalar? ac)
+      [c (scalar ac)])))
+
 (defn inv
   "Return a^-1, the inverse of multivector `a` if it exists."
   [a]
   (if (number? a)
     (/ a)
-    (let [ar (rev a)
-          aar (prod a ar)]
-      (assert (scalar? aar) (str "multivector has no inverse: " a))
-      (let [norm2 (scalar aar)]
-        (assert ((complement zero?) norm2) (str "multivector has 0 norm: " a))
-        (prod ar (/ 1 norm2))))))
+    (let [[c ac] (or (try-scalar a rev) (try-scalar a invol))]
+      (assert c (str "cannot find inverse of multivector: " a))
+      (assert ((complement zero?) ac) (str "multivector has 0 norm: " a))
+      (prod c (/ 1 ac)))))
 
 (defn div
   "Return a / b = a * b^-1 (if `b` has an inverse)."
