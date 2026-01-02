@@ -8,6 +8,5 @@
          calc {:requires ([geometric-algebra.calculator :as calc])
                :task (let [args *command-line-args*]
                        (if (nil? args)
-                         (println (str "Usage: calc <signature> (name or p q r [start])\n"
-                                       "(for example: calc sta)"))
+                         (println calc/usage)
                          (calc/calc (calc/args->signature args))))}}}

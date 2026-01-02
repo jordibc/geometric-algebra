@@ -400,23 +400,34 @@
 
 ;; Basis.
 
+(def algebra->signature
+  (array-map
+   "real" {},
+   "complex" {1 -1},
+   "quaternion" {1 +1, 2 +1, 3 +1} ; with i=e23, j=e13, k=e12
+   "hyperbolic" {1 +1}
+   "dual" {0 0}
+   "2d" {1 +1, 2 +1}
+   "3d" {1 +1, 2 +1, 3 +1}
+   "aps" {1 +1, 2 +1, 3 +1} ; algebra of physical space, same as "3d"
+   "sta" {0 +1, 1 -1, 2 -1, 3 -1} ; spacetime algebra
+   "relativist" {0 -1, 1 +1, 2 +1, 3 +1} ; at times used by relativists
+   "pga2d" {0 0, 1 +1, 2 +1} ; projective geometric algebra
+   "pga3d" {0 0, 1 +1, 2 +1, 3 +1}
+   "conformal2d" {1 +1, 2 +1, 3 +1, 4 -1}
+   "conformal3d" {1 +1, 2 +1, 3 +1, 4 +1, 5 -1}))
+
+(def algebra-synonyms
+  {"r" "real", "c" "complex", "h" "quaternion", "d" "dual",
+   "r2" "2d", "r3" "aps", "pga" "pga2d", "pga2" "pga2d",
+   "conformal" "conformal2d", "conformal2" "conformal2d",
+   "conformal3" "conformal3d"})
+
 (defn name->signature
-  "Return the signature corresponding to the named algebra."
+  "Return the signature (as a map) corresponding to the named algebra."
   [name]
-  (case (str/lower-case name)
-    ("r" "real") {}
-    ("c" "complex") {1 -1}
-    ("h" "quaternion") {1 +1, 2 +1, 3 +1} ; with i=e23, j=-e13, k=e12
-    ("hyperbolic") {1 +1}
-    ("d" "dual") {0 0}
-    ("r2" "2d") {1 +1, 2 +1}
-    ("r3" "3d" "aps") {1 +1, 2 +1, 3 +1}
-    ("pga" "pga2" "pga2d") {0 0, 1 +1, 2 +1}
-    ("pga3" "pga3d") {0 0, 1 +1, 2 +1, 3 +1}
-    ("conformal" "conformal2" "conformal2d") {1 +1, 2 +1, 3 +1, 4 -1}
-    ("conformal3" "conformal3d") {1 +1, 2 +1, 3 +1, 4 +1, 5 -1}
-    ("sta") {0 +1, 1 -1, 2 -1, 3 -1}
-    nil))
+  (let [n (str/lower-case name)]
+    (algebra->signature (algebra-synonyms n n))))
 
 (defn vector->signature
   "Return the signature as a map, corresponding to the given vector signature."

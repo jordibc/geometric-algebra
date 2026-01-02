@@ -14,6 +14,11 @@
       (or sig-name (ga/vector->signature [p q r] start)))
     (catch Exception e (do (println "Error: bad signature" args) {}))))
 
+(def usage
+  (str "Usage: calc <signature> (name, or p [q] [r] [start])\n"
+       "Valid names: " (str/join " " (keys ga/algebra->signature)) "\n"
+       "Examples: calc sta, calc 1 3 0 0"))
+
 (def ^:private functions
   {'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
    'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm, 'exp #'ga/exp,
