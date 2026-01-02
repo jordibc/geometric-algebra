@@ -59,7 +59,8 @@ clojure -T:build install
 ## Deployment
 
 Before deploying, we normally want to tag the code with the new
-version (which we update in `build.clj`), as in:
+version (which we update in `build.clj`, and mention in `readme.md`),
+as in:
 
 ```sh
 git tag -a v1.0.0 -m  # and write a description

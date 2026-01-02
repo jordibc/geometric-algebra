@@ -6,8 +6,8 @@
 A library to do [geometric
 algebra](https://en.wikipedia.org/wiki/Geometric_algebra) in clojure.
 
-A multivector is an element of the algebra. It is composed of a sum of
-scalars, vectors, bivectors, etc., in a way similar to how complex
+A *multivector* is an element of the algebra. It is composed of a sum
+of scalars, vectors, bivectors, etc., in a way similar to how complex
 numbers are sums of real and imaginary components. Multivectors and
 their geometric product are the simplest and most powerful tools for
 mathematical analysis that I know of.
@@ -22,18 +22,26 @@ geometric algebra calculator with:
 bb calc <signature>  # for example, "sta" as signature for spacetime algebra
 ```
 
+With [rlwrap](https://github.com/hanslub42/rlwrap) we also get more
+comfortable editing of expressions:
+
+```sh
+rlwrap bb calc <signature>
+```
+
 
 ## Installation
 
 ### Clojure CLI / deps.edn
 
+To use this library, we need to add this dependency:
+
 ```clojure
 net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.7"}
 ```
 
-Which means, to use this library we can add that to the `:deps` in
-our `deps.edn` file. If we only had that dependency, this is how
-`deps.edn` would look like:
+Which means, we can add that to the `:deps` in our `deps.edn` file. If
+we only had that dependency, this is how `deps.edn` would look like:
 
 ```clojure
 {:deps
@@ -122,7 +130,7 @@ respectively.
 When using the `basis` function to create the basis multivectors, we
 can pass the signature as a vector. But we can also instead use a map
 that says for each basis element its square. For example,
-astrophysicists normally would use for spacetime:
+astrophysicists sometimes use for spacetime:
 
 ```clojure
 (def signature {0 -1, 1 +1, 2 +1, 3 +1}) ; t, x, y, z  with e0 = e_t
