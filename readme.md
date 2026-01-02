@@ -64,7 +64,7 @@ and run clojure from it.
 We could also install a specific revision directly from Codeberg with
 something like:
 
-```
+```clojure
 org.codeberg.jordibc/geometric-algebra
 {:git/url "https://codeberg.org/jordibc/geometric-algebra.git"
  :git/sha "5daa28bc688b059d10839dec5c6b5c3698413dbc"}

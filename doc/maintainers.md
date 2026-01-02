@@ -46,8 +46,8 @@ clojure -T:build ci
 
 This will produce an updated `pom.xml` file with synchronized
 dependencies inside the `META-INF` directory inside `target/classes`
-and the JAR in `target`. We can update the version (and SCM tag)
-information in generated `pom.xml` by updating `build.clj`.
+and the JAR in `target`. We can update the version information in the
+generated `pom.xml` by updating `build.clj`.
 
 To install it locally (which requires the `ci` task be run first):
 
