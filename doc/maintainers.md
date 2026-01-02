@@ -91,6 +91,3 @@ the repository `Settings -> Units -> Overview -> Enable repository
 releases`). Then, in the repository page, we can go to the `Releases`
 tab, click on `New release`, select the tag with the version we want,
 and publish the release.
-
-Finally, we normally edit `readme.md` and reflect the new tag and sha
-in the installation instructions.
