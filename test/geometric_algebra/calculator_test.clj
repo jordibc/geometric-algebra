@@ -33,7 +33,7 @@
                               "Use assignments like 'a = 2' to create new variables.\n"
                               "Special commands:\n"
                               "  :help <symbol>  - provides help for functions and operators\n"
-                              "  :env            - shows the defined variables\n"
+                              "  :env            - shows the variables in the environment\n"
                               "  :exit, :quit    - exits the calculator"))
         (result? ":help proj"
                  (str "  proj ([a b])\n"
