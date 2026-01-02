@@ -37,7 +37,7 @@ rlwrap bb calc <signature>
 To use this library, we need to add this dependency:
 
 ```clojure
-net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.7"}
+net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.8"}
 ```
 
 Which means, we can add that to the `:deps` in our `deps.edn` file. If
@@ -45,7 +45,7 @@ we only had that dependency, this is how `deps.edn` would look like:
 
 ```clojure
 {:deps
- {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.7"}}}
+ {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.8"}}}
 ```
 
 Then we can for example run `clj`, and from there do `(require
