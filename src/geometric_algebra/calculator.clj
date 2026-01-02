@@ -83,18 +83,20 @@
         env)))) ; no change in environment
 
 (defn- entry-type [text]
-  (let [parts (str/split text #"\s+")]
-    (cond
-      (str/starts-with? text ":") :command ; execute special command
-      (= "=" (second parts))      :assign  ; assign to variable
-      :else                       :eval))) ; evaluation
+  (cond
+    (str/starts-with? text ":") :command ; execute special command
+    (= "=" (second (str/split text #"\s+"))) :assign ; assign to variable
+    :else :eval)) ; evaluation
+
+(defn- map->str [m]
+  (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
 
 (defn- run-command [text env env0]
   (let [command (first (str/split text #"\s+"))]
     (case command
       ":help" (println (help text env))
-      ":env"  (println (apply dissoc env (keys env0)))
-      (println "Unknonw command:" command))))
+      ":env" (println (map->str (apply dissoc env (keys env0))))
+      (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
   "REPL to get GA expressions and show their values."
