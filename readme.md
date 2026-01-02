@@ -130,13 +130,13 @@ respectively.
 When using the `basis` function to create the basis multivectors, we
 can pass the signature as a vector. But we can also instead use a map
 that says for each basis element its square. For example,
-astrophysicists sometimes use for spacetime:
+cosmologists sometimes use for spacetime:
 
 ```clojure
 (def signature {0 -1, 1 +1, 2 +1, 3 +1}) ; t, x, y, z  with e0 = e_t
 ```
 
-whereas particle physicists normally would use:
+whereas particle physicists normally use:
 
 ```clojure
 (def signature {0 +1, 1 -1, 2 -1, 3 -1})
