@@ -248,9 +248,11 @@
                         (* 1.5805865635667 e2) (* 1.89670387628 e3)))))
       (testing "comparing exact values with sum of Taylor series"
         (is (approx? (ga/exp (+ 1 (* 3 e1) e123))
-                     (ga/sum-exp-series (+ 1 (* 3 e1) e123) 1e-10 30)))
+                     (ga/sum-exp-series (+ 1 (* 3 e1) e123)
+                                        :precision 1e-10, :max-terms 30)))
         (is (approx? (ga/exp (+ (* 2 e1) e2 (* 1.2 e3)))
-                     (ga/sum-exp-series (+ (* 2 e1) e2 (* 1.2 e3)) 1e-10 20))))
+                     (ga/sum-exp-series (+ (* 2 e1) e2 (* 1.2 e3))
+                                        :precision 1e-10, :max-terms 20))))
       (testing "of multivector with no commuting symmetries"
         (is (approx? (ga/exp (+ 1 (* 2 e1) (* 3 e2) (* 0.5 e12)))
                      (+ -1.5542129560579239 (* 2.04650730667839 e1)
@@ -264,8 +266,8 @@
     (let [[+ - * /] [ga/add ga/sub ga/prod ga/div]]
       (let [[e e1 e2 e12] (ga/basis {1 +1, 2 +1})]
         (is (= (str (+ e1 (* 3 e2))) "e1 + 3 e2")))
-      (let [[e e0 e1 e01] (ga/basis [1 1] 0)]
-        (is (= (str (+ e0 (* 3 e1)))) "e0 + 3 e1")
+      (let [[e e0 e1 e01] (ga/basis [1 1] :start 0)]
+        (is (= (str (+ e0 (* 3 e1))) "e0 + 3 e1"))
         (is (= (str (* e1 e1)) "-1"))))))
 
 (deftest simplify-element-test

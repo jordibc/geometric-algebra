@@ -143,7 +143,7 @@ whereas particle physicists normally use:
 ```
 
 which is the same signature as `[1 3]`, or `[1 3 0]`, in the vector
-notation.
+notation (and starting at 0, as in `(ga/basis [1 3] :start 0)`).
 
 
 ## Working on the repl

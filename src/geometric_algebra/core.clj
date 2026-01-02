@@ -371,23 +371,22 @@
 
 (defn sum-exp-series
   "Return exp(a) by adding the terms in its expansion in powers of `a`."
-  ([a] (sum-exp-series a 1e-8 20))
-  ([a precision max-terms]
-   (loop [term-last 1 ; last term in the series evaluated
-          sum-last 1 ; the sum of all the terms so far
-          i 1] ; index of current term
-     (let [term (prod term-last a (double (/ i))) ; next term
-           size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
-           sum (add sum-last term)] ; our best approximation of exp(a) so far
-       (if (< size precision)
-         sum ; we are done!
-         (if (< i max-terms)
-           (recur term sum (inc i))
-           (do
-             (printf (str "Warning: max terms reached (%d), but error (~ %g) "
-                          "is bigger than the desired precision (%g)")
-                     i size precision)
-             sum)))))))
+  [a & {:keys [precision max-terms] :or {precision 1e-8, max-terms 20}}]
+  (loop [term-last 1 ; last term in the series evaluated
+         sum-last 1 ; the sum of all the terms so far
+         i 1] ; index of current term
+    (let [term (prod term-last a (double (/ i))) ; next term
+          size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
+          sum (add sum-last term)] ; our best approximation of exp(a) so far
+      (if (< size precision)
+        sum ; we are done!
+        (if (< i max-terms)
+          (recur term sum (inc i))
+          (do
+            (printf (str "Warning: max terms reached (%d), but error (~ %g) "
+                         "is bigger than the desired precision (%g)")
+                    i size precision)
+            sum))))))
 
 (defn exp
   "Return exp(a), the exponentiation of multivector `a`."
@@ -435,18 +434,17 @@
 
 (defn vector->signature
   "Return the signature as a map, corresponding to the given vector signature."
-  ([signature] (vector->signature signature nil))
-  ([signature start]
-   (let [[p q r_] signature
-         r (or r_ 0)
-         i0 (or start 1)]
-     (zipmap (range i0 (+ i0 p q r))
-             (concat (repeat p +1) (repeat q -1) (repeat r 0))))))
+  [signature & {:keys [start]}]
+  (let [[p q r_] signature
+        r (or r_ 0)
+        i0 (or start 1)]
+    (zipmap (range i0 (+ i0 p q r))
+            (concat (repeat p +1) (repeat q -1) (repeat r 0)))))
 
 (defn- last?
   "Is `e` the last of the blades with number of vectors `n`?"
-  ([e n] (last? e n 1))
-  ([e n start] (= e (vec (range (- (+ start n) (count e)) (+ start n))))))
+  [e n start]
+  (= e (vec (range (- (+ start n) (count e)) (+ start n)))))
 
 (defn- next-element
   "Return the multivector (in dim `n`) basis element next to `e`."
@@ -468,30 +466,28 @@
 
 (defn basis
   "Return basis elements of a geometric algebra with the given signature."
-  ([signature] (basis signature nil))
-  ([signature start]
-   {:pre [(or (vector? signature) (and (map? signature) (not start)))]}
-   (let [sigmap (if (map? signature)
-                  signature
-                  (vector->signature signature start))
-         n (count sigmap)
-         i0 (when (> n 0) (apply min (keys sigmap)))]
-     (take (math/pow 2 n)
-           (for [e (iterate #(next-element % n i0) [])] ; e: basis element
-             (->MultiVector [[1 e]] sigmap)))))) ; as multivector
+  [signature & {:keys [start]}]
+  {:pre [(or (vector? signature) (and (map? signature) (not start)))]}
+  (let [sigmap (if (map? signature)
+                 signature
+                 (vector->signature signature :start start))
+        n (count sigmap)
+        i0 (when (> n 0) (apply min (keys sigmap)))]
+    (take (math/pow 2 n)
+          (for [e (iterate #(next-element % n i0) [])] ; e: basis element
+            (->MultiVector [[1 e]] sigmap))))) ; as multivector
 
 
 ;; Macros to define basis elements and operators (great for the repl).
 
 (defmacro def-basis
   "Create global vars with the names of the multivector basis."
-  ([signature] `(def-basis ~signature nil))
-  ([signature start]
-   (let [elems (rest (basis signature start))] ; exclude "1" (not a symbol)
-     `(do
-        ~@(for [e elems]
-            `(def ~(symbol (str e)) ~e)) ; looks like (def e1 #object[e1])
-        (println "Defined basis multivectors:" ~(str/join " " elems))))))
+  [signature & {:keys [start]}]
+  (let [elems (rest (basis signature :start start))] ; exclude 1 (not a symbol)
+    `(do
+       ~@(for [e elems]
+           `(def ~(symbol (str e)) ~e)) ; looks like (def e1 #object[e1])
+       (println "Defined basis multivectors:" ~(str/join " " elems)))))
 
 (def operators
   (array-map ; so they appear in order
@@ -617,11 +613,11 @@
     (str (add e1 (prod 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
-        [e e1 e2 e12] (basis {1 1, 2 1} 3)]
+        [e e1 e2 e12] (basis {1 1, 2 1} :start 3)]
     (str (+ e1 (* 3 e2)))) ; => "e1 + 3 e2"
 
   (let [[+ - * /] [add sub prod div]
-        [e e0 e1 e01] (basis [1 1] 0)]
+        [e e0 e1 e01] (basis [1 1] :start 0)]
     (str (+ e0 (* 3 e1)))) ; => "e0 + 3 e1"
 
   (reduce-stack '(2) 3) ; => (2)

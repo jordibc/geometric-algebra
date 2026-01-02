@@ -105,26 +105,25 @@
 
 (defn calc
   "REPL to get GA expressions and show their values."
-  ([signature] (calc signature true))
-  ([signature infix?]
-   (let [basis (rest (ga/basis signature)) ; basis multivectors
-         env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
-                               (for [[op f] ga/operators] [(symbol op) f])
-                               functions))]
-     (println (info basis signature))
-     (println "Type :help for help, :exit to exit.")
-     (loop [env env0]
-       (print "> ") ; prompt
-       (flush)
-       (let [line (read-line)] ; user input
-         (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
-           (let [text (ops-expand (str/trim line))] ; spaces around operators
-             (case (entry-type text)
-               :command (do
-                          (run-command text env env0)
-                          (recur env))
-               :assign (recur (add-var text env infix?))
-               :eval (let [val (text->val text env infix?)]
-                       (when-not (nil? val) ; don't print "nil" on empty line
-                         (println val)) ; evaluation output
-                       (recur (assoc env 'ans val))))))))))) ; keep answer
+  [signature & {:keys [infix?] :or {infix? true}}]
+  (let [basis (rest (ga/basis signature)) ; basis multivectors
+        env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
+                              (for [[op f] ga/operators] [(symbol op) f])
+                              functions))]
+    (println (info basis signature))
+    (println "Type :help for help, :exit to exit.")
+    (loop [env env0]
+      (print "> ") ; prompt
+      (flush)
+      (let [line (read-line)] ; user input
+        (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
+          (let [text (ops-expand (str/trim line))] ; spaces around operators
+            (case (entry-type text)
+              :command (do
+                         (run-command text env env0)
+                         (recur env))
+              :assign (recur (add-var text env infix?))
+              :eval (let [val (text->val text env infix?)]
+                      (when-not (nil? val) ; don't print "nil" on empty line
+                        (println val)) ; evaluation output
+                      (recur (assoc env 'ans val)))))))))) ; keep answer
