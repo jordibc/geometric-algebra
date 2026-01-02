@@ -44,4 +44,8 @@
       (testing "assigning variables"
         (result? "a = e2 + e1\na" "> e1 + e2")
         (result? "1 = 1" "Invalid name: 1")
-        (result? "1 != 1" "Unable to resolve symbol: !")))))
+        (is (let [answer (calc "1 != 1")
+                  expected ["Unable to resolve symbol: !" ; some babashkas
+                            "Could not resolve symbol: !" ; other versions
+                            "Syntax error compiling at (0:0)."]] ; clojure
+              (set (map output expected)) answer))))))
