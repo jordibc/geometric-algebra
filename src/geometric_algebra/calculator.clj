@@ -3,10 +3,10 @@
             [clojure.edn :as edn]
             [clojure.string :as str]))
 
-(defn- args->signature [args]
+(defn args->signature [args]
   (try
     (let [[a1 a2 a3 a4] args
-          sig-name (ga/name->signature (or a1 "")) ; signature given as a name
+          sig-name (ga/name->signature (or a1 "")) ; signature from algebra name
           p     (parse-long (or a1 "2"))
           q     (parse-long (or a2 "0"))
           r     (parse-long (or a3 "0"))
@@ -34,13 +34,13 @@
            "Use assignments like 'a = 2' to create new variables.\n"
            "Special commands:\n"
            "  :help <symbol>  - provides help for functions and operators\n"
-           "  :env            - shows the defined variables\n"
+           "  :env            - shows the variables in the environment\n"
            "  :exit, :quit    - exits the calculator")
-      (let [meta (meta (get env (symbol func-name)))]
-        (if (nil? meta)
+      (let [mdata (meta (env (symbol func-name)))]
+        (if (nil? mdata)
           (str "Cannot find documentation for function: " func-name)
-          (str "  " func-name " " (:arglists meta) "\n"
-               "  " (:doc meta)))))))
+          (str "  " func-name " " (:arglists mdata) "\n"
+               "  " (:doc mdata)))))))
 
 (defn- op-expand [s op] ; put spaces around appearances of the given operator
   (str/replace s op (str " " op " ")))
@@ -107,7 +107,7 @@
      (println (info basis signature))
      (println "Type :help for help, :exit to exit.")
      (loop [env env0]
-       (print "> ")
+       (print "> ") ; prompt
        (flush)
        (let [line (read-line)] ; user input
          (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
