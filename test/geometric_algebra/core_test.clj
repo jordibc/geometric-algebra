@@ -85,13 +85,15 @@
 
 (deftest inverse-test
   (testing "Geometric inversion"
-    (let [[+ - *] [ga/add ga/sub ga/prod]
-          [e e1 e2 e12] (ga/basis [2 0])]
-      (is (= (ga/inv 4) (/ 1 4)))
-      (is (= (ga/inv e1) e1))
-      (is (= (ga/inv e12) (- e12)))
-      (is (= (str (ga/inv (+ e1 (* 2 e2)))) "1/5 e1 + 2/5 e2"))
-      (is (thrown? java.lang.AssertionError (ga/inv (+ e1 e12)))))))
+    (let [[+ - *] [ga/add ga/sub ga/prod]]
+      (let [[e e1 e2 e12] (ga/basis [2 0])]
+        (is (= (ga/inv 4) (/ 1 4)))
+        (is (= (ga/inv e1) e1))
+        (is (= (ga/inv e12) (- e12)))
+        (is (= (str (ga/inv (+ e1 (* 2 e2)))) "1/5 e1 + 2/5 e2"))
+        (is (thrown? java.lang.AssertionError (ga/inv (+ e1 e12)))))
+      (let [[e e1] (ga/basis [0 1])]
+        (is (= (ga/inv (+ 1 e1)) (+ 1/2 (* -1/2 e1))))))))
 
 (deftest division-test
   (testing "Geometric division"
