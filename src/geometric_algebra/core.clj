@@ -500,7 +500,7 @@
   (array-map ; so they appear in order
    "+" #'add
    "-" #'sub
-   "*" #'prod ; NOTE: most natural, though "*" is often scalar-prod in print
+   "*" #'prod ; NOTE: "natural", but the similar ∗ is often scalar-prod in print
    "/" #'div
    "·" #'dot
    "∧" #'wedge
@@ -508,7 +508,8 @@
    "×" #'commutator
    "⌋" #'lcontract
    "⌊" #'rcontract
-   "∘" #'scalar-prod ; NOTE: not standard, but we use "*" for prod
+   "∘" #'scalar-prod ; NOTE: not standard, but we use the similar "*" for prod
+   "∗" #'scalar-prod ; NOTE: often used in print, but looks similar to *
    "•" #'fat-dot))
 
 (defmacro def-ops
