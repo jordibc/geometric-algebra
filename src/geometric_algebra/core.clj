@@ -73,12 +73,12 @@
 (defn multivector ; constructor
   "Create a new multivector."
   [blades-or-num signature]
-  (->MultiVector (if (number? blades-or-num)
-                   (if (zero? blades-or-num)
-                     [] ; 0 has no blades
-                     [[blades-or-num []]]) ; "upgrade" number to single blade
-                   (simplify-blades blades-or-num)) ; just blades
-                 signature))
+  (let [blades (if (number? blades-or-num)
+                 (if (zero? blades-or-num)
+                   [] ; 0 has no blades
+                   [[blades-or-num []]]) ; "upgrade" number to single blade
+                 (simplify-blades blades-or-num))] ; use given blades
+    (->MultiVector blades signature)))
 
 (defn multivector?
   "Return true if `a` is a multivector (numbers are multivectors too)."
@@ -88,7 +88,7 @@
 (defn same-algebra?
   "Return true if the arguments belong to the same geometric algebra."
   [a b]
-  {:pre [(and (multivector? a) (multivector? b))]}
+  {:pre [(multivector? a) (multivector? b)]}
   (or (number? a) (number? b) ; numbers operate as themselves in any algebra
       (= (:signature a) (:signature b)))) ; multivectors must share signature
 
@@ -129,13 +129,13 @@
      (and (number? a) (number? b)) (* a b)
      (number? a) (prod (multivector a (:signature b)) b)
      (number? b) (prod a (multivector b (:signature a)))
-     :else (let [sig (:signature a)]
-             (multivector
-              (for [[x ei] (:blades a)
-                    [y ej] (:blades b)]
-                (let [[elem factor] (simplify-element (concat ei ej) sig)]
-                  [(* factor x y) elem]))
-              sig))))
+     :else (let [sig (:signature a)
+                 blades (for [[x ei] (:blades a)
+                              [y ej] (:blades b)]
+                          (let [eij (concat ei ej)
+                                [elem factor] (simplify-element eij sig)]
+                            [(* factor x y) elem]))]
+             (multivector blades sig))))
   ([a b & more] (reduce prod (prod a b) more)))
 
 (defn rev
@@ -467,7 +467,7 @@
 (defn basis
   "Return basis elements of a geometric algebra with the given signature."
   [signature & {:keys [start]}]
-  {:pre [(or (vector? signature) (and (map? signature) (not start)))]}
+  {:pre [(or (vector? signature) (and (map? signature) (nil? start)))]}
   (let [sigmap (if (map? signature)
                  signature
                  (vector->signature signature :start start))
