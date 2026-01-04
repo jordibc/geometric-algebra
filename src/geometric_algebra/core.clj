@@ -379,14 +379,14 @@
           size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
           sum (add sum-last term)] ; our best approximation of exp(a) so far
       (if (< size precision)
-        sum ; we are done!
+        sum ; we are done! precise enough, so return the value
         (if (< i max-terms)
-          (recur term sum (inc i))
+          (recur term sum (inc i)) ; keep adding terms from the expansion
           (do
             (printf (str "Warning: max terms reached (%d), but error (~ %g) "
                          "is bigger than the desired precision (%g)")
                     i size precision)
-            sum))))))
+            sum)))))) ; return the best we could do with the max number of terms
 
 (defn exp
   "Return exp(a), the exponentiation of multivector `a`."
