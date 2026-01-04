@@ -1,4 +1,11 @@
+;; References:
+;;   [Dorst 2002] - Dorst et al. (2002). "Applications of Geometric
+;;     Algebra in Computer Science and Engineering".
+;;   [Hestenes 1984] - Hestenes and Sobczyk (1984). "Clifford Algebra
+;;     to Geometric Calculus".
+
 (ns geometric-algebra.core
+  "The multivector type and basic operations defined on multivectors."
   (:require [clojure.string :as str]
             [clojure.math :as math]))
 
@@ -323,7 +330,7 @@
   [a b]
   (dual (wedge (dual a) (dual b)))) ; (a* ^ b*)*
 
-(defn proj
+(defn proj ; see [Dorst 2002] p. 42
   "Return P_b(a), the projection of multivector `a` on `b`."
   [a b]
   (-> (lcontract a (inv b)) (lcontract b))) ; ( a _| b^-1 ) _| b

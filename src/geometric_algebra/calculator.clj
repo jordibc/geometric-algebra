@@ -1,4 +1,5 @@
 (ns geometric-algebra.calculator
+  "A geometric algebra interactive calculator."
   (:require [geometric-algebra.core :as ga]
             [clojure.edn :as edn]
             [clojure.string :as str]))
