@@ -545,7 +545,7 @@
         (conj (nthnext more n) f1))))) ; return function call and rest
 
 (def ^:private precedences ; operator precedence
-  {'+ 1, '- 1, '* 2, '/ 2, '· 3, '∧ 3, '∨ 3, '× 3, '⌋ 3, '⌊ 3, '∘ 3, '• 3})
+  {'+ 1, '- 1, '* 2, '/ 2, '· 3, '∧ 3, '∨ 3, '× 3, '⌋ 3, '⌊ 3, '∘ 3, '∗ 3, '• 3})
 
 (defn- reduce-stack
   "Return a reduced stack of values and operations.
