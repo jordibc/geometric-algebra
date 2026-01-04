@@ -49,3 +49,8 @@
                             "Could not resolve symbol: !" ; other versions
                             "Syntax error compiling at (0:0)."]] ; clojure
               (set (map output expected)) answer))))))
+
+(deftest args-test
+  (testing "Argument reading"
+    (is (= (calc/args->signature ["sta"]) {0 +1, 1 -1, 2 -1, 3 -1}))
+    (is (= (calc/args->signature ["1" "1" "1" "0"]) {0 +1, 1 -1, 2 0}))))

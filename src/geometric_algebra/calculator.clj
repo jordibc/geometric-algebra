@@ -11,7 +11,7 @@
           q     (parse-long (or a2 "0"))
           r     (parse-long (or a3 "0"))
           start (parse-long (or a4 "1"))]
-      (or sig-name (ga/vector->signature [p q r] start)))
+      (or sig-name (ga/vector->signature [p q r] :start start)))
     (catch Exception e (do (println "Error: bad signature" args) {}))))
 
 (def usage

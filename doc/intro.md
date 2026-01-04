@@ -16,7 +16,7 @@ Example:
 ```clojure
 (require '[geometric-algebra.core :as ga])
 
-(ga/def-basis [1 3] 0) ; start with e0, the "space-time algebra"
+(ga/def-basis [1 3] :start 0) ; start with e0, the "space-time algebra"
 ;; Will print:
 ;; Defined basis multivectors: e0 e1 e2 e3 e01 e02 e03 e12 e13 e23 e012 e013 e023 e123 e0123
 
