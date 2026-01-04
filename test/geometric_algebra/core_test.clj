@@ -134,12 +134,17 @@
 
 (deftest norm-test
   (testing "Multivector norm"
-    (let [[+ - *] [ga/add ga/sub ga/prod]
-          [e e1 e2 e12] (ga/basis [2 0])
-          u (+ e1 (* 3 e2))
-          w (+ (* 2 e2) e1)]
-      (is (< 3 (ga/norm u) 4))
-      (is (< 2 (ga/norm w) 3)))))
+    (let [approx? (fn [x y] (< (abs (- x y)) 1e-10))
+          [+ - *] [ga/add ga/sub ga/prod]]
+      (let [[e e1 e2 e12] (ga/basis [2 0])
+            u (+ e1 (* 3 e2))
+            w (+ (* 2 e2) e1)]
+        (is (< 3 (ga/norm u) 4))
+        (is (< 2 (ga/norm w) 3)))
+      (let [[e e0 e1 e01] (ga/basis [1 1] :start 0)
+            u (+ e0 (* 0.5 e1))
+            R (ga/exp (* 0.1 e01))]
+        (is (approx? (ga/norm u) (ga/norm (* R u (ga/rev R)))))))))
 
 (deftest dot-test
   (testing "Inner product"

@@ -246,25 +246,7 @@
     [0]
     (distinct (map (comp count second) (:blades a)))))
 
-(declare exp) ; so we can use it in `pow`
-
-(defn pow
-  "Return a^b (`a` raised to the power of `b`)."
-  [a b]
-  (if (scalar? a)
-    (if (scalar? b)
-      (math/pow (scalar a) (scalar b))
-      (exp (prod b (math/log (scalar a)))))
-    (do
-      (assert (int? b) "can only raise multivector to an integer")
-      (loop [a-pow-n 1
-             i (abs b)]
-        (if (zero? i)
-          (if (>= b 0) a-pow-n (inv a-pow-n))
-          (recur (prod a-pow-n a) (dec i)))))))
-
-(defn norm [a]
-  (math/sqrt (abs (scalar (prod a (rev a))))))
+;; For the following products, see [Dorst 2002] p. 37-39.
 
 (defn dot
   "Return the dot product (inner product) of multivectors `a` and `b`."
@@ -340,8 +322,11 @@
   [a b]
   (sub a (proj a b))) ; a - P_b(a)
 
+(defn norm [a] ; "magnitude", see [Dorst 2002] p. 38, or [Hestenes 1984] p. 13
+  (math/sqrt (abs (scalar-prod (rev a) a)))) ; sqrt(|a^~ o a|)
 
-;; More advanced operations: exp.
+
+;; More advanced operations.
 
 (defn- blade-combos
   "Return all the different pairs of blades extracted from multivector `a`."
@@ -406,6 +391,21 @@
                               (reduce prod            ; exp(b1) * exp(b2)
                                       (for [b (:blades a)] (exp-blade b sig))))
     :else (sum-exp-series a)))
+
+(defn pow
+  "Return a^b (`a` raised to the power of `b`)."
+  [a b]
+  (if (scalar? a)
+    (if (scalar? b)
+      (math/pow (scalar a) (scalar b))
+      (exp (prod b (math/log (scalar a)))))
+    (do
+      (assert (int? b) "can only raise multivector to an integer")
+      (loop [a-pow-n 1
+             i (abs b)]
+        (if (zero? i)
+          (if (>= b 0) a-pow-n (inv a-pow-n))
+          (recur (prod a-pow-n a) (dec i)))))))
 
 
 ;; Basis.
