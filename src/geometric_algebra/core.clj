@@ -13,22 +13,25 @@
 
 (defn- blade->str
   "Return a string that represents the blade. Examples: 3 e1, e23, 5."
-  [[x e]]
+  [[x e] e-separator]
   (let [show-e (seq e) ; show the basis element for scalars (4, not 4 e)
         show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
     (str (when show-x x)                          ; "7"
          (when (and show-x show-e) " ")           ; " "
          (when show-e
-           (let [max-e (apply max e)
-                 sep (if (< max-e 10) "" "_")]
-             (str "e" (str/join sep e)))))))      ; "e134"
+           (str "e" (str/join e-separator e)))))) ; "e134"
 
 (defrecord MultiVector [blades signature]
   Object
-  (toString [_]
+  (toString [_] ; "7 e3 - 6 e14 + 4 e23"
     (if (empty? blades)
       "0"
-      (str/join " + " (map blade->str blades))))) ; "7 e3 + 6 e14 + 4 e23"
+      (let [max-e (apply max (or (keys signature) '(0)))
+            e-separator (if (< max-e 10) "" "_") ; differentiate e12 and e1_2
+            abs->str (fn [[x e]] (blade->str [(abs x) e] e-separator))]
+        (str (when (< (first (first blades)) 0) "-") (abs->str (first blades))
+             (apply str (for [[x e] (rest blades)] ; properly +/- the rest
+                          (str (if (> x 0) " + " " - ") (abs->str [x e])))))))))
 
 (defmethod print-method MultiVector [a w]
   (.write w (str a))) ; so on the console the multivectors will look nice too

@@ -27,7 +27,7 @@
         (result? "2 * (7 e3 + 6 e12 + 4 e23)"
                  "14 e3 + 12 e12 + 8 e23")
         (result? "pow(7 e3 + 6 e12 + 4 e23, 3)"
-                 "-336 e1 + -1211 e3 + -1194 e12 + -404 e23"))
+                 "-336 e1 - 1211 e3 - 1194 e12 - 404 e23"))
       (testing "requesting help"
         (result? ":help" (str "Type any expression to get its value. "
                               "Use assignments like 'a = 2' to create new variables.\n"

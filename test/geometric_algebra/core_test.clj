@@ -37,7 +37,7 @@
     (is (= (str a) "7 e3 + 6 e14 + 4 e23"))
     (is (= (str a2) "11 e2 + e23"))
     (is (= (map str (ga/basis [3 0] :start 8))
-           '("1" "e8" "e9" "e10" "e89" "e8_10" "e9_10" "e8_9_10")))))
+           '("1" "e8" "e9" "e10" "e8_9" "e8_10" "e9_10" "e8_9_10")))))
 
 (deftest addition-test
   (testing "Geometric addition"
@@ -52,7 +52,7 @@
     (let [- ga/sub]
       (is (= (- 3) -3))
       (is (= (- 3 2) 1))
-      (is (= (str (- a)) "-7 e3 + -6 e14 + -4 e23"))
+      (is (= (str (- a)) "-7 e3 - 6 e14 - 4 e23"))
       (is (= (- a) (- (ga/multivector 0 (:signature a)) a)))
       (is (thrown? java.lang.AssertionError (- ""))))))
 
@@ -60,12 +60,12 @@
   (testing "Geometric product"
     (let [* ga/prod]
       (is (= (str (* a 2)) "14 e3 + 12 e14 + 8 e23"))
-      (is (= (str (* a a)) "29 + -84 e134 + 48 e1234"))
+      (is (= (str (* a a)) "29 - 84 e134 + 48 e1234"))
       (is (thrown? java.lang.AssertionError (* a ""))))))
 
 (deftest reversion-test
   (testing "Multivector reversion"
-    (is (= (str (ga/rev a)) "7 e3 + -6 e14 + -4 e23"))
+    (is (= (str (ga/rev a)) "7 e3 - 6 e14 - 4 e23"))
     (is (= (str (ga/rev (ga/multivector 1 {}))) "1"))))
 
 (deftest involution-test
@@ -103,7 +103,7 @@
       (is (= (/ 2) 1/2))
       (is (= (/ 2 3) 2/3))
       (is (= (str (/ a (ga/multivector [[4 [3]]] (:signature a))))
-             "7/4 + e2 + -3/2 e134")))))
+             "7/4 + e2 - 3/2 e134")))))
 
 (deftest pseudoscalar-unit-test
   (testing "Pseudoscalar unit"
@@ -125,7 +125,7 @@
 (deftest power-test
   (testing "Raise to power"
     (is (== (ga/pow 2 3) 8))
-    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 + -172 e23"))
+    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 - 172 e23"))
     (let [[+ *] [ga/add ga/prod]
           [e e1 e2 e12] (ga/basis [0 2])]
       (is (== (ga/scalar (ga/pow 1 (+ 1 e1 e2))) 1))
@@ -162,7 +162,7 @@
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (∧ u w)) "-1 e12")))))
+      (is (= (str (∧ u w)) "-e12")))))
 
 (deftest lcontract-test
   (testing "Left contraction"
@@ -170,7 +170,7 @@
           [e e1 e2 e12] (ga/basis [2 0])]
       (is (= (str (⌋ (+ e1 (* 3 e2)) (* 2 (+ e2 e1)))) "8"))
       (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e2))) "1"))
-      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e12))) "-1 + -1 e1 + e2")))))
+      (is (= (str (⌋ (+ e1 e2 e12) (+ 1 e12))) "-1 - e1 + e2")))))
 
 (deftest rcontract-test
   (testing "Right contraction"
@@ -202,11 +202,11 @@
           [e e1 e2 e12] (ga/basis [2 0])
           u (+ e1 (* 3 e2))
           w (+ (* 2 e2) e1)]
-      (is (= (str (× u w)) "-1 e12"))
+      (is (= (str (× u w)) "-e12"))
       (is (= (str (× w u)) "e12"))
       (is (= (str (× e1 e12)) "e2"))
       (is (= (str (× e12 e12)) "0"))
-      (is (= (str (× e12 e1)) "-1 e2")))))
+      (is (= (str (× e12 e1)) "-e2")))))
 
 (deftest antiwedge-test
   (testing "Regressive product"
