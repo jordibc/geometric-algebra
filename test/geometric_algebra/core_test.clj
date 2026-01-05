@@ -35,7 +35,9 @@
 (deftest to-string-test
   (testing "Transforming to string"
     (is (= (str a) "7 e3 + 6 e14 + 4 e23"))
-    (is (= (str a2) "11 e2 + e23"))))
+    (is (= (str a2) "11 e2 + e23"))
+    (is (= (map str (ga/basis [3 0] :start 8))
+           '("1" "e8" "e9" "e10" "e89" "e8_10" "e9_10" "e8_9_10")))))
 
 (deftest addition-test
   (testing "Geometric addition"

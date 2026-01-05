@@ -18,7 +18,10 @@
         show-x (or (not show-e) (not (== x 1)))] ; to write e1 instead of 1 e1
     (str (when show-x x)                          ; "7"
          (when (and show-x show-e) " ")           ; " "
-         (when show-e (str "e" (apply str e)))))) ; "e134"
+         (when show-e
+           (let [max-e (apply max e)
+                 sep (if (< max-e 10) "" "_")]
+             (str "e" (str/join sep e)))))))      ; "e134"
 
 (defrecord MultiVector [blades signature]
   Object
