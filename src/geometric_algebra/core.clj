@@ -432,7 +432,7 @@
   [a]
   (if (scalar? a)
     (math/tanh (scalar a))
-    (-> (div (sinh a) (cosh a))))) ; sinh(a) / cosh(a)
+    (div (sinh a) (cosh a)))) ; sinh(a) / cosh(a)
 
 (defn cos
   "Return cos(a), the cosine of scalar `a` (otherwise, use cos(a)=cosh(ia))."

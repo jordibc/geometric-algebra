@@ -56,7 +56,7 @@
 
 (defn- ops-expand [s] ; put spaces around all operators
   (let [ops (-> (keys ga/operators) ; operators to expand
-                (conj  "=") ; expand around "=" too
+                (conj "=") ; expand around "=" too
                 (#(remove #{"*"} %))) ; but do not expand * (because of **)
         s-expanded (reduce op-expand s ops)] ; expand all but *
     (str/replace s-expanded #"([^\*])\*([^\*])" "$1 * $2"))) ; expand * nicely
