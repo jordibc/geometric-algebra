@@ -434,6 +434,24 @@
     (math/tanh (scalar a))
     (-> (div (sinh a) (cosh a))))) ; sinh(a) / cosh(a)
 
+(defn cos
+  "Return cos(a), the cosine of scalar `a` (otherwise, use cos(a)=cosh(ia))."
+  [a]
+  (assert (scalar? a) "for non-scalars, choose \"i\" and use cos(a)=cosh(ia)")
+  (math/cos (scalar a)))
+
+(defn sin
+  "Return sin(a), the sine of scalar `a` (otherwise, use sin(a)=sinh(ia)/i)."
+  [a]
+  (assert (scalar? a) "for non-scalars, choose \"i\" and use sin(a)=sinh(ia)/i")
+  (math/sin (scalar a)))
+
+(defn tan
+  "Return tan(a), the tangent of scalar `a` (otherwise, use tan(a)=tanh(ia)/i)."
+  [a]
+  (assert (scalar? a) "for non-scalars, choose \"i\" and use tan(a)=tanh(ia)/i")
+  (math/tan (scalar a)))
+
 
 ;; Basis.
 
@@ -557,7 +575,7 @@
 
 (def ^:private arities ; function arities
   {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1,
-   'exp 1, 'cosh 1, 'sinh 1, 'tanh 1,
+   'exp 1, 'cosh 1, 'sinh 1, 'tanh 1, 'cos 1, 'sin 1, 'tan 1,
    'grade 2, 'pow 2, 'proj 2, 'rej 2,
    '+ 1, '- 1}) ; special ones, used to parse "-1" and similar
 

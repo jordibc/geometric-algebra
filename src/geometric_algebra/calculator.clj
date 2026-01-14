@@ -25,6 +25,7 @@
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
    'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm, 'exp #'ga/exp,
    'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
+   'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
 
 (defn- info [basis signature]
