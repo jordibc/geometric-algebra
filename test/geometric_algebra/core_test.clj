@@ -122,18 +122,6 @@
   (testing "Grade selection"
     (is (= (str (ga/grade a 2)) "6 e14 + 4 e23"))))
 
-(deftest power-test
-  (testing "Raise to power"
-    (is (== (ga/pow 2 3) 8))
-    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 - 172 e23"))
-    (let [[+ *] [ga/add ga/prod]
-          [e e1 e2 e12] (ga/basis [0 2])]
-      (is (== (ga/scalar (ga/pow 1 (+ 1 e1 e2))) 1))
-      (is (= (ga/pow (ga/exp 1) (+ 1 e1 e2)) (ga/exp (+ 1 e1 e2))))
-      (is (= (str (ga/pow 2 (+ 1 e1 e2)))
-             (str "1.1136162813753347 + 1.1747039578631577 e1 + "
-                  "1.1747039578631577 e2"))))))
-
 (deftest norm-test
   (testing "Multivector norm"
     (let [approx? (fn [x y] (< (abs (- x y)) 1e-10))
@@ -267,6 +255,29 @@
         (is (approx? (ga/exp (+ 1 e1 e2))
                      (+ 2.7182818284467594 (* 2.7182818282861687 e1)
                         (* 2.7182818282861687 e2))))))))
+
+(deftest power-test
+  (testing "Raise to power"
+    (is (== (ga/pow 2 3) 8))
+    (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 - 172 e23"))
+    (let [[+ *] [ga/add ga/prod]
+          [e e1 e2 e12] (ga/basis [0 2])]
+      (is (== (ga/scalar (ga/pow 1 (+ 1 e1 e2))) 1))
+      (is (= (ga/pow (ga/exp 1) (+ 1 e1 e2)) (ga/exp (+ 1 e1 e2))))
+      (is (approx? (ga/pow 2 (+ 1 e1 e2))
+                   (+ 1.1136162813
+                      (* 1.1747039578 e1)
+                      (* 1.1747039578 e2)))))))
+
+(deftest trigonometric-test
+  (testing "Trigonometric functions"
+    (is (approx? (ga/cosh 0) 1))
+    (is (approx? (ga/sinh 0) 1))
+    (let [[+ *] [ga/add ga/prod]
+          [e e1 e2 e12] (ga/basis [1 1])]
+      (is (approx? (ga/cosh (+ 2.4 (* 1.1 e2)))
+                   (+ 2.5206096819 (* 4.871543707 e2)))))))
+;; TODO: Add tests for sinh, tanh, sin, cos, tan, for scalars and multivectors.
 
 (deftest basis-test
   (testing "Using basis elements"

@@ -22,7 +22,8 @@
       (testing "with standard operations"
         (result? "1 + 2" "3")
         (result? "4 * 5" "20")
-        (result? "1 / 5" "1/5"))
+        (result? "1 / 5" "1/5")
+        (result? "2**3" "8.0"))
       (testing "with multivectors"
         (result? "2 * (7 e3 + 6 e12 + 4 e23)"
                  "14 e3 + 12 e12 + 8 e23")
