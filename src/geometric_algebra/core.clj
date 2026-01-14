@@ -387,7 +387,7 @@
             sum)))))) ; return the best we could do with the max number of terms
 
 (defn exp
-  "Return exp(a), the exponentiation of multivector `a`."
+  "Return exp(a), the exponential of multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (cond
@@ -412,6 +412,27 @@
         (if (zero? i)
           (if (>= b 0) a-pow-n (inv a-pow-n))
           (recur (prod a-pow-n a) (dec i)))))))
+
+(defn cosh
+  "Return cosh(a), the hyperbolic cosine of multivector `a`."
+  [a]
+  (if (scalar? a)
+    (math/cosh (scalar a))
+    (-> (add (exp a) (exp (sub a))) (div 2)))) ; (exp(a) + exp(-a)) / 2
+
+(defn sinh
+  "Return sinh(a), the hyperbolic sine of multivector `a`."
+  [a]
+  (if (scalar? a)
+    (math/sinh (scalar a))
+    (-> (sub (exp a) (exp (sub a))) (div 2)))) ; (exp(a) - exp(-a)) / 2
+
+(defn tanh
+  "Return tanh(a), the hyperbolic tangent of multivector `a`."
+  [a]
+  (if (scalar? a)
+    (math/tanh (scalar a))
+    (-> (div (sinh a) (cosh a))))) ; sinh(a) / cosh(a)
 
 
 ;; Basis.
@@ -535,7 +556,8 @@
 (declare infix->sexpr)
 
 (def ^:private arities ; function arities
-  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1, 'exp 1,
+  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1,
+   'exp 1, 'cosh 1, 'sinh 1, 'tanh 1,
    'grade 2, 'pow 2, 'proj 2, 'rej 2,
    '+ 1, '- 1}) ; special ones, used to parse "-1" and similar
 

@@ -21,9 +21,11 @@
        "Examples: calc sta, calc 1 3 0 0"))
 
 (def ^:private functions
-  {'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
+  (array-map ; so they appear in order
+   'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
    'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm, 'exp #'ga/exp,
-   'proj #'ga/proj, 'rej #'ga/rej})
+   'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
+   'proj #'ga/proj, 'rej #'ga/rej))
 
 (defn- info [basis signature]
   (str
