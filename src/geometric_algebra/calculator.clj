@@ -2,7 +2,8 @@
   "A geometric algebra interactive calculator."
   (:require [geometric-algebra.core :as ga]
             [clojure.edn :as edn]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.math :as math]))
 
 (defn args->signature [args]
   (try
@@ -27,6 +28,9 @@
    'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
+
+(def ^:private constants
+  {'pi math/PI, 'e math/E})
 
 (defn- info [basis signature]
   (str
@@ -117,7 +121,8 @@
   (let [basis (rest (ga/basis signature)) ; basis multivectors
         env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
                               (for [[op f] ga/operators] [(symbol op) f])
-                              functions))]
+                              functions
+                              constants))]
     (println (info basis signature))
     (println "Type :help for help, :exit to exit.")
     (loop [env env0]
