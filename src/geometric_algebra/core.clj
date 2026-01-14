@@ -508,6 +508,7 @@
    "-" #'sub
    "*" #'prod ; NOTE: "natural", but the similar ∗ is often scalar-prod in print
    "/" #'div
+   "**" #'pow
    "·" #'dot
    "∧" #'wedge
    "∨" #'antiwedge
@@ -550,8 +551,12 @@
             f1 (conj args x)] ; first element is a function call
         (conj (nthnext more n) f1))))) ; return function call and rest
 
-(def ^:private precedences ; operator precedence
-  {'+ 1, '- 1, '* 2, '/ 2, '· 3, '∧ 3, '∨ 3, '× 3, '⌋ 3, '⌊ 3, '∘ 3, '∗ 3, '• 3})
+(def ^:private precedences ; operator precedence (as a map {op prec})
+  (-> {1 ['+ '-] ; lowest precedence
+       2 ['* '/]
+       3 ['· '∧ '∨ '× '⌋ '⌊ '∘ '∗ '•]
+       4 ['**]} ; highest precedence
+      (#(into {} (for [[p ops] %, op ops] [op p])))))
 
 (defn- reduce-stack
   "Return a reduced stack of values and operations.

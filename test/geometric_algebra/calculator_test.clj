@@ -7,7 +7,7 @@
        "e012 e013 e023 e123 e0123\n"
        "Signature: e0e0=1 e1e1=-1 e2e2=-1 e3e3=-1\n"
        "Functions: proj inv invol dual rej norm pow exp rev grade\n"
-       "Operators: + - * / · ∧ ∨ × ⌋ ⌊ ∘ ∗ •\n"
+       "Operators: + - * / ** · ∧ ∨ × ⌋ ⌊ ∘ ∗ •\n"
        "Type :help for help, :exit to exit.\n"
        "> " x "\n"
        "> "))
