@@ -353,7 +353,7 @@
                   (= (prod bi bj) (prod bj bi))))) ; bi * bj == bj * bi
 
 (defn- exp-squared-scalar
-  "Return the exponentiation of multivector `a` whose square is a scalar."
+  "Return the exponential of multivector `a` whose square is a scalar."
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
         norm (math/sqrt (abs a2))]
@@ -363,7 +363,7 @@
       :else (add 1 a))))
 
 (defn- exp-blade
-  "Return the exponentiation of a single blade, given its signature too."
+  "Return the exponential of a single blade, given its signature too."
   [blade signature]
   (exp-squared-scalar (->MultiVector [blade] signature))) ; blade as multivector
 
