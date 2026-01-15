@@ -337,7 +337,6 @@
 (defn- blade-combos
   "Return all the different pairs of blades extracted from multivector `a`."
   [a]
-  {:pre [(multivector? a)]}
   (let [blades (:blades a)
         sig (:signature a)
         blade (fn [i] (->MultiVector [(blades i)] sig)) ; 1-blade multivector
@@ -389,7 +388,6 @@
 (defn exp
   "Return exp(a), the exponential of multivector `a`."
   [a]
-  {:pre [(multivector? a)]}
   (cond
     (number? a) (math/exp a)
     (scalar? (prod a a)) (exp-squared-scalar a) ; works for anticommuting blades
