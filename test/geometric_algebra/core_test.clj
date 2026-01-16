@@ -271,13 +271,29 @@
 
 (deftest trigonometric-test
   (testing "Trigonometric functions"
-    (is (approx? (ga/cosh 0) 1))
-    (is (approx? (ga/sinh 0) 1))
     (let [[+ *] [ga/add ga/prod]
-          [e e1 e2 e12] (ga/basis [1 1])]
-      (is (approx? (ga/cosh (+ 2.4 (* 1.1 e2)))
-                   (+ 2.5206096819 (* 4.871543707 e2)))))))
-;; TODO: Add tests for sinh, tanh, sin, cos, tan, for scalars and multivectors.
+          [_ e0 e1 e2 e3 e01 e02 e03
+           e12 e13 e23 e012 e013 e023 e123 e0123] (ga/basis [1 3] :start 0)]
+      (testing "basic operations"
+        (is (approx? (ga/cos 0) 1))
+        (is (approx? (ga/sin 0) 0))
+        (is (approx? (ga/cos 1) 0.54030230586))
+        (is (approx? (ga/sin 1) 0.84147098480))
+        (is (approx? (ga/cosh 0) 1))
+        (is (approx? (ga/sinh 0) 1))
+        (is (approx? (ga/cosh (+ 2.4 (* 1.1 e2)))
+                     (+ 2.5206096819 (* 4.871543707 e2)))))
+      (testing "non unique definition of cos, sin, tan"
+        (is (approx? (ga/cosh (* e1 (+ 1 e12))) 0.15594369476))
+        (is (approx? (ga/cosh (* e2 (+ 1 e12))) 0.15594369476)) ; like before
+        (is (approx? (ga/cosh (* e3 (+ 1 e12))) ; e3^2=-1 too, is this cos()?
+                     (+ 0.83373002513 (* -0.98889770576 e12)))) ; surprise!
+        (is (approx? (ga/cosh (* e1 (+ 1 e1)))
+                     (+ 0.83373002513 (* -0.98889770576 e1))))
+        (is (approx? (ga/cosh (* e2 (+ 1 e1))) 0.155943694765))
+        (is (approx? (ga/cosh (* e12 (+ 1 e1))) 0.15594369476))
+        (is (approx? (ga/cosh (* e12 (+ 1 e3))) ; but this is different again
+                     (+ 0.83373002513 (* -0.98889770576 e3))))))))
 
 (deftest basis-test
   (testing "Using basis elements"
