@@ -6,7 +6,8 @@
 
 (ns geometric-algebra.core
   "The multivector type and basic operations defined on multivectors."
-  (:require [clojure.string :as str]
+  (:require [geometric-algebra.mathlib :as ga-math]
+            [clojure.string :as str]
             [clojure.math :as math]))
 
 ;; The MultiVector record, and how to convert it to string.
@@ -396,20 +397,50 @@
                                       (for [b (:blades a)] (exp-blade b sig))))
     :else (sum-exp-series a)))
 
+(defn log
+  "Return log(a), the natural logarithm of multivector `a`."
+  [a]
+  (if (number? a)
+    (math/log a) ; normal log, the easy case
+    (let [x (scalar (grade a 0)) ; x = <a>  ("real part")
+          ey (sub a x) ; e y = a - <a>  ("imaginary part" with imaginary unit)
+          eyey (prod ey ey)]
+      (assert (scalar? eyey) "unknown log") ; I haven't figured out other cases
+      (let [ey2 (scalar eyey)] ; (ey)^2  (as a number)
+        (if (zero? ey2) ; (ey)^2 = 0 ?  then it is  a = x exp(e y/x)
+          (add (math/log x) (div ey x)) ; so  log(a) = log(x) + e y/x
+          (let [y (math/sqrt (abs ey2)) ; sqrt(|(ey)^2|) = y  (but for a sign)
+                e (div ey y)] ; "imaginary unit" (also absorbs sign)
+            (if (pos? ey2) ; (ey)^2 > 0 -> a = sqrt(x^2-y^2) exp(e atanh(y/x))
+              (if (neg? x)
+                ##NaN ; x < 0 can't be reached with e^2 > 0 (same as normal log)
+                (add (/ (math/log (- (* x x) ey2)) 2) ; log(x^2-y^2)/2 +
+                     (prod e (ga-math/atanh (/ y x))))) ; e atanh(y/x)
+              (add (/ (math/log (- (* x x) ey2)) 2) ; log(x^2+y^2)/2 +
+                   (prod e (math/atan2 y x)))))))))) ; e atan2(y, x)
+
+(defn- pow-to-int [a n] ; slow way to raise to an int (auxiliar function)
+  (loop [a-pow-n 1 ; temporary value of a^|n|
+         i (abs n)] ; we'll iterate |n| times to compute a^|n|
+    (if (zero? i)
+      (if (>= n 0) a-pow-n (inv a-pow-n)) ; a^|n|  or  1/a^|n|
+      (recur (prod a-pow-n a) (dec i)))))
+
 (defn pow
   "Return a^b (`a` raised to the power of `b`)."
   [a b]
   (if (scalar? a)
     (if (scalar? b)
-      (math/pow (scalar a) (scalar b))
-      (exp (prod b (math/log (scalar a)))))
-    (do
-      (assert (int? b) "can only raise multivector to an integer")
-      (loop [a-pow-n 1
-             i (abs b)]
-        (if (zero? i)
-          (if (>= b 0) a-pow-n (inv a-pow-n))
-          (recur (prod a-pow-n a) (dec i)))))))
+      (math/pow (scalar a) (scalar b)) ; the easy case
+      (exp (prod b (math/log (scalar a))))) ; a^b  means  exp(b log(a))
+    (if (and (scalar? b) (zero? (scalar b))) ; a is not a scalar from here on
+      1 ; a^0 = 1  even for weird a
+      (try
+        (exp (prod b (log a))) ; exp(b log(a))  but log(a) may fail
+        (catch AssertionError e ; last resort: we can if b is an integer
+          (assert (and (scalar? b) (int? (scalar b)))
+                  "can only raise this multivector to an integer")
+          (pow-to-int a (scalar b)))))))
 
 (defn cosh
   "Return cosh(a), the hyperbolic cosine of multivector `a`."
@@ -573,7 +604,7 @@
 
 (def ^:private arities ; function arities
   {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1,
-   'exp 1, 'cosh 1, 'sinh 1, 'tanh 1, 'cos 1, 'sin 1, 'tan 1,
+   'exp 1, 'log 1, 'cosh 1, 'sinh 1, 'tanh 1, 'cos 1, 'sin 1, 'tan 1,
    'grade 2, 'pow 2, 'proj 2, 'rej 2,
    '+ 1, '- 1}) ; special ones, used to parse "-1" and similar
 

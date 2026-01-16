@@ -24,7 +24,8 @@
 (def ^:private functions
   (array-map ; so they appear in order
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
-   'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm, 'exp #'ga/exp,
+   'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm,
+   'exp #'ga/exp, 'log #'ga/log,
    'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
