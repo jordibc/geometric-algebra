@@ -2,8 +2,10 @@
 
  :tasks {test {:requires ([clojure.test :as t]
                           [geometric-algebra.core-test]
+                          [geometric-algebra.mathlib-test]
                           [geometric-algebra.calculator-test])
                :task (t/run-tests 'geometric-algebra.core-test
+                                  'geometric-algebra.mathlib-test
                                   'geometric-algebra.calculator-test)}
          calc {:requires ([geometric-algebra.calculator :as calc])
                :task (let [args *command-line-args*]
