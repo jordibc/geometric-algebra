@@ -256,18 +256,34 @@
                      (+ 2.7182818284467594 (* 2.7182818282861687 e1)
                         (* 2.7182818282861687 e2))))))))
 
+(deftest log-test
+  (testing "Multivector logarithm"
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e3 e12 e13 e23 e123] (ga/basis [1 1 1])]
+      (testing "of basis elements"
+        (is (approx? (ga/log e2) (* 1.57079632679 e2)))
+        (is (approx? (ga/exp (ga/log e2)) e2)))
+      (testing "of more complex multivectors"
+        (is (approx? (ga/log (+ 2 e1)) (+ 0.54930614433 (* 0.54930614433 e1))))
+        (is (approx? (ga/exp (ga/log (+ 2 e1))) (+ 2 e1)))
+        (is (approx? (ga/log (+ 2 e3)) (+ 0.69314718055 (* 0.5 e3))))
+        (is (approx? (ga/exp (ga/log (+ 2 e3))) (+ 2 e3)))))))
+
 (deftest power-test
   (testing "Raise to power"
     (is (== (ga/pow 2 3) 8))
     (is (= (str (ga/pow a 3)) "-301 e3 + 954 e14 - 172 e23"))
-    (let [[+ *] [ga/add ga/prod]
+    (let [[+ - *] [ga/add ga/sub ga/prod]
           [e e1 e2 e12] (ga/basis [0 2])]
       (is (== (ga/scalar (ga/pow 1 (+ 1 e1 e2))) 1))
       (is (= (ga/pow (ga/exp 1) (+ 1 e1 e2)) (ga/exp (+ 1 e1 e2))))
       (is (approx? (ga/pow 2 (+ 1 e1 e2))
                    (+ 1.1136162813
                       (* 1.1747039578 e1)
-                      (* 1.1747039578 e2)))))))
+                      (* 1.1747039578 e2))))
+      (is (approx? (ga/pow e1 e1) 0.207879576350))
+      (is (approx? (ga/pow e1 (* 2 e1)) (ga/pow 0.207879576350 2)))
+      (is (approx? (ga/pow e1 e2) (- e12))))))
 
 (deftest trigonometric-test
   (testing "Trigonometric functions"
