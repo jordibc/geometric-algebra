@@ -647,20 +647,20 @@
   (str (+ a a)) ; => "14 e3 + 12 e14 + 8 e23"
 
   (def - sub)
-  (str (- a)) ; => "-7 e3 + -6 e14 + -4 e23"
+  (str (- a)) ; => "-7 e3 - 6 e14 - 4 e23"
   (str (- a a)) ; => "0"
 
   (def * prod)
   (str (* a 2)) ; => "14 e3 + 12 e14 + 8 e23"
-  (str (* a a)) ; => "29 + -84 e134 + 48 e1234"
+  (str (* a a)) ; => "29 - 84 e134 + 48 e1234"
 
-  (str (rev a)) ; => "7 e3 + -6 e14 + -4 e23"
+  (str (rev a)) ; => "7 e3 - 6 e14 - 4 e23"
 
-  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 + -3/2 e134"
+  (str (div a (multivector [[4 [3]]] (:signature a)))) ; => "7/4 + e2 - 3/2 e134"
 
   (str (grade a 2)) ; => "6 e14 + 4 e23"
 
-  (str (pow a 3)) ; => "-301 e3 + 954 e14 + -172 e23"
+  (str (pow a 3)) ; => "-301 e3 + 954 e14 - 172 e23"
 
   (str (commutator a (multivector [[4 [3]]] (:signature a)))) ; => "16 e2"
 

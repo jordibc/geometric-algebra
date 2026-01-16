@@ -106,9 +106,9 @@ multivectors.
   (println "w =" w)                       ; 5 + e1 + 3 e2
   (println "3*v =" (* 3 v))               ; 9 + 12 e12
   (println "v + w =" (+ v w))             ; 8 + e1 + 3 e2 + 4 e12
-  (println "v - (1 + w) =" (- v (+ 1 w))) ; -3 + -1 e1 + -3 e2 + 4 e12
+  (println "v - (1 + w) =" (- v (+ 1 w))) ; -3 - 1 e1 - 3 e2 + 4 e12
   (println "v * w =" (* v w))             ; 15 + 15 e1 + 5 e2 + 20 e12
-  (println "w * v =" (* w v))             ; 15 + -9 e1 + 13 e2 + 20 e12
+  (println "w * v =" (* w v))             ; 15 - 9 e1 + 13 e2 + 20 e12
   (println "v / (2 e2) =" (/ v (* 2 e2))) ; 2 e1 + 3/2 e2
   (println "v^2 =" (ga/pow v 2))          ; -7 + 24 e12
   (println "|v| =" (ga/norm v))           ; 5.0
@@ -169,7 +169,7 @@ creating automatically all the symbols that we would expect.
 ;; Now we can easily create multivectors and operate with them.
 
 (* (+ 3 (* 4 e12))
-   (+ 5 e1 (* 3 e2))) ; => 15 + -9 e1 + 13 e2 + 20 e12
+   (+ 5 e1 (* 3 e2))) ; => 15 - 9 e1 + 13 e2 + 20 e12
 
 (∧ (+ (* 2 e1) (* 3 e2))
    (- (* 4 e1) (* 0.5 e2))) ; => -13.0 e12
@@ -178,7 +178,7 @@ creating automatically all the symbols that we would expect.
 Or, using the `infix` macro to use infix notation:
 
 ```clojure
-(ga/infix (3 + 4 e12) (5 + e1 + 3 e2)) ; => 15 + -9 e1 + 13 e2 + 20 e12
+(ga/infix (3 + 4 e12) (5 + e1 + 3 e2)) ; => 15 - 9 e1 + 13 e2 + 20 e12
 
 (ga/infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
 ```
