@@ -271,7 +271,9 @@
         (is (approx? (ga/log (+ 2 e1)) (+ 0.54930614433 (* 0.54930614433 e1))))
         (is (approx? (ga/exp (ga/log (+ 2 e1))) (+ 2 e1)))
         (is (approx? (ga/log (+ 2 e3)) (+ 0.69314718055 (* 0.5 e3))))
-        (is (approx? (ga/exp (ga/log (+ 2 e3))) (+ 2 e3)))))))
+        (is (approx? (ga/exp (ga/log (+ 2 e3))) (+ 2 e3))))
+      (testing "of multivectors that do not have a log"
+        (is (NaN? (ga/log (+ 1 (* 3 e12) (- e23)))))))))
 
 (deftest power-test
   (testing "Raise to power"
