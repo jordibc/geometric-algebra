@@ -18,17 +18,17 @@
         result? (fn [x y] (is (= (calc x) (output y))))]
     (testing "Calculator usage (infix)"
       (testing "with simple value"
-        (result? "3" "3"))
+        (result? "3" "ans = 3"))
       (testing "with standard operations"
-        (result? "1 + 2" "3")
-        (result? "4 * 5" "20")
-        (result? "1 / 5" "1/5")
-        (result? "2**3" "8.0"))
+        (result? "1 + 2" "ans = 3")
+        (result? "4 * 5" "ans = 20")
+        (result? "1 / 5" "ans = 1/5")
+        (result? "2**3" "ans = 8.0"))
       (testing "with multivectors"
         (result? "2 * (7 e3 + 6 e12 + 4 e23)"
-                 "14 e3 + 12 e12 + 8 e23")
+                 "ans = 14 e3 + 12 e12 + 8 e23")
         (result? "pow(7 e3 + 6 e12 + 4 e23, 3)"
-                 "-336 e1 - 1211 e3 - 1194 e12 - 404 e23"))
+                 "ans = -336 e1 - 1211 e3 - 1194 e12 - 404 e23"))
       (testing "requesting help"
         (result? ":help" (str "Type any expression to get its value. "
                               "Use assignments like 'a = 2' to create new variables.\n"
@@ -43,7 +43,7 @@
                  (str "  * ([] [a] [a b] [a b & more])\n"
                       "  Return a * b, the geometric product of multivectors `a` and `b`.")))
       (testing "assigning variables"
-        (result? "a = e2 + e1\na" "> e1 + e2")
+        (result? "a = e2 + e1\na" "> ans = e1 + e2")
         (result? "1 = 1" "Invalid name: 1")
         (is (let [answer (calc "1 != 1")
                   expected ["Unable to resolve symbol: !" ; some babashkas
