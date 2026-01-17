@@ -495,7 +495,7 @@
 
 ;; Basis.
 
-(def ^:private algebra->signature
+(def algebra->signature
   (array-map
    "real" {},
    "complex" {1 -1},
@@ -512,7 +512,7 @@
    "conformal2d" {1 +1, 2 +1, 3 +1, 4 -1}
    "conformal3d" {1 +1, 2 +1, 3 +1, 4 +1, 5 -1}))
 
-(def ^:private algebra-synonyms
+(def algebra-synonyms
   {"r" "real", "c" "complex", "h" "quaternion", "d" "dual",
    "r2" "2d", "r3" "aps", "pga" "pga2d", "pga2" "pga2d",
    "conformal" "conformal2d", "conformal2" "conformal2d",
@@ -619,7 +619,7 @@
    'grade 2, 'pow 2, 'proj 2, 'rej 2,
    '+ 1, '- 1}) ; special ones, used to parse "-1" and similar
 
-(defn- infix->sexpr-1
+(defn infix->sexpr-1
   "Return expression but with the first element converted to S-expression.
   Example: '(exp 1 + 2) -> '((exp 1) + 2)."
   [expr]
@@ -648,7 +648,7 @@
       (let [z (list op x y)] ; x op y -> (op x y)
         (recur (conj stack-more z) prec)))))
 
-(defn- infix->sexpr
+(defn infix->sexpr
   "Return the S-expression corresponding to the given infix expression `expr`."
   [expr]
   (if-not (seq? expr)
