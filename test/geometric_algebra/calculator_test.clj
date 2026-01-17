@@ -6,7 +6,7 @@
   (str "Basis multivectors: e0 e1 e2 e3 e01 e02 e03 e12 e13 e23 "
        "e012 e013 e023 e123 e0123\n"
        "Signature: e0e0=1 e1e1=-1 e2e2=-1 e3e3=-1\n"
-       "Functions: rev invol inv dual grade pow norm exp log cosh sinh tanh cos sin tan proj rej\n"
+       "Functions: rev invol inv dual grade norm exp log pow cosh sinh tanh cos sin tan proj rej\n"
        "Operators: + - * / ** · ∧ ∨ × ⌋ ⌊ ∘ ∗ •\n"
        "Type :help for help, :exit to exit.\n"
        "> " x "\n"
@@ -34,6 +34,7 @@
                               "Use assignments like 'a = 2' to create new variables.\n"
                               "Special commands:\n"
                               "  :help <symbol>  - provides help for functions and operators\n"
+                              "  :info           - shows information about the algebra\n"
                               "  :env            - shows the variables in the environment\n"
                               "  :exit, :quit    - exits the calculator"))
         (result? ":help proj"

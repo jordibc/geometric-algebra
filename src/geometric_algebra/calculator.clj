@@ -25,8 +25,8 @@
 (def ^:private functions
   (array-map ; so they appear in order
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
-   'grade #'ga/grade, 'pow #'ga/pow, 'norm #'ga/norm,
-   'exp #'ga/exp, 'log #'ga/log,
+   'grade #'ga/grade, 'norm #'ga/norm,
+   'exp #'ga/exp, 'log #'ga/log, 'pow #'ga/pow,
    'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
@@ -49,6 +49,7 @@
            "Use assignments like 'a = 2' to create new variables.\n"
            "Special commands:\n"
            "  :help <symbol>  - provides help for functions and operators\n"
+           "  :info           - shows information about the algebra\n"
            "  :env            - shows the variables in the environment\n"
            "  :exit, :quit    - exits the calculator")
       (let [mdata (meta (env (symbol func-name)))]
@@ -110,11 +111,12 @@
 (defn- map->str [m]
   (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
 
-(defn- run-command [text env env0]
+(defn- run-command [text env env0 basis signature]
   (let [command (first (str/split text #"\s+"))]
     (case command
       ":help" (println (help text env))
       ":env" (println (map->str (apply dissoc env (keys env0))))
+      ":info" (println (info basis signature))
       (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
@@ -135,7 +137,7 @@
           (let [text (ops-expand (str/trim line))] ; spaces around operators
             (case (entry-type text)
               :command (do
-                         (run-command text env env0)
+                         (run-command text env env0 basis signature)
                          (recur env))
               :assign (recur (add-var text env infix?))
               :eval (let [val (text->val text env infix?)]
