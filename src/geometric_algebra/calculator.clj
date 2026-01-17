@@ -15,7 +15,7 @@
           r     (parse-long (or a3 "0"))
           start (parse-long (or a4 "1"))]
       (or sig-name (ga/vector->signature [p q r] :start start)))
-    (catch Exception e (do (println "Error: bad signature" args) {}))))
+    (catch Exception e (println "Error: bad signature" args))))
 
 (def usage
   (str "Usage: calc <signature> (name, or p [q] [r] [start])\n"
@@ -122,25 +122,27 @@
 (defn calc
   "REPL to get GA expressions and show their values."
   [signature & {:keys [infix?] :or {infix? true}}]
-  (let [basis (rest (ga/basis signature)) ; basis multivectors
-        env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
-                              (for [[op f] ga/operators] [(symbol op) f])
-                              functions
-                              constants))]
-    (println (info basis signature))
-    (println "Type :help for help, :exit to exit.")
-    (loop [env env0]
-      (print "> ") ; prompt
-      (flush)
-      (let [line (read-line)] ; user input
-        (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
-          (let [text (ops-expand (str/trim line))] ; spaces around operators
-            (case (entry-type text)
-              :command (do
-                         (run-command text env env0 basis signature)
-                         (recur env))
-              :assign (recur (add-var text env infix?))
-              :eval (let [val (text->val text env infix?)]
-                      (when-not (nil? val) ; don't print "nil" on empty line
-                        (println "ans =" val)) ; evaluation output
-                      (recur (assoc env 'ans val)))))))))) ; keep answer
+  (if-not signature
+    (println "Cannot run calculator without a signature.")
+    (let [basis (rest (ga/basis signature)) ; basis multivectors
+          env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
+                                (for [[op f] ga/operators] [(symbol op) f])
+                                functions
+                                constants))]
+      (println "Geometric Algebra Calculator")
+      (println "Type :help for help, :exit to exit.")
+      (loop [env env0]
+        (print "> ") ; prompt
+        (flush)
+        (let [line (read-line)] ; user input
+          (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
+            (let [text (ops-expand (str/trim line))] ; spaces around operators
+              (case (entry-type text)
+                :command (do
+                           (run-command text env env0 basis signature)
+                           (recur env))
+                :assign (recur (add-var text env infix?))
+                :eval (let [val (text->val text env infix?)]
+                        (when-not (nil? val) ; don't print "nil" on empty line
+                          (println "ans =" val)) ; evaluation output
+                        (recur (assoc env 'ans val))))))))))) ; keep answer

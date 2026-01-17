@@ -3,11 +3,7 @@
             [geometric-algebra.calculator :as calc]))
 
 (defn output [x]
-  (str "Basis multivectors: e0 e1 e2 e3 e01 e02 e03 e12 e13 e23 "
-       "e012 e013 e023 e123 e0123\n"
-       "Signature: e0e0=1 e1e1=-1 e2e2=-1 e3e3=-1\n"
-       "Functions: rev invol inv dual grade norm exp log pow cosh sinh tanh cos sin tan proj rej\n"
-       "Operators: + - * / ** · ∧ ∨ × ⌋ ⌊ ∘ ∗ •\n"
+  (str "Geometric Algebra Calculator\n"
        "Type :help for help, :exit to exit.\n"
        "> " x "\n"
        "> "))
