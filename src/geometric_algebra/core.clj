@@ -419,6 +419,15 @@
               (add (/ (math/log (- (* x x) ey2)) 2) ; log(x^2+y^2)/2 +
                    (prod e (math/atan2 y x)))))))))) ; e atan2(y, x)
 
+(defn- pow-special-cases [a b] ; raise power to easy numbers (fast and clean)
+  (when (scalar? b)
+    (case (scalar b)
+      0 1 ; a^0 = 1
+      1 a ; a^1 = a
+      -1 (inv a) ; a^-1 = 1/a
+      2 (prod a a) ; a^2 = a a
+      nil))) ; return nil if we are not in any of the easy cases
+
 (defn- pow-to-int [a n] ; slow way to raise to an int (auxiliar function)
   (loop [a-pow-n 1 ; temporary value of a^|n|
          i (abs n)] ; we'll iterate |n| times to compute a^|n|
@@ -433,14 +442,16 @@
     (if (scalar? b)
       (math/pow (scalar a) (scalar b)) ; the easy case
       (exp (prod b (math/log (scalar a))))) ; a^b  means  exp(b log(a))
-    (if (and (scalar? b) (zero? (scalar b))) ; a is not a scalar from here on
-      1 ; a^0 = 1  even for weird a
-      (try
-        (exp (prod b (log a))) ; exp(b log(a))  but log(a) may fail
-        (catch AssertionError e ; last resort: we can if b is an integer
-          (assert (and (scalar? b) (int? (scalar b)))
-                  "can only raise this multivector to an integer")
-          (pow-to-int a (scalar b)))))))
+    (or
+     (pow-special-cases a b)
+     (try
+       (let [c (exp (prod b (log a)))] ; exp(b log(a))  but log(a) may fail
+         (assert (not (and (number? c) (NaN? c)))) ; or log(a) may be NaN
+         c)
+       (catch AssertionError e ; last resort: we can if b is an integer
+         (assert (and (scalar? b) (int? (scalar b)))
+                 "can only raise this multivector to an integer")
+         (pow-to-int a (scalar b)))))))
 
 (defn cosh
   "Return cosh(a), the hyperbolic cosine of multivector `a`."

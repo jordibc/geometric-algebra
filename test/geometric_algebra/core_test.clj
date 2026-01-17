@@ -289,7 +289,17 @@
                       (* 1.1747039578 e2))))
       (is (approx? (ga/pow e1 e1) 0.207879576350))
       (is (approx? (ga/pow e1 (* 2 e1)) (ga/pow 0.207879576350 2)))
-      (is (approx? (ga/pow e1 e2) (- e12))))))
+      (is (approx? (ga/pow e1 e2) (- e12))))
+    (let [[+ - *] [ga/add ga/sub ga/prod]
+          [e e1 e2 e3 e12 e13 e23 e123] (ga/basis [1 1 1])
+          m (+ 1 (* 3 e12) (- e23))]
+      (is (= (ga/pow m 0) 1))
+      (is (= (ga/pow m 1) m))
+      (is (= (ga/pow m 2) (* m m)))
+      (is (thrown? java.lang.AssertionError (ga/pow m 1.1)))
+      (is (approx? (ga/pow (+ 2 e1) 1.0001)
+                   (+ 2.0001648008957 (* 1.0001648008957 e1))))
+      (is (approx? (ga/pow (ga/pow (+ 2 e1) 1.0001) (/ 1.0001)) (+ 2 e1))))))
 
 (deftest trigonometric-test
   (testing "Trigonometric functions"
