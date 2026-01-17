@@ -1,6 +1,7 @@
 (ns geometric-algebra.calculator
   "A geometric algebra interactive calculator."
   (:require [geometric-algebra.core :as ga]
+            [geometric-algebra.infix :as infix]
             [clojure.edn :as edn]
             [clojure.string :as str]
             [clojure.math :as math]))
@@ -73,7 +74,7 @@
         (str/replace #"," ") (") ; function arguments as sexps
         (#(str "(" % ")")) ; make the full text a single expression
         (edn/read-string) ; read (parse) it
-        (ga/infix->sexpr)))) ; and transform from infix to sexp
+        (infix/infix->sexpr)))) ; and transform from infix to sexp
 
 (defn- eval-with-env [expr env]
   (let [bindings (vec (mapcat vec env))] ; map -> flat vector (for bindings)

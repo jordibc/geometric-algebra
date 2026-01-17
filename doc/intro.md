@@ -14,7 +14,8 @@ operations with them.
 Example:
 
 ```clojure
-(require '[geometric-algebra.core :as ga])
+(require '[geometric-algebra.core :as ga]
+         '[geometric-algebra.infix :refer [infix]])
 
 (ga/def-basis [1 3] :start 0) ; start with e0, the "spacetime algebra"
 ;; Will print:
@@ -24,5 +25,5 @@ Example:
 ;; Will print some warnings for replacing +, -, *, /, and then:
 ;; Defined operators: + - * / · ∧ ∨ × ⌋ ⌊ ∘ •
 
-(ga/infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
+(infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
 ```

@@ -178,9 +178,11 @@ creating automatically all the symbols that we would expect.
 Or, using the `infix` macro to use infix notation:
 
 ```clojure
-(ga/infix (3 + 4 e12) (5 + e1 + 3 e2)) ; => 15 - 9 e1 + 13 e2 + 20 e12
+(require '[geometric-algebra.infix :refer [infix]])
 
-(ga/infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
+(infix (3 + 4 e12) (5 + e1 + 3 e2)) ; => 15 - 9 e1 + 13 e2 + 20 e12
+
+(infix (2 e1 + 3 e2) ∧ (4 e1 - 0.5 e2)) ; => -13.0 e12
 ```
 
 
