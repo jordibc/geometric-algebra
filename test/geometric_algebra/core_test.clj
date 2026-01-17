@@ -44,6 +44,8 @@
     (let [+ ga/add]
       (is (= (str (+ a a)) "14 e3 + 12 e14 + 8 e23"))
       (is (= (str (+ a2 a2 a2)) "33 e2 + 3 e23"))
+      (is (NaN? (+ ##NaN a)))
+      (is (NaN? (+ a ##NaN)))
       (is (thrown? java.lang.AssertionError (+ a "")))
       (is (thrown? java.lang.AssertionError (+ a a2))))))
 
@@ -61,6 +63,8 @@
     (let [* ga/prod]
       (is (= (str (* a 2)) "14 e3 + 12 e14 + 8 e23"))
       (is (= (str (* a a)) "29 - 84 e134 + 48 e1234"))
+      (is (NaN? (* ##NaN a)))
+      (is (NaN? (* a ##NaN)))
       (is (thrown? java.lang.AssertionError (* a ""))))))
 
 (deftest reversion-test

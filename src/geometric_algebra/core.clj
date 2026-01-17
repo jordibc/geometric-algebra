@@ -117,8 +117,8 @@
    {:pre [(same-algebra? a b)]}
    (cond
      (and (number? a) (number? b)) (+ a b)
-     (number? a) (add (multivector a (:signature b)) b)
-     (number? b) (add a (multivector b (:signature a)))
+     (number? a) (if (NaN? a) a (add (multivector a (:signature b)) b))
+     (number? b) (if (NaN? b) b (add a (multivector b (:signature a))))
      :else (multivector (concat (:blades a) (:blades b)) (:signature a))))
   ([a b & more] (reduce add (add a b) more)))
 
@@ -141,8 +141,8 @@
    {:pre [(same-algebra? a b)]}
    (cond
      (and (number? a) (number? b)) (* a b)
-     (number? a) (prod (multivector a (:signature b)) b)
-     (number? b) (prod a (multivector b (:signature a)))
+     (number? a) (if (NaN? a) a (prod (multivector a (:signature b)) b))
+     (number? b) (if (NaN? b) b (prod a (multivector b (:signature a))))
      :else (let [sig (:signature a)
                  blades (for [[x ei] (:blades a)
                               [y ej] (:blades b)]
