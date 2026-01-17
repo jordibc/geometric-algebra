@@ -140,5 +140,5 @@
               :assign (recur (add-var text env infix?))
               :eval (let [val (text->val text env infix?)]
                       (when-not (nil? val) ; don't print "nil" on empty line
-                        (println val)) ; evaluation output
+                        (println "ans =" val)) ; evaluation output
                       (recur (assoc env 'ans val)))))))))) ; keep answer
