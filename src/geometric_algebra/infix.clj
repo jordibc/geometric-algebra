@@ -67,6 +67,18 @@
 
 (comment
 
+  (reduce-stack '(2) 3) ; => (2)
+  (reduce-stack '(2 + 1) 3) ; => (2 + 1)
+  (reduce-stack '(2 + 1) 0) ; => ((+ 1 2))
+  (reduce-stack '(3 * 2 + 1) 2) ; => ((* 2 3) + 1)
+  (reduce-stack '(3 * 2 + 1) 1) ; => ((+ 1 (* 2 3)))
+  (reduce-stack '(4 • 3 * 2 + 1) 0) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 1) ; => ((+ 1 (* 2 (• 3 4))))
+  (reduce-stack '(4 • 3 * 2 + 1) 2) ; => ((* 2 (• 3 4)) + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 3) ; => ((• 3 4) * 2 + 1)
+  (reduce-stack '(4 • 3 * 2 + 1) 4) ; => (4 • 3 * 2 + 1)
+  (reduce-stack '(4 • 3 * 2 + 1 • 2) 2) ; => ((* 2 (• 3 4)) + 1 • 2)
+
   (infix->sexpr 1) ; => 1
   (infix->sexpr '(1)) ; => 1
   (infix->sexpr '(1 + 2)) ; => (+ 1 2)
