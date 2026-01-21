@@ -6,7 +6,19 @@
             [clojure.string :as str]
             [clojure.math :as math]))
 
-(defn args->signature [args]
+(def ^:private functions ; functions that can be called in the calculator
+  (array-map ; so they appear in order
+   'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
+   'grade #'ga/grade, 'norm #'ga/norm,
+   'exp #'ga/exp, 'log #'ga/log, 'pow #'ga/pow,
+   'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
+   'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
+   'proj #'ga/proj, 'rej #'ga/rej))
+
+(def ^:private constants ; constants that can be used in the calculator
+  {'pi math/PI, 'e math/E})
+
+(defn args->signature [args] ; command-line arguments to proper map signature
   (try
     (let [[a1 a2 a3 a4] args
           sig-name (ga/name->signature (or a1 "")) ; signature from algebra name
@@ -21,18 +33,6 @@
   (str "Usage: calc <signature> (name, or p [q] [r] [start])\n"
        "Valid names: " (str/join " " (keys ga/algebra->signature)) "\n"
        "Examples: calc sta, calc 1 3 0 0"))
-
-(def ^:private functions
-  (array-map ; so they appear in order
-   'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
-   'grade #'ga/grade, 'norm #'ga/norm,
-   'exp #'ga/exp, 'log #'ga/log, 'pow #'ga/pow,
-   'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
-   'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
-   'proj #'ga/proj, 'rej #'ga/rej))
-
-(def ^:private constants
-  {'pi math/PI, 'e math/E})
 
 (defn- info [basis signature]
   (str
@@ -68,25 +68,25 @@
         s-expanded (reduce op-expand s ops)] ; expand all but *
     (str/replace s-expanded #"([^\*])\*([^\*])" "$1 * $2"))) ; expand * nicely
 
-(defn- text->expr [text infix?]
+(defn- text->sexpr [text infix?] ; convert text into an S-expression
   (if-not infix?
-    (edn/read-string text) ; easy case, read the s-expression and return it
+    (edn/read-string text) ; easy case, read the S-expression and return it
     (-> text ; less easy case, we have an infix expression
         (str/replace #"," ") (") ; function arguments as sexps
         (#(str "(" % ")")) ; make the full text a single expression
         (edn/read-string) ; read (parse) it
-        (infix/infix->sexpr)))) ; and transform from infix to sexp
+        (infix/infix->sexpr)))) ; and transform from infix to S-expression
 
-(defn- eval-with-env [expr env]
+(defn- eval-with-env [sexpr env] ; eval S-expression in environment (as a map)
   (let [bindings (vec (mapcat vec env))] ; map -> flat vector (for bindings)
-    (eval `(let ~bindings ~expr))))
+    (eval `(let ~bindings ~sexpr))))
 
 (defn- text->val
   "Return value of evaluating text with the given environment (nil on error)."
   [text env infix?]
   (try
-    (let [expr (text->expr text infix?)
-          val (eval-with-env expr env)]
+    (let [sexpr (text->sexpr text infix?)
+          val (eval-with-env sexpr env)]
       val)
     (catch Exception e (println (.getMessage e)))
     (catch AssertionError e (println (.getMessage e)))))
@@ -102,13 +102,13 @@
         (println "Invalid name:" var)
         env)))) ; no change in environment
 
-(defn- entry-type [text]
+(defn- entry-type [text] ; type of entry in text (:command, :assign, :eval)
   (cond
     (str/starts-with? text ":") :command ; execute special command
     (= "=" (second (str/split text #"\s+"))) :assign ; assign to variable
     :else :eval)) ; evaluation
 
-(defn- map->str [m]
+(defn- map->str [m] ; {k1 v1, k2 v2} -> "k1 = v1, k2 = v2"
   (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
 
 (defn- run-command [text env env0 basis signature]

@@ -27,11 +27,12 @@
   (toString [_] ; "7 e3 - 6 e14 + 4 e23"
     (if (empty? blades)
       "0"
-      (let [max-e (apply max (or (keys signature) '(0)))
+      (let [max-e (apply max (or (keys signature) '(0))) ; highest basis element
             e-separator (if (< max-e 10) "" "_") ; differentiate e12 and e1_2
-            abs->str (fn [[x e]] (blade->str [(abs x) e] e-separator))]
-        (str (when (< (first (first blades)) 0) "-") (abs->str (first blades))
-             (apply str (for [[x e] (rest blades)] ; properly +/- the rest
+            abs->str (fn [[x e]] (blade->str [(abs x) e] e-separator))
+            [b0 & b-rest] blades]
+        (str (when (< (first b0) 0) "-") (abs->str b0) ; add "-" to first blade
+             (apply str (for [[x e] b-rest] ; properly +/- the rest
                           (str (if (> x 0) " + " " - ") (abs->str [x e])))))))))
 
 (defmethod print-method MultiVector [a w]
@@ -177,11 +178,11 @@
 (defn scalar?
   "Return true if `a` is a number or a multivector with only a scalar blade."
   [a]
-  {:pre [(multivector? a)]}
   (or
    (number? a)
    (let [blades (:blades a)
          [_ elem] (first blades)]
+     (assert (instance? MultiVector a) (str "not a multivector: " a))
      (or
       (empty? blades) ; a is like the number 0
       (and (= (count blades) 1) (= elem [])))))) ; a is like [[x []]]
@@ -189,11 +190,11 @@
 (defn scalar
   "Return the given multivector `a` as a number (if it is a scalar)."
   [a]
-  {:pre [(scalar? a)]}
   (if (number? a)
     a
     (let [blades (:blades a)
           [x _] (first blades)]
+      (assert (instance? MultiVector a) (str "not a multivector: " a))
       (if (empty? blades) 0 x))))
 
 (defn- try-scalar [a f] ; try to get a scalar from  a * f(a)
