@@ -497,13 +497,13 @@
 
 (def algebra->signature
   (array-map
-   "real" {},
-   "complex" {1 -1},
+   "real" {}, ; no vectors, "multivectors" are just the real numbers
+   "complex" {1 -1}, ; i=e1, i*i = -1
    "quaternion" {1 +1, 2 +1, 3 +1} ; same as "3d", with i=e23, j=e13, k=e12
-   "hyperbolic" {1 +1}
-   "dual" {0 0}
-   "2d" {1 +1, 2 +1}
-   "3d" {1 +1, 2 +1, 3 +1}
+   "hyperbolic" {1 +1} ; e1*e1 = +1
+   "dual" {0 0} ; e0*e0 = 0 (so e0 can be seen as "infinitesimal" for example)
+   "2d" {1 +1, 2 +1} ; plane (x + y e12  can be seen as complex numbers too)
+   "3d" {1 +1, 2 +1, 3 +1} ; three-dimensional space
    "aps" {1 +1, 2 +1, 3 +1} ; algebra of physical space, same as "3d"
    "sta" {0 +1, 1 -1, 2 -1, 3 -1} ; spacetime algebra
    "relativist" {0 -1, 1 +1, 2 +1, 3 +1} ; at times used by relativists
