@@ -3,7 +3,7 @@
             [geometric-algebra.infix :as infix]))
 
 (deftest infix->sexpr-test
-  (testing "Infix to S-expression"
+  (testing "Infix to s-expression"
     (is (= (infix/infix->sexpr 1) 1))
     (is (= (infix/infix->sexpr '(1)) 1))
     (is (= (infix/infix->sexpr '(1 + 2)) '(+ 1 2)))

@@ -27,7 +27,7 @@
 (declare infix->sexpr)
 
 (defn infix->sexpr-1
-  "Return expression but with the first element converted to S-expression.
+  "Return expression but with the first element converted to s-expression.
   Example: '(exp 1 + 2) -> '((exp 1) + 2)."
   [expr]
   (let [[x & more] expr
@@ -39,7 +39,7 @@
         (conj (nthnext more n) f1))))) ; return function call and rest
 
 (defn infix->sexpr
-  "Return the S-expression corresponding to the given infix expression `expr`."
+  "Return the s-expression corresponding to the given infix expression `expr`."
   [expr]
   (if-not (seq? expr)
     expr

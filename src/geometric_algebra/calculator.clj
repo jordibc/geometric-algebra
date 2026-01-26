@@ -68,16 +68,16 @@
         s-expanded (reduce op-expand s ops)] ; expand all but *
     (str/replace s-expanded #"([^\*])\*([^\*])" "$1 * $2"))) ; expand * nicely
 
-(defn- text->sexpr [text infix?] ; convert text into an S-expression
+(defn- text->sexpr [text infix?] ; convert text into an s-expression
   (if-not infix?
-    (edn/read-string text) ; easy case, read the S-expression and return it
+    (edn/read-string text) ; easy case, read the s-expression and return it
     (-> text ; less easy case, we have an infix expression
-        (str/replace #"," ") (") ; function arguments as sexps
+        (str/replace #"," ") (") ; function arguments as separate expressions
         (#(str "(" % ")")) ; make the full text a single expression
         (edn/read-string) ; read (parse) it
-        (infix/infix->sexpr)))) ; and transform from infix to S-expression
+        (infix/infix->sexpr)))) ; and transform from infix to s-expression
 
-(defn- eval-with-env [sexpr env] ; eval S-expression in environment (as a map)
+(defn- eval-with-env [sexpr env] ; eval s-expression in environment (as a map)
   (let [bindings (vec (mapcat vec env))] ; map -> flat vector (for bindings)
     (eval `(let ~bindings ~sexpr))))
 
