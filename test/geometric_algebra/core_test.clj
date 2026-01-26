@@ -314,7 +314,11 @@
         (is (approx? (ga/cosh 0) 1))
         (is (approx? (ga/sinh 0) 1))
         (is (approx? (ga/cosh (+ 2.4 (* 1.1 e2)))
-                     (+ 2.5206096819 (* 4.871543707 e2)))))
+                     (+ 2.5206096819 (* 4.87154370701 e2))))
+        (is (approx? (ga/sinh (+ 2.4 (* 1.1 e2)))
+                     (+ 2.4794603701 (* 4.95239221467 e2))))
+        (is (approx? (ga/tanh (+ 2.4 (* 1.1 e2)))
+                     (+ 1.0096437334 (* 0.01343668526 e2)))))
       (testing "non unique definition of cos, sin, tan"
         (is (approx? (ga/cosh (* e1 (+ 1 e12))) 0.15594369476))
         (is (approx? (ga/cosh (* e2 (+ 1 e12))) 0.15594369476)) ; like before
