@@ -509,14 +509,14 @@
    "aps" {1 +1, 2 +1, 3 +1} ; algebra of physical space, same as "3d"
    "sta" {0 +1, 1 -1, 2 -1, 3 -1} ; spacetime algebra
    "relativist" {0 -1, 1 +1, 2 +1, 3 +1} ; at times used by relativists
-   "pga2d" {0 0, 1 +1, 2 +1} ; projective geometric algebra
+   "pga2d" {0 0, 1 +1, 2 +1} ; projective geometric algebra (on the plane)
    "pga3d" {0 0, 1 +1, 2 +1, 3 +1}
    "conformal2d" {1 +1, 2 +1, 3 +1, 4 -1}
    "conformal3d" {1 +1, 2 +1, 3 +1, 4 +1, 5 -1}))
 
 (def algebra-synonyms
   {"r" "real", "c" "complex", "h" "quaternion", "d" "dual",
-   "r2" "2d", "r3" "aps", "pga" "pga2d", "pga2" "pga2d",
+   "r2" "2d", "r3" "3d", "pga" "pga2d", "pga2" "pga2d",
    "conformal" "conformal2d", "conformal2" "conformal2d",
    "conformal3" "conformal3d"})
 
