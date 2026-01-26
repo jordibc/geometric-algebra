@@ -430,7 +430,7 @@
       (recur (prod a-pow-n a) (dec i)))))
 
 (defn- pow-special-cases [a b] ; raise power to easy numbers (fast and clean)
-  (when (scalar? b)
+  (when (scalar? b) ; return nil if we are not in any of the easy cases
     (let [n (scalar b)] ; maybe small integer (note that (int? 1.0) is false)
       (when (and (== (int n) n) (< (abs n) 10)) ; small integer
         (pow-to-int a (int n))))))
