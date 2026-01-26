@@ -10,9 +10,10 @@ Some of the things I'd like to explore with this library:
 - Maybe get involved with [Scicloj](https://scicloj.github.io/)
 - Implement examples from the book "Geometric Algebra for Physicists"
   and similar references
-- Use quil or threejs to create images / interactive graphics that use
-  the power of geometric algebra
-- Write examples similar to the ones in ganja.js
+- Use [quil](https://github.com/quil/quil) or
+  [threejs](https://threejs.org/) to create images / interactive
+  graphics that use the power of geometric algebra
+- Write examples similar to the ones in [ganja.js](https://enkimute.github.io/ganja.js/)
   - In particular be able to do all this!
     https://enkimute.github.io/ganja.js/examples/galculator.html
 - Make sure that the definition for dual (and thus antiwedge) that I
