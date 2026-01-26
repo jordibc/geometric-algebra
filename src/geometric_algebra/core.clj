@@ -422,21 +422,18 @@
               (add (/ (math/log (- (* x x) ey2)) 2) ; log(x^2+y^2)/2 +
                    (prod e (math/atan2 y x)))))))))) ; e atan2(y, x)
 
-(defn- pow-special-cases [a b] ; raise power to easy numbers (fast and clean)
-  (when (scalar? b)
-    (case (scalar b)
-      0 1 ; a^0 = 1
-      1 a ; a^1 = a
-      -1 (inv a) ; a^-1 = 1/a
-      2 (prod a a) ; a^2 = a a
-      nil))) ; return nil if we are not in any of the easy cases
-
 (defn- pow-to-int [a n] ; slow way to raise to an int (auxiliar function)
   (loop [a-pow-n 1 ; temporary value of a^|n|
          i (abs n)] ; we'll iterate |n| times to compute a^|n|
     (if (zero? i)
       (if (>= n 0) a-pow-n (inv a-pow-n)) ; a^|n|  or  1/a^|n|
       (recur (prod a-pow-n a) (dec i)))))
+
+(defn- pow-special-cases [a b] ; raise power to easy numbers (fast and clean)
+  (when (scalar? b)
+    (let [n (scalar b)] ; maybe small integer (note that (int? 1.0) is false)
+      (when (and (== (int n) n) (< (abs n) 10)) ; small integer
+        (pow-to-int a (int n))))))
 
 (defn pow
   "Return a^b (`a` raised to the power of `b`)."
