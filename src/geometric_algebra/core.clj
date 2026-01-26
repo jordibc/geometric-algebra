@@ -499,7 +499,7 @@
   (array-map
    "real" {},
    "complex" {1 -1},
-   "quaternion" {1 +1, 2 +1, 3 +1} ; with i=e23, j=e13, k=e12
+   "quaternion" {1 +1, 2 +1, 3 +1} ; same as "3d", with i=e23, j=e13, k=e12
    "hyperbolic" {1 +1}
    "dual" {0 0}
    "2d" {1 +1, 2 +1}
