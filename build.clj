@@ -5,6 +5,7 @@
 
 (def lib 'net.clojars.jordibc/geometric-algebra)
 (def version "0.9.9")
+(def main 'geometric-algebra.calculator)
 (def class-dir "target/classes")
 
 (defn test "Run all the tests." [opts]
@@ -68,3 +69,22 @@
     (dd/deploy {:installer :remote :artifact (b/resolve-path jar-file)
                 :pom-file (b/pom-path (select-keys opts [:lib :class-dir]))}))
   opts)
+
+(defn- uber-opts [opts]
+  (assoc opts
+         :lib lib :main main
+         :uber-file (format "target/%s-%s.jar" lib version)
+         :basis (b/create-basis {})
+         :class-dir class-dir
+         :src-dirs ["src"]
+         :ns-compile [main]))
+
+(defn uber "Build the uberjar." [opts]
+  (b/delete {:path "target"})
+  (let [opts (uber-opts opts)]
+    (println "Copying source...")
+    (b/copy-dir {:src-dirs ["resources" "src"] :target-dir class-dir})
+    (println (str "Compiling " main "..."))
+    (b/compile-clj opts)
+    (println (str "Building JAR (in " (:uber-file opts) ")..."))
+    (b/uber opts)))

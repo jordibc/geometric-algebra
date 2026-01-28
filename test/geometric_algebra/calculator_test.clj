@@ -3,9 +3,7 @@
             [geometric-algebra.calculator :as calc]))
 
 (defn output [x]
-  (str "Geometric Algebra Calculator\n"
-       "Type :help for help, :exit to exit.\n"
-       "> " x "\n"
+  (str "> " x "\n"
        "> "))
 
 (deftest calc-test

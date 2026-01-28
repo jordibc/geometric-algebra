@@ -4,7 +4,11 @@
             [geometric-algebra.infix :as infix]
             [clojure.edn :as edn]
             [clojure.string :as str]
-            [clojure.math :as math]))
+            [clojure.math :as math])
+  (:import [org.jline.terminal TerminalBuilder]
+           [org.jline.reader LineReaderBuilder]
+           [org.jline.reader.impl.completer StringsCompleter])
+  (:gen-class))
 
 (def ^:private functions ; functions that can be called in the calculator
   (array-map ; so they appear in order
@@ -88,8 +92,8 @@
     (let [sexpr (text->sexpr text infix?)
           val (eval-with-env sexpr env)]
       val)
-    (catch Exception e (println (.getMessage e)))
-    (catch AssertionError e (println (.getMessage e)))))
+    (catch AssertionError e (println (.getMessage e)))
+    (catch Exception e (println (.getMessage e)))))
 
 (defn- add-var
   "Return environment with the result of evaluating text like `var = expr`."
@@ -121,30 +125,52 @@
 
 (defn calc
   "REPL to get GA expressions and show their values."
-  [signature & {:keys [infix?] :or {infix? true}}]
-  (if-not signature
-    (println "Cannot run calculator without a signature.")
-    (let [basis (rest (ga/basis signature)) ; basis multivectors
-          env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
-                                (for [[op f] ga/operators] [(symbol op) f])
-                                functions
-                                constants))]
-      (println "Geometric Algebra Calculator")
+  [signature & {:keys [infix? read-line-fn]
+                :or {infix? true
+                     read-line-fn (fn [] (print "> ") (flush) (read-line))}}]
+  (let [basis (rest (ga/basis signature)) ; basis multivectors
+        env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
+                              (for [[op f] ga/operators] [(symbol op) f])
+                              functions
+                              constants))]
+    (loop [env env0]
+      (when-let [line (read-line-fn)] ; user input
+        (when-not (#{":exit" ":quit"} (str/trim line))
+          (let [text (ops-expand (str/trim line))] ; spaces around operators
+            (case (entry-type text)
+              :command (do
+                         (run-command text env env0 basis signature)
+                         (recur env))
+              :assign (recur (add-var text env infix?))
+              :eval (let [val (text->val text env infix?)]
+                      (if (nil? val)
+                        (recur env) ; just continue, no printing or saving
+                        (do
+                          (println "ans =" val) ; evaluation output
+                          (recur (assoc env 'ans val)))))))))))) ; save value
+
+(defn calc-with-jline [signature]
+  (let [compl (-> (concat ; things we want the completer to know about
+                   (keys ga/operators) ; +, -, *, ...
+                   (rest (ga/basis signature)) ; basis multivectors (e1...)
+                   (keys functions) ; norm, exp, pow, ...
+                   (keys constants) ; e, pi
+                   [:help :env :info :exit]) ; commands
+                  (#(StringsCompleter. (mapv str %)))) ; the "Completer"
+        term (.. (TerminalBuilder/builder) ; the "Terminal"
+                 build)
+        reader (.. (LineReaderBuilder/builder) ; the "Reader"
+                   (terminal term) (completer compl) build)]
+    (try
+      (calc signature :read-line-fn #(.readLine reader "> "))
+      (catch org.jline.reader.EndOfFileException e nil) ; ctrl+d
+      (catch org.jline.reader.UserInterruptException e nil)) ; ctrl+c
+    (.close term)))
+
+(defn -main [& args]
+  (if (nil? args)
+    (println usage)
+    (when-let [signature (args->signature args)]
+      (println "Geometric Algebra Calculator - signature" (str/join " " args))
       (println "Type :help for help, :exit to exit.")
-      (loop [env env0]
-        (print "> ") ; prompt
-        (flush)
-        (let [line (read-line)] ; user input
-          (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
-            (let [text (ops-expand (str/trim line))] ; spaces around operators
-              (case (entry-type text)
-                :command (do
-                           (run-command text env env0 basis signature)
-                           (recur env))
-                :assign (recur (add-var text env infix?))
-                :eval (let [val (text->val text env infix?)]
-                        (if (nil? val)
-                          (recur env) ; just continue, no printing or saving
-                          (do
-                            (println "ans =" val) ; evaluation output
-                            (recur (assoc env 'ans val))))))))))))) ; save value
+      (calc-with-jline signature))))
