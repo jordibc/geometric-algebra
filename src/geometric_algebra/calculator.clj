@@ -124,7 +124,7 @@
   [signature & {:keys [infix?] :or {infix? true}}]
   (if-not signature
     (println "Cannot run calculator without a signature.")
-    (let [basis (rest (ga/basis signature)) ; basis multivectors
+    (let [basis (rest (ga/basis signature)) ; basis multivectors (except "1")
           env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
                                 (for [[op f] ga/operators] [(symbol op) f])
                                 functions
