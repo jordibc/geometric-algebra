@@ -35,6 +35,20 @@ bb test
 ```
 
 
+## Optimizing / Performance / Profiling
+
+To do quick tests on how fast different implementations work, we can
+use [criterium](https://github.com/hugoduncan/criterium) in the
+following way:
+
+```clojure
+(add-libs {'criterium {:mvn/version "0.4.6"}})
+(require '[criterium.core :as c])
+(require '[geometric-algebra.mathlib :as ga-math])
+(c/quick-bench (ga-math/atanh 0.3))
+```
+
+
 ## Building a JAR
 
 To run the project's continuous integration (CI) pipeline and build a
