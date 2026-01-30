@@ -38,9 +38,9 @@
        "Valid names: " (str/join " " (keys ga/algebra->signature)) "\n"
        "Examples: calc sta, calc 1 3 0 0"))
 
-(defn- info [basis signature]
+(defn- info [signature]
   (str
-   "Basis multivectors: " (str/join " " basis) "\n" ; "e1, e2, e12"
+   "Basis multivectors: " (str/join " " (rest (ga/basis signature))) "\n"
    "Signature: " (let [f (fn [[i sig]] (str "e" i "e" i "=" sig))] ; "e1e1=-1"
                    (str/join " " (map f signature))) "\n"
    "Functions: " (str/join " " (keys functions)) "\n"
@@ -66,7 +66,7 @@
   (str/replace s op (str " " op " ")))
 
 (defn- ops-expand [s] ; put spaces around all operators
-  (let [ops (-> (keys ga/operators) ; operators to expand
+  (let [ops (-> (map str (keys ga/operators)) ; operators to expand
                 (conj "=") ; expand around "=" too
                 (#(remove #{"*"} %))) ; but do not expand * (because of **)
         s-expanded (reduce op-expand s ops)] ; expand all but *
@@ -115,12 +115,12 @@
 (defn- map->str [m] ; {k1 v1, k2 v2} -> "k1 = v1, k2 = v2"
   (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
 
-(defn- run-command [text env env0 basis signature]
+(defn- run-command [text env env0 signature]
   (let [command (first (str/split text #"\s+"))]
     (case command
       ":help" (println (help text env))
       ":env" (println (map->str (apply dissoc env (keys env0))))
-      ":info" (println (info basis signature))
+      ":info" (println (info signature))
       (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
@@ -128,18 +128,15 @@
   [signature & {:keys [infix? read-line-fn]
                 :or {infix? true
                      read-line-fn (fn [] (print "> ") (flush) (read-line))}}]
-  (let [basis (rest (ga/basis signature)) ; basis multivectors
-        env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
-                              (for [[op f] ga/operators] [(symbol op) f])
-                              functions
-                              constants))]
+  (let [basis (for [e (rest (ga/basis signature))] [(symbol (str e)) e])
+        env0 (into {} (concat ga/operators functions constants basis))]
     (loop [env env0]
       (when-let [line (read-line-fn)] ; user input
         (when-not (#{":exit" ":quit"} (str/trim line))
           (let [text (ops-expand (str/trim line))] ; spaces around operators
             (case (entry-type text)
               :command (do
-                         (run-command text env env0 basis signature)
+                         (run-command text env env0 signature)
                          (recur env))
               :assign (recur (add-var text env infix?))
               :eval (let [val (text->val text env infix?)]
@@ -150,15 +147,11 @@
                           (recur (assoc env 'ans val)))))))))))) ; save value
 
 (defn calc-with-jline [signature]
-  (let [compl (-> (concat ; things we want the completer to know about
-                   (keys ga/operators) ; +, -, *, ...
-                   (rest (ga/basis signature)) ; basis multivectors (e1...)
-                   (keys functions) ; norm, exp, pow, ...
-                   (keys constants) ; e, pi
-                   [:help :env :info :exit]) ; commands
+  (let [compl (-> (concat ; things to complete (+ * ... exp pow ... pi ...)
+                   (keys ga/operators) (keys functions) (keys constants)
+                   (rest (ga/basis signature)) [:help :env :info :exit])
                   (#(StringsCompleter. (mapv str %)))) ; the "Completer"
-        term (.. (TerminalBuilder/builder) ; the "Terminal"
-                 build)
+        term (.. (TerminalBuilder/builder) build) ; the "Terminal"
         reader (.. (LineReaderBuilder/builder) ; the "Reader"
                    (terminal term) (completer compl) build)]
     (try
