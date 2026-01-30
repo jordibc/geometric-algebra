@@ -147,10 +147,10 @@
                           (recur (assoc env 'ans val)))))))))))) ; save value
 
 (defn calc-with-jline [signature]
-  (let [compl (-> (concat ; things to complete (+ * ... exp pow ... pi ...)
-                   (keys ga/operators) (keys functions) (keys constants)
-                   (rest (ga/basis signature)) [:help :env :info :exit])
-                  (#(StringsCompleter. (mapv str %)))) ; the "Completer"
+  (let [words (concat ; to complete (+ ... pow ... pi ... e1 ... :help ...)
+               (keys ga/operators) (keys functions) (keys constants)
+               (rest (ga/basis signature)) [:help :env :info :exit])
+        compl (StringsCompleter. (mapv str words)) ; the "Completer"
         term (.. (TerminalBuilder/builder) build) ; the "Terminal"
         reader (.. (LineReaderBuilder/builder) ; the "Reader"
                    (terminal term) (completer compl) build)]
