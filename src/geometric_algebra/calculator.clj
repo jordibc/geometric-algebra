@@ -113,7 +113,7 @@
     :else :eval)) ; evaluation
 
 (defn- map->str [m] ; {k1 v1, k2 v2} -> "k1 = v1, k2 = v2"
-  (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
+  (str/join ", " (for [[k v] m] (str k " = " v))))
 
 (defn- run-command [text env env0 signature]
   (let [command (first (str/split text #"\s+"))]
