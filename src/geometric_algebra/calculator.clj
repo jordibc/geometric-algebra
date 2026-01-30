@@ -4,13 +4,9 @@
             [geometric-algebra.infix :as infix]
             [clojure.edn :as edn]
             [clojure.string :as str]
-            [clojure.math :as math])
-  (:import [org.jline.terminal TerminalBuilder]
-           [org.jline.reader LineReaderBuilder]
-           [org.jline.reader.impl.completer StringsCompleter])
-  (:gen-class))
+            [clojure.math :as math]))
 
-(def ^:private functions ; functions that can be called in the calculator
+(def functions ; functions that can be called in the calculator
   (array-map ; so they appear in order
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
    'grade #'ga/grade, 'norm #'ga/norm,
@@ -19,7 +15,7 @@
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
 
-(def ^:private constants ; constants that can be used in the calculator
+(def constants ; constants that can be used in the calculator
   {'pi math/PI, 'e math/E})
 
 (defn args->signature [args] ; command-line arguments to proper map signature
@@ -145,25 +141,3 @@
                         (do
                           (println "ans =" val) ; evaluation output
                           (recur (assoc env 'ans val)))))))))))) ; save value
-
-(defn calc-with-jline [signature]
-  (let [words (concat ; to complete (+ ... pow ... pi ... e1 ... :help ...)
-               (keys ga/operators) (keys functions) (keys constants)
-               (rest (ga/basis signature)) [:help :env :info :exit])
-        compl (StringsCompleter. (mapv str words)) ; the "Completer"
-        term (.. (TerminalBuilder/builder) build) ; the "Terminal"
-        reader (.. (LineReaderBuilder/builder) ; the "Reader"
-                   (terminal term) (completer compl) build)]
-    (try
-      (calc signature :read-line-fn #(.readLine reader "> "))
-      (catch org.jline.reader.EndOfFileException e nil) ; ctrl+d
-      (catch org.jline.reader.UserInterruptException e nil)) ; ctrl+c
-    (.close term)))
-
-(defn -main [& args]
-  (if (nil? args)
-    (println usage)
-    (when-let [signature (args->signature args)]
-      (println "Geometric Algebra Calculator - signature" (str/join " " args))
-      (println "Type :help for help, :exit to exit.")
-      (calc-with-jline signature))))

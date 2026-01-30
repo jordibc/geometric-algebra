@@ -5,7 +5,7 @@
 
 (def lib 'net.clojars.jordibc/geometric-algebra)
 (def version "0.9.9")
-(def main 'geometric-algebra.calculator)
+(def main 'geometric-algebra.main)
 (def class-dir "target/classes")
 
 (defn test "Run all the tests." [opts]
