@@ -7,8 +7,13 @@
                :task (t/run-tests 'geometric-algebra.core-test
                                   'geometric-algebra.mathlib-test
                                   'geometric-algebra.calculator-test)}
-         calc {:requires ([geometric-algebra.calculator :as calc])
+         calc {:requires ([geometric-algebra.calculator :as calc]
+                          [clojure.string :as str])
                :task (let [args *command-line-args*]
                        (if (nil? args)
                          (println calc/usage)
-                         (calc/calc (calc/args->signature args))))}}}
+                         (when-let [signature (calc/args->signature args)]
+                           (println "Geometric Algebra Calculator - signature"
+                                    (str/join " " args))
+                           (println "Type :help for help, :exit to exit.")
+                           (calc/calc signature))))}}}
