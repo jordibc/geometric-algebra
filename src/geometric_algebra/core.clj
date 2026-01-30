@@ -607,7 +607,7 @@
      (println "Replacing operators + - * / with generalized versions."
               "You may see the corresponding warnings.")
      ~@(for [[op f] operators]
-         `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
+         `(def ~op ~f)) ; (def '+ #'add)  and so on
      (println "Defined operators:" ~(str/join " " (keys operators)))))
 
 
