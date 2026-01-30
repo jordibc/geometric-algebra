@@ -37,6 +37,12 @@
         (result? ":help *"
                  (str "  * ([] [a] [a b] [a b & more])\n"
                       "  Return a * b, the geometric product of multivectors `a` and `b`.")))
+      (testing "requesting info"
+        (result? ":info"
+                 (str "Basis multivectors: e0 e1 e2 e3 e01 e02 e03 e12 e13 e23 e012 e013 e023 e123 e0123\n"
+                      "Signature: e0e0=1 e1e1=-1 e2e2=-1 e3e3=-1\n"
+                      "Functions: rev invol inv dual grade norm exp log pow cosh sinh tanh cos sin tan proj rej\n"
+                      "Operators: + - * / ** · ∧ ∨ × ⌋ ⌊ ∘ ∗ •")))
       (testing "assigning variables"
         (result? "a = e2 + e1\na" "> ans = e1 + e2")
         (result? "1 = 1" "Invalid name: 1")
