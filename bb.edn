@@ -3,9 +3,11 @@
  :tasks {test {:requires ([clojure.test :as t]
                           [geometric-algebra.core-test]
                           [geometric-algebra.mathlib-test]
+                          [geometric-algebra.infix-test]
                           [geometric-algebra.calculator-test])
                :task (t/run-tests 'geometric-algebra.core-test
                                   'geometric-algebra.mathlib-test
+                                  'geometric-algebra.infix-test
                                   'geometric-algebra.calculator-test)}
          calc {:requires ([geometric-algebra.calculator :as calc]
                           [clojure.string :as str])
