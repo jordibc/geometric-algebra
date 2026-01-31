@@ -1,5 +1,5 @@
-(ns geometric-algebra.main
-  "To create an application with a geometric algebra calculator."
+(ns geometric-algebra.calc-jline
+  "Geometric Algebra Calculator using jline for line editing and completion."
   (:require [geometric-algebra.core :as ga]
             [geometric-algebra.calculator :as calc]
             [clojure.string :as str])

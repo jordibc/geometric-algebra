@@ -1,6 +1,5 @@
 {:deps
- {org.clojure/clojure {:mvn/version "1.12.4"}
-  org.jline/jline {:mvn/version "3.6.0"}}
+ {} ; none, but we could have {org.clojure/clojure {:mvn/version "1.12.4"}}
 
  :aliases
  {:test
@@ -12,4 +11,8 @@
   :build
   {:deps {io.github.clojure/tools.build {:mvn/version "0.10.11"}
           slipset/deps-deploy {:mvn/version "0.2.2"}}
-   :ns-default build}}}
+   :ns-default build}
+
+  :calc
+  {:extra-deps {org.jline/jline {:mvn/version "3.6.0"}}
+   :main-opts ["-m" "geometric-algebra.calc-jline"]}}}
