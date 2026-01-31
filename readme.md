@@ -107,7 +107,7 @@ multivectors.
   (println "w * v =" (* w v))             ; 15 - 9 e1 + 13 e2 + 20 e12
   (println "v / (2 e2) =" (/ v (* 2 e2))) ; 2 e1 + 3/2 e2
   (println "v^2 =" (ga/pow v 2))          ; -7 + 24 e12
-  (println "|v| =" (ga/norm v))           ; 5.0
+  (println "|v| =" (ga/mag v))            ; 5.0
   (println "a · b =" (· a b))             ; 6.5
   (println "a ∧ b =" (∧ a b))             ; -13.0 e12
   (println "a ∨ b =" (∨ a b)))            ; 13.0

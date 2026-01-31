@@ -210,7 +210,7 @@
     (/ a)
     (let [[c ac] (or (try-scalar a rev) (try-scalar a invol))]
       (assert c (str "cannot find inverse of multivector: " a))
-      (assert ((complement zero?) ac) (str "multivector has 0 norm: " a))
+      (assert ((complement zero?) ac) (str "multivector has 0 magnitude: " a))
       (prod c (/ 1 ac)))))
 
 (defn div
@@ -330,10 +330,18 @@
   [a b]
   (sub a (proj a b))) ; a - P_b(a)
 
-(defn norm ; "magnitude", see [Dorst 2002] p. 38, or [Hestenes 1984] p. 13
+(defn mag ; "magnitude", see [Dorst 2002] p. 38, or [Hestenes 1984] p. 13
   "Return the magnitude of multivector `a`."
   [a]
   (math/sqrt (abs (scalar-prod (rev a) a)))) ; sqrt(|a^~ o a|)
+
+(defn norm ; no standard definition that I know of
+  "Return the norm of multivector `a`."
+  [a]
+  {:pre [(multivector? a)]}
+  (if (number? a)
+    (abs a)
+    (math/sqrt (reduce + (for [[x _] (:blades a)] (* x x)))))) ; sqrt(sum(x^2))
 
 
 ;; More advanced operations.
@@ -359,10 +367,10 @@
   "Return the exponential of multivector `a` whose square is a scalar."
   [a]
   (let [a2 (scalar (prod a a)) ; a * a  (can be < 0)
-        norm (math/sqrt (abs a2))]
+        m (math/sqrt (abs a2))] ; sqrt(|a*a|)  (similar to magnitude)
     (cond
-      (pos? a2) (add (math/cosh norm) (prod (/ (math/sinh norm) norm) a))
-      (neg? a2) (add (math/cos  norm) (prod (/ (math/sin  norm) norm) a))
+      (pos? a2) (add (math/cosh m) (prod (/ (math/sinh m) m) a))
+      (neg? a2) (add (math/cos  m) (prod (/ (math/sin  m) m) a))
       :else (add 1 a))))
 
 (defn- exp-blade

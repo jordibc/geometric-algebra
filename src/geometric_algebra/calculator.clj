@@ -9,7 +9,7 @@
 (def functions ; functions that can be called in the calculator
   (array-map ; so they appear in order
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
-   'grade #'ga/grade, 'norm #'ga/norm,
+   'grade #'ga/grade, 'mag #'ga/mag, 'norm #'ga/norm,
    'exp #'ga/exp, 'log #'ga/log, 'pow #'ga/pow,
    'cosh #'ga/cosh, 'sinh #'ga/sinh, 'tanh #'ga/tanh,
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,

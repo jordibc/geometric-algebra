@@ -2,7 +2,7 @@
   "Infix notation.")
 
 (def ^:private arities ; function arities
-  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'norm 1,
+  {'rev 1, 'invol 1, 'inv 1, 'dual 1, 'mag 1, 'norm 1,
    'exp 1, 'log 1, 'cosh 1, 'sinh 1, 'tanh 1, 'cos 1, 'sin 1, 'tan 1,
    'grade 2, 'pow 2, 'proj 2, 'rej 2,
    '+ 1, '- 1}) ; special ones, used to parse "-1" and similar

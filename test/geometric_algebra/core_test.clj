@@ -126,6 +126,23 @@
   (testing "Grade selection"
     (is (= (str (ga/grade a 2)) "6 e14 + 4 e23"))))
 
+(deftest magnitude-test
+  (testing "Multivector magnitude"
+    (let [approx? (fn [x y] (< (abs (- x y)) 1e-10))
+          [+ - *] [ga/add ga/sub ga/prod]]
+      (let [[e e1 e2 e12] (ga/basis [2 0])
+            u (+ e1 (* 3 e2))
+            w (+ (* 2 e2) e1)]
+        (is (< 3.16 (ga/mag u) 3.17))
+        (is (< 2.23 (ga/mag w) 2.24)))
+      (let [[e e0 e1 e01] (ga/basis [1 1] :start 0)
+            u (+ e0 (* 0.5 e1))
+            R (ga/exp (* 0.1 e01))]
+        (is (approx? (ga/mag u) 0.86602540378))
+        (is (approx? (ga/mag u) (ga/mag (* R u (ga/rev R)))))
+        (is (approx? (ga/mag R) 1.0))
+        (is (approx? (ga/mag (ga/exp (* 0.1 e1))) 0.989983119977))))))
+
 (deftest norm-test
   (testing "Multivector norm"
     (let [approx? (fn [x y] (< (abs (- x y)) 1e-10))
@@ -133,12 +150,15 @@
       (let [[e e1 e2 e12] (ga/basis [2 0])
             u (+ e1 (* 3 e2))
             w (+ (* 2 e2) e1)]
-        (is (< 3 (ga/norm u) 4))
-        (is (< 2 (ga/norm w) 3)))
+        (is (< 3.16 (ga/norm u) 3.17))
+        (is (< 2.23 (ga/norm w) 2.24)))
       (let [[e e0 e1 e01] (ga/basis [1 1] :start 0)
             u (+ e0 (* 0.5 e1))
             R (ga/exp (* 0.1 e01))]
-        (is (approx? (ga/norm u) (ga/norm (* R u (ga/rev R)))))))))
+        (is (approx? (ga/norm u) 1.1180339887))
+        (is (approx? (ga/norm (* R u (ga/rev R))) 0.96983923358))
+        (is (approx? (ga/norm R) 1.00998354225))
+        (is (approx? (ga/norm (ga/exp (* 0.1 e1))) 1.0))))))
 
 (deftest dot-test
   (testing "Inner product"
