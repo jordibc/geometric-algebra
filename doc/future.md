@@ -2,6 +2,8 @@
 
 Some of the things I'd like to explore with this library:
 
+- Add to the documentation some little demos of the calculator with
+  [asciinema](https://asciinema.org/)
 - Create tutorials, maybe using [Clay](https://scicloj.github.io/clay/)
   (or [Clerk](https://clerk.vision/)?)
   - See also [Clojure Civitas](https://clojurecivitas.github.io/about.html)
