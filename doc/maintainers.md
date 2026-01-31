@@ -70,6 +70,23 @@ clojure -T:build install
 ```
 
 
+### Building the uberjar with the calculator
+
+To build an uberjar that contains everything needed to run the
+interactive calculator (using jline for easy line editing and
+completion):
+
+```sh
+clojure -T:build calc
+```
+
+This uberjar can then run anywhere, as in:
+
+```sh
+java -jar target/calc-*.jar <signature>
+```
+
+
 ## Deployment
 
 Before deploying, we normally want to tag the code with the new
