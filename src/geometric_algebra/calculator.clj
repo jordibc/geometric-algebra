@@ -6,7 +6,7 @@
             [clojure.string :as str]
             [clojure.math :as math]))
 
-(def ^:private functions ; functions that can be called in the calculator
+(def functions ; functions that can be called in the calculator
   (array-map ; so they appear in order
    'rev #'ga/rev, 'invol #'ga/invol, 'inv #'ga/inv, 'dual #'ga/dual,
    'grade #'ga/grade, 'norm #'ga/norm,
@@ -15,28 +15,31 @@
    'cos #'ga/cos, 'sin #'ga/sin, 'tan #'ga/tan,
    'proj #'ga/proj, 'rej #'ga/rej))
 
-(def ^:private constants ; constants that can be used in the calculator
+(def constants ; constants that can be used in the calculator
   {'pi math/PI, 'e math/E})
 
-(defn args->signature [args] ; command-line arguments to proper map signature
-  (try
-    (let [[a1 a2 a3 a4] args
-          sig-name (ga/name->signature (or a1 "")) ; signature from algebra name
-          p     (parse-long (or a1 "2"))
-          q     (parse-long (or a2 "0"))
-          r     (parse-long (or a3 "0"))
-          start (parse-long (or a4 "1"))]
-      (or sig-name (ga/vector->signature [p q r] :start start)))
-    (catch Exception e (println "Error: bad signature" args))))
+(defn args->signature
+  "Return signature for the given command-line arguments (nil if invalid)."
+  [args]
+  (let [n (count args)
+        [a0 a1 a2 a3] args
+        sig-name (ga/name->signature a0) ; signature from algebra name
+        p     (parse-long a0) ; signature from number of positive squares
+        q     (parse-long (or a1 "0")) ; and negative squares
+        r     (parse-long (or a2 "0")) ; and zero squares
+        start (parse-long (or a3 "1"))] ; starting with e0 or e1, etc.
+    (or (and (= n 1) sig-name) ; only 1 argument and it was the name
+        (and (<= n 4) (every? (complement nil?) [p q r start]) ; or several:
+             (ga/vector->signature [p q r] :start start))))) ; p q r start
 
 (def usage
   (str "Usage: calc <signature> (name, or p [q] [r] [start])\n"
        "Valid names: " (str/join " " (keys ga/algebra->signature)) "\n"
        "Examples: calc sta, calc 1 3 0 0"))
 
-(defn- info [basis signature]
+(defn- info [signature]
   (str
-   "Basis multivectors: " (str/join " " basis) "\n" ; "e1, e2, e12"
+   "Basis multivectors: " (str/join " " (rest (ga/basis signature))) "\n"
    "Signature: " (let [f (fn [[i sig]] (str "e" i "e" i "=" sig))] ; "e1e1=-1"
                    (str/join " " (map f signature))) "\n"
    "Functions: " (str/join " " (keys functions)) "\n"
@@ -62,7 +65,7 @@
   (str/replace s op (str " " op " ")))
 
 (defn- ops-expand [s] ; put spaces around all operators
-  (let [ops (-> (keys ga/operators) ; operators to expand
+  (let [ops (-> (map str (keys ga/operators)) ; operators to expand
                 (conj "=") ; expand around "=" too
                 (#(remove #{"*"} %))) ; but do not expand * (because of **)
         s-expanded (reduce op-expand s ops)] ; expand all but *
@@ -88,8 +91,8 @@
     (let [sexpr (text->sexpr text infix?)
           val (eval-with-env sexpr env)]
       val)
-    (catch Exception e (println (.getMessage e)))
-    (catch AssertionError e (println (.getMessage e)))))
+    (catch AssertionError e (println (.getMessage e)))
+    (catch Exception e (println (.getMessage e)))))
 
 (defn- add-var
   "Return environment with the result of evaluating text like `var = expr`."
@@ -109,42 +112,35 @@
     :else :eval)) ; evaluation
 
 (defn- map->str [m] ; {k1 v1, k2 v2} -> "k1 = v1, k2 = v2"
-  (str/join ", " (map (fn [[k v]] (str k " = " v)) m)))
+  (str/join ", " (for [[k v] m] (str k " = " v))))
 
-(defn- run-command [text env env0 basis signature]
+(defn- run-command [text env env0 signature]
   (let [command (first (str/split text #"\s+"))]
     (case command
       ":help" (println (help text env))
       ":env" (println (map->str (apply dissoc env (keys env0))))
-      ":info" (println (info basis signature))
+      ":info" (println (info signature))
       (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
   "REPL to get GA expressions and show their values."
-  [signature & {:keys [infix?] :or {infix? true}}]
-  (if-not signature
-    (println "Cannot run calculator without a signature.")
-    (let [basis (rest (ga/basis signature)) ; basis multivectors (except "1")
-          env0 (into {} (concat (for [e basis] [(symbol (str e)) e])
-                                (for [[op f] ga/operators] [(symbol op) f])
-                                functions
-                                constants))]
-      (println "Geometric Algebra Calculator")
-      (println "Type :help for help, :exit to exit.")
-      (loop [env env0]
-        (print "> ") ; prompt
-        (flush)
-        (let [line (read-line)] ; user input
-          (when-not (or (nil? line) (= ":exit" line) (= ":quit" line))
-            (let [text (ops-expand (str/trim line))] ; spaces around operators
-              (case (entry-type text)
-                :command (do
-                           (run-command text env env0 basis signature)
-                           (recur env))
-                :assign (recur (add-var text env infix?))
-                :eval (let [val (text->val text env infix?)]
-                        (if (nil? val)
-                          (recur env) ; just continue, no printing or saving
-                          (do
-                            (println "ans =" val) ; evaluation output
-                            (recur (assoc env 'ans val))))))))))))) ; save value
+  [signature & {:keys [infix? read-line-fn]
+                :or {infix? true
+                     read-line-fn (fn [] (print "> ") (flush) (read-line))}}]
+  (let [basis (for [e (rest (ga/basis signature))] [(symbol (str e)) e])
+        env0 (into {} (concat ga/operators functions constants basis))]
+    (loop [env env0]
+      (when-let [line (read-line-fn)] ; user input
+        (when-not (#{":exit" ":quit"} (str/trim line))
+          (let [text (ops-expand (str/trim line))] ; spaces around operators
+            (case (entry-type text)
+              :command (do
+                         (run-command text env env0 signature)
+                         (recur env))
+              :assign (recur (add-var text env infix?))
+              :eval (let [val (text->val text env infix?)]
+                      (if (nil? val)
+                        (recur env) ; just continue, no printing or saving
+                        (do
+                          (println "ans =" val) ; evaluation output
+                          (recur (assoc env 'ans val)))))))))))) ; save value

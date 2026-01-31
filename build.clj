@@ -68,3 +68,26 @@
     (dd/deploy {:installer :remote :artifact (b/resolve-path jar-file)
                 :pom-file (b/pom-path (select-keys opts [:lib :class-dir]))}))
   opts)
+
+;; This part is to create an uberjar that runs the calculator using jline.
+
+(def main-calc 'geometric-algebra.calc-jline)
+
+(defn- calc-opts [opts]
+  (assoc opts
+         :lib lib :main main-calc
+         :uber-file (format "target/calc-%s.jar" version)
+         :basis (b/create-basis {:aliases [:calc]})
+         :class-dir class-dir
+         :src-dirs ["src"]
+         :ns-compile [main-calc]))
+
+(defn calc "Build the calculator uberjar." [opts]
+  (b/delete {:path "target"})
+  (let [opts (calc-opts opts)]
+    (println "Copying source...")
+    (b/copy-dir {:src-dirs ["resources" "src"] :target-dir class-dir})
+    (println (str "Compiling " main-calc "..."))
+    (b/compile-clj opts)
+    (println (str "Building JAR (in " (:uber-file opts) ")..."))
+    (b/uber opts)))

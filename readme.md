@@ -3,7 +3,7 @@
 [![Clojars Project](https://img.shields.io/clojars/v/net.clojars.jordibc/geometric-algebra.svg)](https://clojars.org/net.clojars.jordibc/geometric-algebra)
 [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://book.babashka.org#badges)
 
-A library to do [geometric
+A library and a calculator application to do [geometric
 algebra](https://en.wikipedia.org/wiki/Geometric_algebra) in clojure.
 
 A *multivector* is an element of the algebra. It is composed of a sum
@@ -15,33 +15,29 @@ mathematical analysis that I know of.
 
 ## Using it as a calculator
 
-With [babashka](https://babashka.org/), we can launch a quick
-geometric algebra calculator with:
+We can launch a geometric algebra calculator with:
 
 ```sh
-bb calc <signature>  # for example, "sta" as signature for spacetime algebra
-```
-
-With [rlwrap](https://github.com/hanslub42/rlwrap) we also get more
-comfortable editing of expressions:
-
-```sh
-rlwrap bb calc <signature>
+clojure -M:calc <signature>  # for example, "sta" as signature for spacetime algebra
 ```
 
 
 ## Installation
 
+To use this library, we can install it in different ways. The
+recommended one is the first (using `deps.edn`).
+
 ### Clojure CLI / deps.edn
 
-To use this library, we need to add this dependency:
+The dependency information is:
 
 ```clojure
 net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.9"}
 ```
 
-Which means, we can add that to the `:deps` in our `deps.edn` file. If
-we only had that dependency, this is how `deps.edn` would look like:
+Which means, we can add that to the `:deps` part in our `deps.edn`
+file. If we only had that dependency, this is how `deps.edn` would
+look like:
 
 ```clojure
 {:deps
@@ -52,7 +48,7 @@ Then we can for example run `clj`, and from there do `(require
 'geometric-algebra.core)` and so on (see examples).
 
 
-#### From Codeberg
+### From Codeberg
 
 We recommend to install from the [Clojars
 release](https://clojars.org/net.clojars.jordibc/geometric-algebra) as
@@ -194,7 +190,17 @@ We can run some tests with:
 clojure -T:build test
 ```
 
-Or with babashka:
+
+## Babashka
+
+For very quick startup times and other niceties, the library is
+compatible with [babashka](https://babashka.org/).
+
+We can launch the calculator with `bb calc <signature>` (or using
+[rlwrap](https://github.com/hanslub42/rlwrap) with `rlwrap bb calc
+<signature>`)
+
+We can also quickly run the tests with:
 
 ```sh
 bb test
@@ -203,7 +209,7 @@ bb test
 
 ## Resources
 
-* https://bivector.net/
+- https://bivector.net/
 
 
 ## License

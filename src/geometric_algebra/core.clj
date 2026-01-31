@@ -585,20 +585,20 @@
 
 (def operators
   (array-map ; so they appear in order
-   "+" #'add
-   "-" #'sub
-   "*" #'prod ; NOTE: "natural", but the similar ∗ is often scalar-prod in print
-   "/" #'div
-   "**" #'pow
-   "·" #'dot
-   "∧" #'wedge
-   "∨" #'antiwedge
-   "×" #'commutator
-   "⌋" #'lcontract
-   "⌊" #'rcontract
-   "∘" #'scalar-prod ; NOTE: not standard, but we use the similar "*" for prod
-   "∗" #'scalar-prod ; NOTE: often used in print, but looks similar to *
-   "•" #'fat-dot))
+   '+ #'add
+   '- #'sub
+   '* #'prod ; NOTE: "natural", but the similar ∗ is often scalar-prod in print
+   '/ #'div
+   '** #'pow
+   '· #'dot
+   '∧ #'wedge
+   '∨ #'antiwedge
+   '× #'commutator
+   '⌋ #'lcontract
+   '⌊ #'rcontract
+   '∘ #'scalar-prod ; NOTE: not standard, but we use the similar "*" for prod
+   '∗ #'scalar-prod ; NOTE: often used in print, but looks similar to *
+   '• #'fat-dot))
 
 (defmacro def-ops
   "Create global vars with multivector operators, replacing some core ones."
@@ -607,7 +607,7 @@
      (println "Replacing operators + - * / with generalized versions."
               "You may see the corresponding warnings.")
      ~@(for [[op f] operators]
-         `(def ~(symbol op) ~f)) ; (def ~(symbol "+") add)  and so on
+         `(def ~op ~f)) ; (def + #'add)  and so on
      (println "Defined operators:" ~(str/join " " (keys operators)))))
 
 
