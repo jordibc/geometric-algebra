@@ -18,7 +18,9 @@
 (def constants ; constants that can be used in the calculator
   {'pi math/PI, 'e math/E})
 
-(defn args->signature [args] ; command-line arguments to proper map signature
+(defn args->signature
+  "Return signature for the given command-line arguments (nil if invalid)."
+  [args]
   (let [n (count args)
         [a0 a1 a2 a3] args
         sig-name (ga/name->signature a0) ; signature from algebra name
