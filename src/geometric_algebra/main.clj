@@ -25,7 +25,9 @@
 (defn -main [& args]
   (if (nil? args)
     (println calc/usage)
-    (when-let [signature (calc/args->signature args)]
-      (println "Geometric Algebra Calculator - signature" (str/join " " args))
-      (println "Type :help for help, :exit to exit.")
-      (calc-with-jline signature))))
+    (if-let [signature (calc/args->signature args)]
+      (do
+        (println "Geometric Algebra Calculator - signature" (str/join " " args))
+        (println "Type :help for help, :exit to exit.")
+        (calc-with-jline signature))
+      (println "Bad signature:" (str/join " " args)))))

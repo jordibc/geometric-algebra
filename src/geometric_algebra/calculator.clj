@@ -19,15 +19,16 @@
   {'pi math/PI, 'e math/E})
 
 (defn args->signature [args] ; command-line arguments to proper map signature
-  (try
-    (let [[a1 a2 a3 a4] args
-          sig-name (ga/name->signature (or a1 "")) ; signature from algebra name
-          p     (parse-long (or a1 "2"))
-          q     (parse-long (or a2 "0"))
-          r     (parse-long (or a3 "0"))
-          start (parse-long (or a4 "1"))]
-      (or sig-name (ga/vector->signature [p q r] :start start)))
-    (catch Exception e (println "Error: bad signature" args))))
+  (let [n (count args)
+        [a0 a1 a2 a3] args
+        sig-name (ga/name->signature a0) ; signature from algebra name
+        p     (parse-long a0) ; signature from number of positive squares
+        q     (parse-long (or a1 "0")) ; and negative squares
+        r     (parse-long (or a2 "0")) ; and zero squares
+        start (parse-long (or a3 "1"))] ; starting with e0 or e1, etc.
+    (or (and (= n 1) sig-name) ; only 1 argument and it was the name
+        (and (<= n 4) (every? (complement nil?) [p q r start]) ; or several:
+             (ga/vector->signature [p q r] :start start))))) ; p q r start
 
 (def usage
   (str "Usage: calc <signature> (name, or p [q] [r] [start])\n"
