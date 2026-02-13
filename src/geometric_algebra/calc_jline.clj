@@ -3,9 +3,9 @@
   (:require [geometric-algebra.core :as ga]
             [geometric-algebra.calculator :as calc]
             [clojure.string :as str])
-  (:import [org.jline.terminal TerminalBuilder]
-           [org.jline.reader LineReaderBuilder]
-           [org.jline.reader.impl.completer StringsCompleter])
+  (:import (org.jline.terminal TerminalBuilder)
+           (org.jline.reader LineReaderBuilder)
+           (org.jline.reader.impl.completer StringsCompleter))
   (:gen-class))
 
 (defn calc-with-jline [signature]
