@@ -330,13 +330,13 @@
   [a b]
   (sub a (proj a b))) ; a - P_b(a)
 
-(defn mag ; "magnitude", see [Dorst 2002] p. 38, or [Hestenes 1984] p. 13
+(defn norm ; "magnitude", see [Dorst 2002] p. 38, or [Hestenes 1984] p. 13
   "Return the magnitude of multivector `a`."
   [a]
   (math/sqrt (abs (scalar-prod (rev a) a)))) ; sqrt(|a^~ o a|)
 
-(defn norm ; no standard definition that I know of
-  "Return the norm of multivector `a`."
+(defn size
+  "Return the size of multivector `a`."
   [a]
   {:pre [(multivector? a)]}
   (if (number? a)
