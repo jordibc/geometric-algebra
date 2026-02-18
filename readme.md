@@ -196,9 +196,7 @@ clojure -T:build test
 For very quick startup times and other niceties, the library is
 compatible with [babashka](https://babashka.org/).
 
-We can launch the calculator with `bb calc <signature>` (or using
-[rlwrap](https://github.com/hanslub42/rlwrap) with `rlwrap bb calc
-<signature>`)
+We can launch the calculator with `bb calc <signature>`.
 
 We can also quickly run the tests with:
 
