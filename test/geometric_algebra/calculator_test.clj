@@ -22,7 +22,8 @@
         (result? "2 * (7 e3 + 6 e12 + 4 e23)"
                  "ans = 14 e3 + 12 e12 + 8 e23")
         (result? "pow(7 e3 + 6 e12 + 4 e23, 3)"
-                 "ans = -336 e1 - 1211 e3 - 1194 e12 - 404 e23"))
+                 "ans = -336 e1 - 1211 e3 - 1194 e12 - 404 e23")
+        (result? "size(3 e1 + 4 e2)" "ans = 5.0"))
       (testing "requesting help"
         (result? ":help" (str "Type any expression to get its value. "
                               "Use assignments like 'a = 2' to create new variables.\n"
@@ -56,3 +57,20 @@
   (testing "Argument reading"
     (is (= (calc/args->signature ["sta"]) {0 +1, 1 -1, 2 -1, 3 -1}))
     (is (= (calc/args->signature ["1" "1" "1" "0"]) {0 +1, 1 -1, 2 0}))))
+
+;; The next ones have to do with the use of infix expressions in the calculator.
+
+(require '[geometric-algebra.infix :as infix])
+
+(deftest functions-infix-test
+  (testing "All known functions have known arity in infix expansion"
+    (let [arities (-> (var-get #'infix/arities) ; take value (private var)
+                      (dissoc '+ '-))] ; remove the special cases
+      (is (= (set (keys arities)) (set (keys calc/functions)))))))
+
+(require '[geometric-algebra.core :as ga])
+
+(deftest operators-infix-test
+  (testing "All known operators have known precedence in infix expansion"
+    (let [precedences (var-get #'infix/precedences)] ; take value (private var)
+      (is (= (set (keys precedences)) (set (keys ga/operators)))))))
