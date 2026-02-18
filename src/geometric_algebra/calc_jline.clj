@@ -19,8 +19,8 @@
     (try
       (calc/calc signature :read-line-fn #(.readLine reader "> "))
       (catch org.jline.reader.EndOfFileException e nil) ; ctrl+d
-      (catch org.jline.reader.UserInterruptException e nil)) ; ctrl+c
-    (.close term)))
+      (catch org.jline.reader.UserInterruptException e nil) ; ctrl+c
+      (finally (.close term)))))
 
 (defn -main [& args]
   (if (nil? args)
