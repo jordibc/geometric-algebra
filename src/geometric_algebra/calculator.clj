@@ -124,9 +124,10 @@
 
 (defn calc
   "REPL to get GA expressions and show their values."
-  [signature & {:keys [infix? read-line-fn]
+  [signature & {:keys [infix? prompt read-line-fn]
                 :or {infix? true
-                     read-line-fn (fn [] (print "> ") (flush) (read-line))}}]
+                     prompt "> "
+                     read-line-fn (fn [] (print prompt) (flush) (read-line))}}]
   (let [basis (for [e (rest (ga/basis signature))] [(symbol (str e)) e])
         env0 (into {} (concat ga/operators functions constants basis))]
     (loop [env env0]
@@ -141,6 +142,6 @@
               :eval (let [val (text->val text env infix?)]
                       (if (nil? val)
                         (recur env) ; just continue, no printing or saving
-                        (do
-                          (println "ans =" val) ; evaluation output
+                        (let [prefix (if (str/blank? prompt) "" "ans = ")]
+                          (println (str prefix val)) ; evaluation output
                           (recur (assoc env 'ans val)))))))))))) ; save value
