@@ -385,16 +385,16 @@
          sum-last 1 ; the sum of all the terms so far
          i 1] ; index of current term
     (let [term (prod term-last a (double (/ i))) ; next term
-          size (apply + (for [[x _] (:blades term)] (abs x))) ; how big it is
+          t-size (size term) ; how big it is
           sum (add sum-last term)] ; our best approximation of exp(a) so far
-      (if (< size precision)
+      (if (< t-size precision)
         sum ; we are done! precise enough, so return the value
         (if (< i max-terms)
           (recur term sum (inc i)) ; keep adding terms from the expansion
           (do
             (printf (str "Warning: max terms reached (%d), but error (~ %g) "
                          "is bigger than the desired precision (%g)")
-                    i size precision)
+                    i t-size precision)
             sum)))))) ; return the best we could do with the max number of terms
 
 (defn exp
