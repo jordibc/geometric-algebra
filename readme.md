@@ -32,7 +32,7 @@ recommended one is the first (using `deps.edn`).
 The dependency information is:
 
 ```clojure
-net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.9"}
+net.clojars.jordibc/geometric-algebra {:mvn/version "1.0.0"}
 ```
 
 Which means, we can add that to the `:deps` part in our `deps.edn`
@@ -41,7 +41,7 @@ look like:
 
 ```clojure
 {:deps
- {net.clojars.jordibc/geometric-algebra {:mvn/version "0.9.9"}}}
+ {net.clojars.jordibc/geometric-algebra {:mvn/version "1.0.0"}}}
 ```
 
 Then we can for example run `clj`, and from there do `(require
