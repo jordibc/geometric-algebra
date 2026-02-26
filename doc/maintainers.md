@@ -17,7 +17,7 @@ clojure -Tnew lib :name geometric-algebra
 ## Adding documentation
 
 We would like to add more documentation, following the ideas in
-http://jacobian.org/writing/what-to-write/
+https://jacobian.org/writing/what-to-write/
 
 
 ## Testing
