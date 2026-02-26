@@ -430,12 +430,16 @@
               (add (/ (math/log (- (* x x) ey2)) 2) ; log(x^2+y^2)/2 +
                    (prod e (math/atan2 y x)))))))))) ; e atan2(y, x)
 
-(defn- pow-to-int [a n] ; slow way to raise to an int (auxiliar function)
-  (loop [a-pow-n 1 ; temporary value of a^|n|
-         i (abs n)] ; we'll iterate |n| times to compute a^|n|
-    (if (zero? i)
-      (if (>= n 0) a-pow-n (inv a-pow-n)) ; a^|n|  or  1/a^|n|
-      (recur (prod a-pow-n a) (dec i)))))
+(defn- pow-to-int [a n] ; efficiently raise to an int (auxiliar function)
+  ;; Based on: n = sum_i n_i 2^i -> a^n = prod_{n_i=1} a^(2^i)  with n_i = 0,1
+  (loop [m (abs n) ; we'll compute a^m first, then invert if n < 0
+         a2i a ; a^(2^i)  (i from 0 and while 2^i < m)
+         p 1] ; partial product
+    (if (zero? m)
+      (if (neg? n) (inv p) p) ; return the now complete "partial product"
+      (recur (quot m 2) ; m -> m/2  (i -> i+1)
+             (prod a2i a2i) ; a2{i+1} = a2i*a2i  (a, a^2, a^4, a^8, ...)
+             (if (odd? m) (prod p a2i) p))))) ; include a2i term when m_i = 1
 
 (defn- pow-special-cases [a b] ; raise power to easy numbers (fast and clean)
   (when (scalar? b) ; return nil if we are not in any of the easy cases
