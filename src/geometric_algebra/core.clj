@@ -393,7 +393,7 @@
           (recur term sum (inc i)) ; keep adding terms from the expansion
           (do
             (printf (str "Warning: max terms reached (%d), but error (~ %g) "
-                         "is bigger than the desired precision (%g)")
+                         "is bigger than the desired precision (%g)\n")
                     i t-size precision)
             sum)))))) ; return the best we could do with the max number of terms
 
