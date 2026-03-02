@@ -39,7 +39,7 @@
 
 (defn- info [signature]
   (str
-   "Basis multivectors: " (str/join " " (rest (ga/basis signature))) "\n"
+   "Basis multivectors: " (str/join " " (ga/basis signature)) "\n"
    "Signature: " (let [f (fn [[i sig]] (str "e" i "e" i "=" sig))] ; "e1e1=-1"
                    (str/join " " (map f signature))) "\n"
    "Functions: " (str/join " " (keys functions)) "\n"
