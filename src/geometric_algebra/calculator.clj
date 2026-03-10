@@ -120,7 +120,7 @@
       ":help" (println (help more env))
       ":info" (println (info signature))
       ":env" (println (map->str (apply dissoc env (keys env0))))
-      ":parse" (println (text->sexpr (or more "") infix?))
+      ":parse" (prn (text->sexpr (or more "") infix?))
       (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
