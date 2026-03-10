@@ -31,6 +31,7 @@
                               "  :help <symbol>  - provides help for functions and operators\n"
                               "  :info           - shows information about the algebra\n"
                               "  :env            - shows the variables in the environment\n"
+                              "  :parse <expr>   - shows the parsed expression (no evaluation)\n"
                               "  :exit, :quit    - exits the calculator"))
         (result? ":help proj"
                  (str "  proj ([a b])\n"

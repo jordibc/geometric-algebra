@@ -11,7 +11,7 @@
 (defn calc-with-jline [signature]
   (let [words (concat ; to complete (+ ... pow ... pi ... e1 ... :help ...)
                (keys ga/operators) (keys calc/functions) (keys calc/constants)
-               (rest (ga/basis signature)) [:help :env :info :exit])
+               (rest (ga/basis signature)) [:help :info :env :parse :exit])
         compl (StringsCompleter. (mapv str words)) ; the "Completer"
         term (.. (TerminalBuilder/builder) build) ; the "Terminal"
         reader (.. (LineReaderBuilder/builder) ; the "Reader"

@@ -45,21 +45,21 @@
    "Functions: " (str/join " " (keys functions)) "\n"
    "Operators: " (str/join " " (keys ga/operators))))
 
-(defn- help [text env]
-  (let [[_ func-name] (str/split text #"\s+")]
-    (if (nil? func-name)
-      (str "Type any expression to get its value. "
-           "Use assignments like 'a = 2' to create new variables.\n"
-           "Special commands:\n"
-           "  :help <symbol>  - provides help for functions and operators\n"
-           "  :info           - shows information about the algebra\n"
-           "  :env            - shows the variables in the environment\n"
-           "  :exit, :quit    - exits the calculator")
-      (let [mdata (meta (env (symbol func-name)))]
-        (if (nil? mdata)
-          (str "Cannot find documentation for function: " func-name)
-          (str "  " func-name " " (:arglists mdata) "\n"
-               "  " (:doc mdata)))))))
+(defn- help [func-name env]
+  (if (nil? func-name)
+    (str "Type any expression to get its value. "
+         "Use assignments like 'a = 2' to create new variables.\n"
+         "Special commands:\n"
+         "  :help <symbol>  - provides help for functions and operators\n"
+         "  :info           - shows information about the algebra\n"
+         "  :env            - shows the variables in the environment\n"
+         "  :parse <expr>   - shows the parsed expression (no evaluation)\n"
+         "  :exit, :quit    - exits the calculator")
+    (let [mdata (meta (env (symbol func-name)))]
+      (if (nil? mdata)
+        (str "Cannot find documentation for function: " func-name)
+        (str "  " func-name " " (:arglists mdata) "\n"
+             "  " (:doc mdata))))))
 
 (defn- op-expand [s op] ; put spaces around appearances of the given operator
   (str/replace s op (str " " op " ")))
@@ -114,12 +114,13 @@
 (defn- map->str [m] ; {k1 v1, k2 v2} -> "k1 = v1, k2 = v2"
   (str/join ", " (for [[k v] m] (str k " = " v))))
 
-(defn- run-command [text env env0 signature]
-  (let [command (first (str/split text #"\s+"))]
+(defn- run-command [text env env0 signature infix?]
+  (let [[command more] (str/split (str/trim text) #"\s+" 2)]
     (case command
-      ":help" (println (help text env))
-      ":env" (println (map->str (apply dissoc env (keys env0))))
+      ":help" (println (help more env))
       ":info" (println (info signature))
+      ":env" (println (map->str (apply dissoc env (keys env0))))
+      ":parse" (println (text->sexpr (or more "") infix?))
       (println "Unknonw command:" command "(use :help to see commands)"))))
 
 (defn calc
@@ -136,7 +137,7 @@
           (let [text (ops-expand (str/trim line))] ; spaces around operators
             (case (entry-type text)
               :command (do
-                         (run-command text env env0 signature)
+                         (run-command text env env0 signature infix?)
                          (recur env))
               :assign (recur (add-var text env infix?))
               :eval (let [val (text->val text env infix?)]
