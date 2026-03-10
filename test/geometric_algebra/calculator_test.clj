@@ -52,7 +52,13 @@
                   expected ["Unable to resolve symbol: !" ; some babashkas
                             "Could not resolve symbol: !" ; other versions
                             "Syntax error compiling at (0:0)."]] ; clojure
-              (set (map output expected)) answer))))))
+              (set (map output expected)) answer)))
+      (testing "checking the environment"
+        (result? ":env" "")
+        (result? "a = e2 + e1\n:env" "> a = e1 + e2"))
+      (testing "viewing parsed expressions"
+        (result? ":parse (1 - e3) ⌊ (- 3*e12) + 4.3"
+                 "(+ (⌊ (- 1 e3) (* (- 3) e12)) 4.3)")))))
 
 (deftest args-test
   (testing "Argument reading"
